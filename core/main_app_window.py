@@ -7,12 +7,29 @@ architecture similar to VS Code. It manages the sidebar, tab area, and plugin lo
 
 from typing import Optional
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QHBoxLayout, QSplitter, 
+    QMainWindow, QWidget, QHBoxLayout, QSplitter, QTextEdit,
     QMenuBar, QStatusBar, QApplication, QDockWidget, QVBoxLayout
 )
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtCore import Qt, QSettings
 from lg import logger
+
+# Custom editor classes with file_path attribute
+class FileAwareTextEdit(QTextEdit):
+    """Custom QTextEdit that can store a file_path attribute."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._file_path = None
+    
+    @property
+    def file_path(self) -> Optional[str]:
+        """Get the file path."""
+        return self._file_path
+    
+    @file_path.setter
+    def file_path(self, path: str) -> None:
+        """Set the file path."""
+        self._file_path = path
 
 from core.api import PluginAPI
 from core.plugin_manager import PluginManager
@@ -242,16 +259,16 @@ class MainAppWindow(QMainWindow):
             self.inner_main_window.setCentralWidget(self.tab_manager)
 
             # Add sidebar dock widget to inner main window (left by default)
-            self.inner_main_window.addDockWidget(Qt.LeftDockWidgetArea, self.sidebar_dock_widget)
+            self.inner_main_window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_dock_widget)
 
             # Configure dock widget features
             self.sidebar_dock_widget.setFeatures(
-                QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable
+                QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable
             )
 
             # Enable only left and right dock areas for sidebar
             self.sidebar_dock_widget.setAllowedAreas(
-                Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea
+                Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
             )
 
             # Add inner main window to dock area layout
@@ -283,6 +300,11 @@ class MainAppWindow(QMainWindow):
     def update_splitter_layout(self, activity_bar_area: Qt.DockWidgetArea) -> None:
         """Update splitter orientation based on activity bar position."""
         try:
+            # Skip if main_splitter is not initialized
+            if self.main_splitter is None:
+                logger.warning("Cannot update splitter layout: main_splitter is not initialized")
+                return
+                
             if activity_bar_area in (Qt.DockWidgetArea.LeftDockWidgetArea, Qt.DockWidgetArea.RightDockWidgetArea):
                 # Horizontal layout for left/right activity bar
                 if self.main_splitter.orientation() != Qt.Orientation.Horizontal:
@@ -456,7 +478,10 @@ class MainAppWindow(QMainWindow):
         """Toggle sidebar visibility."""
         try:
             if self.sidebar_manager:
-                self.sidebar_manager.toggle_visibility()
+                # Check if method exists before calling
+                toggle_method = getattr(self.sidebar_manager, 'toggle_visibility', None)
+                if toggle_method and callable(toggle_method):
+                    toggle_method()
         except Exception as e:
             logger.error(f"Failed to toggle sidebar: {e}")
 
@@ -489,7 +514,9 @@ class MainAppWindow(QMainWindow):
             # Save activity bar specific settings
             if self.activity_bar_dock:
                 area = self.dockWidgetArea(self.activity_bar_dock)
-                self.settings.setValue("activityBarArea", int(area))
+                # Store area as an integer value
+                area_value = int(area.value)
+                self.settings.setValue("activityBarArea", area_value)
                 self.settings.setValue("activityBarSize", self.activity_bar_dock.size())
                 self.settings.setValue("activityBarFloating", self.activity_bar_dock.isFloating())
             
@@ -520,7 +547,7 @@ class MainAppWindow(QMainWindow):
             if window_state:
                 self.restoreState(window_state)
             
-            # Restore activity bar position if saved (fallback to left if invalid)
+                        # Restore activity bar position if saved (fallback to left if invalid)
             if self.activity_bar_dock:
                 if self.settings.contains("activityBarArea"):
                     try:
@@ -532,7 +559,17 @@ class MainAppWindow(QMainWindow):
                 
                 # Restore floating state
                 if self.settings.contains("activityBarFloating"):
-                    is_floating = self.settings.value("activityBarFloating", False, type=bool)
+                    # Explicitly convert to bool to avoid type issues
+                    floating_value = self.settings.value("activityBarFloating", False)
+                    # Convert various possible types to bool
+                    is_floating = False
+                    if isinstance(floating_value, bool):
+                        is_floating = floating_value
+                    elif isinstance(floating_value, str):
+                        is_floating = floating_value.lower() in ('true', '1', 'yes')
+                    elif isinstance(floating_value, int):
+                        is_floating = bool(floating_value)
+                    
                     self.activity_bar_dock.setFloating(is_floating)
             
             # Restore splitter state and sizes
@@ -551,7 +588,10 @@ class MainAppWindow(QMainWindow):
             if self.sidebar_manager:
                 sidebar_visible = self.settings.value('sidebarVisible', True, type=bool)
                 if not sidebar_visible:
-                    self.sidebar_manager.toggle_visibility()
+                    # Check if method exists before calling
+                    toggle_method = getattr(self.sidebar_manager, 'toggle_visibility', None)
+                    if toggle_method and callable(toggle_method):
+                        toggle_method()
             
             logger.info("Settings restored")
             
@@ -651,23 +691,27 @@ class MainAppWindow(QMainWindow):
             icons = icon_manager.get_default_sidebar_icons()
             
             # Add panels to sidebar manager (only panel_id and widget)
-            self.sidebar_manager.add_panel("explorer", explorer_panel)
-            self.sidebar_manager.add_panel("search", search_panel)
-            self.sidebar_manager.add_panel("preferences", preferences_panel)
-            self.sidebar_manager.add_panel("extensions", extensions_panel)
-            self.sidebar_manager.add_panel("account", account_panel)
+            if self.sidebar_manager:
+                # Check if method exists before calling
+                add_panel_method = getattr(self.sidebar_manager, 'add_panel', None)
+                if add_panel_method and callable(add_panel_method):
+                    add_panel_method("explorer", explorer_panel)
+                    add_panel_method("search", search_panel)
+                    add_panel_method("preferences", preferences_panel)
+                    add_panel_method("extensions", extensions_panel)
+                    add_panel_method("account", account_panel)
 
             # Add buttons to activity bar (with icons and titles)
             if self.activity_bar:
                 from models.activity_models import ActivityConfig
 
-                # Create activity configurations
+                # Create activity configurations with icon paths rather than QIcons
                 activities = [
-                    ActivityConfig(id="explorer", icon=icons["explorer"], tooltip="Explorer", panel_class="ExplorerPanel"),
-                    ActivityConfig(id="search", icon=icons["search"], tooltip="Search", panel_class="SearchPanel"),
-                    ActivityConfig(id="preferences", icon=icons["preferences"], tooltip="Preferences", panel_class="PreferencesPanel"),
-                    ActivityConfig(id="extensions", icon=icons["extensions"], tooltip="Extensions", panel_class="ExtensionsPanel"),
-                    ActivityConfig(id="account", icon=icons["account"], tooltip="Account", panel_class="AccountPanel")
+                    ActivityConfig(id="explorer", icon="explorer", tooltip="Explorer", panel_class="ExplorerPanel"),
+                    ActivityConfig(id="search", icon="search", tooltip="Search", panel_class="SearchPanel"),
+                    ActivityConfig(id="preferences", icon="preferences", tooltip="Preferences", panel_class="PreferencesPanel"),
+                    ActivityConfig(id="extensions", icon="extensions", tooltip="Extensions", panel_class="ExtensionsPanel"),
+                    ActivityConfig(id="account", icon="account", tooltip="Account", panel_class="AccountPanel")
                 ]
 
                 # Add activities to activity bar
@@ -675,10 +719,14 @@ class MainAppWindow(QMainWindow):
                     self.activity_bar.add_activity_button(activity)
 
                 # Connect activity bar to sidebar manager
-                self.activity_bar.panel_requested.connect(self.sidebar_manager.set_active_panel)
+                if self.sidebar_manager:
+                    # Check if method exists before connecting
+                    set_active_panel_method = getattr(self.sidebar_manager, 'set_active_panel', None)
+                    if set_active_panel_method and callable(set_active_panel_method):
+                        self.activity_bar.panel_requested.connect(set_active_panel_method)
 
-            # Show the explorer panel by default
-            self.sidebar_manager.set_active_panel("explorer")
+                        # Show the explorer panel by default
+                        set_active_panel_method("explorer")
 
             logger.info("Successfully added all sidebar buttons to main application")
             
@@ -809,12 +857,15 @@ class MainAppWindow(QMainWindow):
             
             # Check if file is already open in a tab
             if self.tab_manager:
-                existing_index = self.tab_manager.find_tab_by_path(file_path)
-                if existing_index >= 0:
-                    # File already open, switch to that tab
-                    self.tab_manager.setCurrentIndex(existing_index)
-                    logger.debug(f"Switched to existing tab for: {file_path}")
-                    return
+                # Check if method exists before calling
+                find_tab_method = getattr(self.tab_manager, 'find_tab_by_path', None)
+                if find_tab_method and callable(find_tab_method):
+                    existing_index = find_tab_method(file_path)
+                    if isinstance(existing_index, int) and existing_index >= 0:
+                        # File already open, switch to that tab
+                        self.tab_manager.setCurrentIndex(int(existing_index))
+                        logger.debug(f"Switched to existing tab for: {file_path}")
+                        return
                 
                 # Open new tab for the file
                 from pathlib import Path
@@ -886,12 +937,8 @@ class MainAppWindow(QMainWindow):
     def create_translation_editor(self, file_path: str) -> Optional[QWidget]:
         """Create a translation editor for PO/POT files."""
         try:
-            # Import translation editor (if available)
-            from PySide6.QtWidgets import QTextEdit
-            
-            # For now, create a simple text editor
-            # This can be replaced with a proper translation editor later
-            editor = QTextEdit()
+            # Use our custom FileAwareTextEdit instead of standard QTextEdit
+            editor = FileAwareTextEdit()
             
             # Load file content
             try:
@@ -915,9 +962,8 @@ class MainAppWindow(QMainWindow):
     def create_text_editor(self, file_path: str) -> Optional[QWidget]:
         """Create a text editor for general text files."""
         try:
-            from PySide6.QtWidgets import QTextEdit
-            
-            editor = QTextEdit()
+            # Use our custom FileAwareTextEdit
+            editor = FileAwareTextEdit()
             
             # Load file content
             try:
@@ -951,7 +997,7 @@ class MainAppWindow(QMainWindow):
             
             # Apply global font configuration to QApplication
             app = QApplication.instance()
-            if app:
+            if app and isinstance(app, QApplication):
                 # Set the application default font
                 default_font = get_font(FontRole.DEFAULT)
                 app.setFont(default_font)
@@ -977,7 +1023,7 @@ class MainAppWindow(QMainWindow):
             
             # Update application default font
             app = QApplication.instance()
-            if app:
+            if app and isinstance(app, QApplication):
                 default_font = get_font(FontRole.DEFAULT)
                 app.setFont(default_font)
             
@@ -1016,12 +1062,17 @@ class MainAppWindow(QMainWindow):
             
             # Tab manager handles its own typography updates
             if self.tab_manager:
-                if hasattr(self.tab_manager, '_on_typography_changed'):
-                    self.tab_manager._on_typography_changed()
+                # Check if method exists before calling
+                typo_method = getattr(self.tab_manager, '_on_typography_changed', None)
+                if typo_method and callable(typo_method):
+                    typo_method()
                     
             # Activity bar handles its own typography updates
-            if hasattr(self.activity_bar, '_on_typography_changed'):
-                self.activity_bar._on_typography_changed()
+            if self.activity_bar:
+                # Check if method exists before calling
+                activity_typo_method = getattr(self.activity_bar, '_on_typography_changed', None)
+                if activity_typo_method and callable(activity_typo_method):
+                    activity_typo_method()
             
             # Note: SidebarManager doesn't have typography methods (it's just a container)
             
@@ -1035,12 +1086,17 @@ class MainAppWindow(QMainWindow):
         try:
             # Tab manager handles its own theme updates
             if self.tab_manager:
-                if hasattr(self.tab_manager, '_on_theme_changed'):
-                    self.tab_manager._on_theme_changed(theme_name)
+                # Check if method exists before calling
+                theme_method = getattr(self.tab_manager, '_on_theme_changed', None)
+                if theme_method and callable(theme_method):
+                    theme_method(theme_name)
                     
             # Activity bar handles its own theme updates
-            if hasattr(self.activity_bar, '_on_theme_changed'):
-                self.activity_bar._on_theme_changed(theme_name)
+            if self.activity_bar:
+                # Check if method exists before calling
+                activity_theme_method = getattr(self.activity_bar, '_on_theme_changed', None)
+                if activity_theme_method and callable(activity_theme_method):
+                    activity_theme_method(theme_name)
             
             # Note: SidebarManager doesn't have theme methods (it's just a container)
             

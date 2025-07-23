@@ -1,0 +1,3 @@
+"""
+UI test cases package
+"""
