@@ -3,12 +3,15 @@ Simple Explorer Widget
 
 Clean file explorer widget with reliable filtering.
 Uses simple list view instead of complex tree model chains.
-"""
 
-import os
-import sys
-from typing import List
-from pathlib import Path
+Features:
+- Breadcrumb navigation for easy directory browsing
+- File filtering with pattern support
+- Directories always displayed first in sorting (both in normal and filtered views)
+- Clean, consistent appearance without alternating row colors
+- Keyboard shortcuts (F5: refresh, Ctrl+L: focus filter, Alt+Up: parent directory)
+- Theme integration via Qt stylesheet system
+"""
 
 import os
 import sys
@@ -116,7 +119,9 @@ class SimpleExplorer(QWidget):
         self.filter_input.setObjectName("search_input")
         self.clear_button.setObjectName("secondary_button")
         
-        # Remove hardcoded styles - let theme system handle it
+        # Disable alternating row colors for a cleaner, more consistent appearance
+        # This is an intentional design choice to maintain a uniform look
+        # The theme system handles styling through CSS instead
         self.file_list.setAlternatingRowColors(False)
         layout.addWidget(self.file_list)
         
@@ -129,8 +134,8 @@ class SimpleExplorer(QWidget):
         # Configure scroll area
         self.breadcrumb_scroll.setWidget(self.breadcrumb_widget)
         self.breadcrumb_scroll.setWidgetResizable(True)
-        self.breadcrumb_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.breadcrumb_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.breadcrumb_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.breadcrumb_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.breadcrumb_scroll.setMaximumHeight(40)
         self.breadcrumb_scroll.setProperty("class", "breadcrumb-scroll")  # Use CSS class instead of hardcoded style
         
@@ -178,11 +183,15 @@ class SimpleExplorer(QWidget):
         self.refresh()
         self.directory_changed.emit(path)
         logger.info(f"Navigated to: {path}")
-        self.directory_changed.emit(path)
-        logger.info(f"Navigated to: {path}")
     
     def _apply_filter(self):
-        """Apply the filter and refresh the view."""
+        """
+        Apply the filter and refresh the view.
+        
+        The filtered results will maintain proper sorting with directories
+        displayed first, followed by files, both in alphabetical order.
+        This preserves the consistent navigation experience regardless of filter state.
+        """
         pattern = self.filter_input.text().strip()
         # Add to filter history
         if pattern:
@@ -201,7 +210,19 @@ class SimpleExplorer(QWidget):
         logger.info("Filter cleared")
     
     def refresh(self):
-        """Refresh the file list."""
+        """
+        Refresh the file list with current path and filter settings.
+        
+        This method implements a consistent sorting behavior:
+        - Directories are always displayed first
+        - Files are displayed after directories
+        - Both groups are sorted alphabetically
+        - This sorting applies to both normal and filtered views
+        
+        The explorer also maintains a clean visual appearance by:
+        - Not using alternating row colors (setAlternatingRowColors(False))
+        - Using consistent theme styling through Qt stylesheets
+        """
         try:
             # Update breadcrumb navigation
             self._update_breadcrumb()
@@ -292,8 +313,8 @@ class SimpleExplorer(QWidget):
     def _add_file_item(self, file_info: FileInfo):
         """Add a file item to the list."""
         item = QListWidgetItem(file_info.name)
-        item.setData(Qt.UserRole, file_info.path)
-        item.setData(Qt.UserRole + 1, file_info.is_directory)
+        item.setData(Qt.ItemDataRole.UserRole, file_info.path)
+        item.setData(Qt.ItemDataRole.UserRole + 1, file_info.is_directory)
         
         # Set icon based on type
         if file_info.is_directory:
@@ -324,16 +345,17 @@ class SimpleExplorer(QWidget):
     
     def _format_size(self, size: int) -> str:
         """Format file size in human readable format."""
+        size_float = float(size)  # Convert to float for division
         for unit in ['B', 'KB', 'MB', 'GB']:
-            if size < 1024.0:
-                return f"{size:.1f} {unit}"
-            size /= 1024.0
-        return f"{size:.1f} TB"
+            if size_float < 1024.0:
+                return f"{size_float:.1f} {unit}"
+            size_float /= 1024.0
+        return f"{size_float:.1f} TB"
     
     def _on_item_double_clicked(self, item: QListWidgetItem):
         """Handle double-click on items."""
-        file_path = item.data(Qt.UserRole)
-        is_directory = item.data(Qt.UserRole + 1)
+        file_path = item.data(Qt.ItemDataRole.UserRole)
+        is_directory = item.data(Qt.ItemDataRole.UserRole + 1)
         
         if is_directory:
             self.set_path(file_path)
@@ -344,7 +366,7 @@ class SimpleExplorer(QWidget):
     def _on_selection_changed(self):
         """Handle selection changes."""
         selected_items = self.file_list.selectedItems()
-        selected_paths = [item.data(Qt.UserRole) for item in selected_items]
+        selected_paths = [item.data(Qt.ItemDataRole.UserRole) for item in selected_items]
         self.selection_changed.emit(selected_paths)
     
     def get_current_path(self) -> str:
@@ -354,4 +376,4 @@ class SimpleExplorer(QWidget):
     def get_selected_files(self) -> List[str]:
         """Get list of selected file paths."""
         selected_items = self.file_list.selectedItems()
-        return [item.data(Qt.UserRole) for item in selected_items]
+        return [item.data(Qt.ItemDataRole.UserRole) for item in selected_items]

@@ -27,6 +27,11 @@ class FileInfo:
     def __post_init__(self):
         """Calculate derived properties."""
         self.is_hidden = self.name.startswith('.')
+        
+    def __repr__(self) -> str:
+        """Return string representation of the FileInfo object."""
+        type_indicator = "DIR" if self.is_directory else "FILE"
+        return f"[{type_indicator}] {self.name} ({'hidden, ' if self.is_hidden else ''}path={self.path})"
 
 
 class DirectoryModel:

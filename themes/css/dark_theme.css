@@ -313,6 +313,7 @@ QTreeView {
     border: none;
     outline: none;
     font-size: 13px;
+    alternate-background-color: #252526;
 }
 
 QTreeView::item {
@@ -923,11 +924,24 @@ QDockWidget {
     border: 1px solid #464647;
 }
 
-QDockWidget::title {
+/* Make the selector more specific to increase priority */
+QDockWidget::title,
+QMainWindow QDockWidget::title,
+QDockWidget[objectName="UnifiedSidebarDock"]::title,
+QDockWidget[objectName="SidebarDockWidget"]::title,
+QDockWidget[objectName="ActivityBarDock"]::title,
+QDockWidget#UnifiedSidebarDock::title,
+QDockWidget#SidebarDockWidget::title,
+QDockWidget#ActivityBarDock::title {
     background-color: #2d2d30;
     color: #cccccc;
     padding: 4px;
+    padding-left: 8px;
     border: none;
+    font-weight: bold; /* Make the title more prominent */
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
 }
 
 QDockWidget::close-button, QDockWidget::float-button {

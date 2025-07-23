@@ -27,7 +27,7 @@ class ActivityBarDockWidget(QDockWidget):
     
     position_changed = Signal(Qt.DockWidgetArea)
     
-    def __init__(self, activity_bar: ActivityBar, parent: QWidget = None):
+    def __init__(self, activity_bar: ActivityBar, parent: QWidget | None = None):
         """
         Initialize the dockable activity bar widget.
         
@@ -42,6 +42,9 @@ class ActivityBarDockWidget(QDockWidget):
         
         # Configure dock widget
         self.setup_dock_widget()
+        
+        # Set proper object name for CSS styling
+        self.setObjectName("ActivityBarDock")
         
         # Set the activity bar as widget
         self.setWidget(self.activity_bar)
@@ -152,6 +155,9 @@ class ActivityBarDockWidget(QDockWidget):
         Returns:
             The current dock widget area, or NoDockWidgetArea if floating
         """
-        if self.parent() and isinstance(self.parent(), QMainWindow):
-            return self.parent().dockWidgetArea(self)
+        parent = self.parent()
+        if parent and isinstance(parent, QMainWindow):
+            # Cast to QMainWindow to access dockWidgetArea
+            main_window = parent
+            return main_window.dockWidgetArea(self)
         return Qt.DockWidgetArea.NoDockWidgetArea

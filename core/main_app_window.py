@@ -414,6 +414,15 @@ class MainAppWindow(QMainWindow):
             # Update the main window styling
             self.apply_styles()
             
+            # Force style refresh on QDockWidgets for better style application
+            for dock in self.findChildren(QDockWidget):
+                dock.setStyle(QApplication.style())
+                # Temporarily toggle visibility to force style refresh
+                was_visible = dock.isVisible()
+                if was_visible:
+                    dock.hide()
+                    dock.show()
+            
             # Update status bar with theme information temporarily
             self.statusBar().showMessage(f"Theme changed to: {theme_name}", 3000)
             
