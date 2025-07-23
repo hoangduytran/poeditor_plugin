@@ -11,9 +11,9 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, Signal
 from lg import logger
 
-# Import typography and theme system
-from themes.typography import get_typography_manager, FontRole, get_font
-from themes.theme_manager import get_theme_manager
+# Import theme system
+from services.theme_manager import theme_manager
+from themes.typography import get_typography_manager, get_font, FontRole
 
 
 class CustomTabBar(QTabBar):
@@ -67,7 +67,7 @@ class TabManager(QTabWidget):
         
         # Initialize typography and theme managers
         self.typography_manager = get_typography_manager()
-        self.theme_manager = get_theme_manager()
+        self.theme_manager = theme_manager
         
         self.setup_ui()
         self.connect_signals()

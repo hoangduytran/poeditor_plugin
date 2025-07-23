@@ -24,6 +24,9 @@ def main():
         app.setOrganizationName("POEditor")
         app.setOrganizationDomain("poeditor.com")
         
+        # Import resources after QApplication is created
+        import resources
+        
         # Enable high DPI scaling
         app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)

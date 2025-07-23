@@ -26,9 +26,6 @@ from models.core_activities import (
 # Theme system imports
 from services.theme_manager import theme_manager
 from services.icon_manager import icon_manager
-# Typography system imports
-from themes.typography import get_typography_manager, get_font, FontRole
-from themes.theme_manager import get_theme_manager
 # Dockable activity bar imports
 from widgets.activity_bar import ActivityBar
 from widgets.activity_bar_dock_widget import ActivityBarDockWidget
@@ -72,7 +69,6 @@ class MainAppWindow(QMainWindow):
         
         # Initialize the application
         self.setup_ui()
-        self.setup_typography_system()  # Initialize typography system
         self.setup_theme_system()  # Initialize theme system
         self.setup_plugin_system()
         self.setup_sidebar_buttons()  # Add sidebar buttons
@@ -151,6 +147,13 @@ class MainAppWindow(QMainWindow):
             toggle_sidebar_action.setShortcut(QKeySequence('Ctrl+B'))
             toggle_sidebar_action.triggered.connect(self.toggle_sidebar)
             view_menu.addAction(toggle_sidebar_action)
+            
+            view_menu.addSeparator()
+            
+            toggle_theme_action = QAction('Toggle &Theme', self)
+            toggle_theme_action.setShortcut(QKeySequence('Ctrl+Shift+T'))
+            toggle_theme_action.triggered.connect(self.toggle_theme)
+            view_menu.addAction(toggle_theme_action)
             
             view_menu.addSeparator()
             
@@ -357,11 +360,40 @@ class MainAppWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Failed to initialize theme system: {e}")
     
+    def toggle_theme(self) -> None:
+        """Toggle between available themes."""
+        try:
+            logger.info("=== Theme toggle requested from main window ===")
+            logger.info(f"Current available themes: {theme_manager.get_available_themes()}")
+            logger.info(f"Current theme before toggle: {theme_manager.get_current_theme()}")
+            
+            next_theme = theme_manager.toggle_theme()
+            logger.info(f"Theme toggle executed. New theme: {next_theme}")
+            
+            # Show a temporary status message
+            status_msg = f"Theme changed to: {next_theme}"
+            logger.info(f"Showing status message: {status_msg}")
+            self.statusBar().showMessage(status_msg, 3000)
+            
+        except Exception as e:
+            logger.error(f"Failed to toggle theme: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+    
     def _on_theme_changed(self, theme) -> None:
         """Handle theme changes."""
         try:
-            logger.info(f"Theme changed to: {theme.name}")
-            # Any additional theme change handling can go here
+            theme_name = getattr(theme, 'name', theme)
+            logger.info(f"Theme changed to: {theme_name}")
+            
+            # Propagate theme changes to other components
+            self._propagate_theme_changes(theme_name)
+            
+            # Update the main window styling
+            self.apply_styles()
+            
+            # Update status bar with theme information temporarily
+            self.statusBar().showMessage(f"Theme changed to: {theme_name}", 3000)
             
         except Exception as e:
             logger.error(f"Failed to handle theme change: {e}")
@@ -571,7 +603,9 @@ class MainAppWindow(QMainWindow):
             self.activity_manager.register_activity(ACCOUNT_ACTIVITY)
             
             # Set the initial active activity
-            self.activity_manager.activate_activity("explorer")
+            # We'll use set_active_panel directly since we're still setting up
+            if self.sidebar_manager:
+                self.sidebar_manager.set_active_panel("explorer")
             
             logger.info("Core activities registered")
             
@@ -909,9 +943,11 @@ class MainAppWindow(QMainWindow):
         try:
             logger.info("Initializing typography system")
             
-            # Get typography and theme managers
+            # Import typography modules only when needed
+            from themes.typography import get_typography_manager, get_font, FontRole
+            
+            # Get typography manager
             self.typography_manager = get_typography_manager()
-            self.theme_manager = get_theme_manager()
             
             # Apply global font configuration to QApplication
             app = QApplication.instance()
@@ -923,7 +959,7 @@ class MainAppWindow(QMainWindow):
             
             # Connect to typography change signals for global updates
             self.typography_manager.fonts_changed.connect(self._on_global_typography_changed)
-            self.theme_manager.theme_changed.connect(self._on_global_theme_changed)
+            theme_manager.theme_changed.connect(self._on_global_theme_changed)
             
             logger.info("Typography system initialized successfully")
             
@@ -935,6 +971,9 @@ class MainAppWindow(QMainWindow):
         """Handle global typography changes."""
         try:
             logger.info("Global typography changed, updating application")
+            
+            # Import typography modules only when needed
+            from themes.typography import get_font, FontRole
             
             # Update application default font
             app = QApplication.instance()
@@ -948,9 +987,10 @@ class MainAppWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Failed to handle global typography change: {e}")
     
-    def _on_global_theme_changed(self, theme_name: str):
+    def _on_global_theme_changed(self, theme):
         """Handle global theme changes."""
         try:
+            theme_name = theme.name if hasattr(theme, 'name') else str(theme)
             logger.info(f"Global theme changed to: {theme_name}")
             
             # Update application styling
@@ -965,6 +1005,9 @@ class MainAppWindow(QMainWindow):
     def _propagate_typography_changes(self):
         """Propagate typography changes to all UI components."""
         try:
+            # Import typography modules only when needed
+            from themes.typography import get_font, FontRole
+            
             # Update menu bar - menuBar() always returns a valid QMenuBar
             self.menuBar().setFont(get_font(FontRole.MENU))
             
@@ -973,10 +1016,12 @@ class MainAppWindow(QMainWindow):
             
             # Tab manager handles its own typography updates
             if self.tab_manager:
-                self.tab_manager._on_typography_changed()
+                if hasattr(self.tab_manager, '_on_typography_changed'):
+                    self.tab_manager._on_typography_changed()
                     
             # Activity bar handles its own typography updates
-            self.activity_bar._on_typography_changed()
+            if hasattr(self.activity_bar, '_on_typography_changed'):
+                self.activity_bar._on_typography_changed()
             
             # Note: SidebarManager doesn't have typography methods (it's just a container)
             
@@ -990,10 +1035,12 @@ class MainAppWindow(QMainWindow):
         try:
             # Tab manager handles its own theme updates
             if self.tab_manager:
-                self.tab_manager._on_theme_changed(theme_name)
+                if hasattr(self.tab_manager, '_on_theme_changed'):
+                    self.tab_manager._on_theme_changed(theme_name)
                     
             # Activity bar handles its own theme updates
-            self.activity_bar._on_theme_changed(theme_name)
+            if hasattr(self.activity_bar, '_on_theme_changed'):
+                self.activity_bar._on_theme_changed(theme_name)
             
             # Note: SidebarManager doesn't have theme methods (it's just a container)
             
@@ -1024,8 +1071,9 @@ class MainAppWindow(QMainWindow):
         try:
             logger.info("Applying global theme to all components")
             # Get current theme name and propagate
-            current_theme = self.theme_manager.get_current_theme_name() if self.theme_manager else 'Light'
-            self._propagate_theme_changes(current_theme)
-            logger.info(f"Global theme application completed: {current_theme}")
+            current_theme = theme_manager.get_current_theme()
+            theme_name = current_theme.name if current_theme else 'Light'
+            self._propagate_theme_changes(theme_name)
+            logger.info(f"Global theme application completed: {theme_name}")
         except Exception as e:
             logger.error(f"Failed to apply global theme: {e}")

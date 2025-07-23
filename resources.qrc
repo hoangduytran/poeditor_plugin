@@ -1,0 +1,33 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/icons">
+        <!-- Explorer Icons -->
+        <file>icons/explorer_inactive.svg</file>
+        <file>icons/explorer_active.svg</file>
+        
+        <!-- Search Icons -->
+        <file>icons/search_inactive.svg</file>
+        <file>icons/search_active.svg</file>
+        
+        <!-- Preferences Icons -->
+        <file>icons/preferences_inactive.svg</file>
+        <file>icons/preferences_active.svg</file>
+        
+        <!-- Extensions Icons -->
+        <file>icons/extensions_inactive.svg</file>
+        <file>icons/extensions_active.svg</file>
+        
+        <!-- Account Icons -->
+        <file>icons/account_inactive.svg</file>
+        <file>icons/account_active.svg</file>
+    </qresource>
+    
+    <qresource prefix="/css">
+        <!-- Theme CSS Files -->
+        <file>themes/css/dark_theme.css</file>
+        <file>themes/css/light_theme.css</file>
+        <file>themes/css/colorful_theme.css</file>
+        <!-- Activity Bar CSS (immutable) -->
+        <file>themes/css/activity_bar.css</file>
+    </qresource>
+</RCC>
