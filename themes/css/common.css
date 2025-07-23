@@ -1,5 +1,8 @@
 /* Common Base Styles for All Themes */
 /* These styles are shared across all themes and provide consistent base styling */
+/* Note: This file uses Qt Style Sheets (QSS) syntax, which extends CSS with Qt-specific properties */
+/* Some properties like alternate-background-color, show-decoration-selected, subcontrol-position, etc. */
+/* are specific to Qt and may show as errors in standard CSS validators */
 
 /* === RESET AND BASE === */
 QWidget {

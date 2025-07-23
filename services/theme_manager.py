@@ -14,6 +14,12 @@ from PySide6.QtWidgets import QApplication, QWidget
 
 from lg import logger
 
+# Import resources to register Qt resource system
+try:
+    import resources_rc
+except ImportError:
+    logger.warning("Could not import resources_rc - Qt resources may not be available")
+
 @dataclass
 class Theme:
     """Simple theme data class."""
@@ -81,7 +87,7 @@ class ThemeManager(QObject):
             # First try to use resource files, fall back to local files if needed
             self._themes['Light'] = Theme(
                 name="Light", 
-                css_path=":/css/light_theme.css",
+                css_path=":/themes/css/light_theme.css",  # Corrected resource path
                 dark_mode=False,
                 accent_color="#0078d4",
                 description="Light theme inspired by VS Code Light"
@@ -89,7 +95,7 @@ class ThemeManager(QObject):
             
             self._themes['Dark'] = Theme(
                 name="Dark", 
-                css_path=":/css/dark_theme.css",
+                css_path=":/themes/css/dark_theme.css",  # Corrected resource path
                 dark_mode=True,
                 accent_color="#007acc",
                 description="Dark theme inspired by VS Code Dark+"
@@ -97,7 +103,7 @@ class ThemeManager(QObject):
             
             self._themes['Colorful'] = Theme(
                 name="Colorful", 
-                css_path=":/css/colorful_theme.css",
+                css_path=":/themes/css/colorful_theme.css",  # Corrected resource path
                 dark_mode=False,
                 accent_color="#268bd2",
                 description="Colorful theme inspired by Solarized Light"
@@ -410,7 +416,7 @@ class ThemeManager(QObject):
         """
         try:
             # Load the activity bar CSS file
-            css_file = QFile(":/css/themes/css/activity_bar.css")
+            css_file = QFile(":/themes/css/activity_bar.css")
             if not css_file.open(QIODevice.OpenModeFlag.ReadOnly | QIODevice.OpenModeFlag.Text):
                 logger.error(f"Failed to open activity bar CSS file")
                 return

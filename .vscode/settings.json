@@ -3,5 +3,17 @@
     "python.terminal.activateEnvironment": true,
     "python.analysis.extraPaths": [
         "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/lib/python3.11/site-packages"
-    ]
+    ],
+    
+    /* Qt Style Sheet settings */
+    "css.validate": false,
+    "files.associations": {
+        "*.qss": "css",
+        "**/themes/css/*.css": "qss" 
+    },
+    
+    /* Create a new language ID for QSS files */
+    "[qss]": {
+        "editor.semanticHighlighting.enabled": true
+    }
 }

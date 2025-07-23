@@ -19,9 +19,9 @@ else
     exit 1
 fi
 
-# Compile the resource file to resources/resources_rc.py (where it belongs)
-if $RCC_CMD resources.qrc -o resources/resources_rc.py; then
-    echo "✅ Resource file compiled successfully to resources/resources_rc.py"
+# Compile the resource file to resources_rc.py (where it belongs)
+if $RCC_CMD resources.qrc -o resources_rc.py; then
+    echo "✅ Resource file compiled successfully to resources_rc.py"
 else
     echo "❌ Failed to compile resource file"
     exit 1

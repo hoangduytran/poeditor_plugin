@@ -22,7 +22,7 @@
         <file>icons/account_active.svg</file>
     </qresource>
     
-    <qresource prefix="/css">
+    <qresource prefix="/">
         <!-- Theme CSS Files -->
         <file>themes/css/dark_theme.css</file>
         <file>themes/css/light_theme.css</file>
