@@ -157,10 +157,10 @@ class TabManager(QTabWidget):
             # Check if widget has a close method and call it
             can_close = True
             if widget:
-                # Direct attribute access instead of hasattr
+                # Direct attribute access with try/except
                 try:
-                    can_close = widget.can_close()
-                except AttributeError:
+                    can_close = widget.can_close()  # type: ignore
+                except (AttributeError, TypeError):
                     # Widget doesn't have can_close method, default to True
                     can_close = True
             
@@ -176,10 +176,10 @@ class TabManager(QTabWidget):
             
             # Clean up widget if it has cleanup method
             if widget:
-                # Direct attribute access instead of hasattr
+                # Direct attribute access with try/except
                 try:
-                    widget.cleanup()
-                except AttributeError:
+                    widget.cleanup()  # type: ignore
+                except (AttributeError, TypeError):
                     # Widget doesn't have cleanup method, continue normally
                     pass
             
@@ -238,6 +238,31 @@ class TabManager(QTabWidget):
             return -1
         except Exception as e:
             logger.error(f"Failed to find tab: {e}")
+            return -1
+    
+    def find_tab_by_path(self, file_path: str) -> int:
+        """
+        Find the index of a tab containing a file with the specified path.
+        
+        Args:
+            file_path: The file path to find
+            
+        Returns:
+            Index of the tab, or -1 if not found
+        """
+        try:
+            for i in range(self.count()):
+                widget = self.widget(i)
+                # Check if widget has a file_path attribute
+                try:
+                    if widget.file_path == file_path:  # type: ignore
+                        return i
+                except (AttributeError, TypeError):
+                    # Widget doesn't have file_path attribute, skip
+                    continue
+            return -1
+        except Exception as e:
+            logger.error(f"Failed to find tab by path {file_path}: {e}")
             return -1
     
     def set_tab_modified(self, index: int, modified: bool) -> None:
@@ -332,10 +357,10 @@ class TabManager(QTabWidget):
             if index >= 0:
                 widget = self.widget(index)
                 if widget:
-                    # Direct attribute access instead of hasattr
+                    # Direct attribute access with try/except
                     try:
-                        widget.on_activated()
-                    except AttributeError:
+                        widget.on_activated()  # type: ignore
+                    except (AttributeError, TypeError):
                         # Widget doesn't have on_activated method, continue normally
                         pass
                 
@@ -380,12 +405,12 @@ class TabManager(QTabWidget):
             for index in list(self._modified_tabs):
                 widget = self.widget(index)
                 if widget:
-                    # Direct attribute access instead of hasattr
+                    # Direct attribute access with try/except
                     try:
-                        if not widget.save():
+                        if not widget.save():  # type: ignore
                             logger.error(f"Failed to save tab at index {index}")
                             return False
-                    except AttributeError:
+                    except (AttributeError, TypeError):
                         # Widget doesn't have save method, skip
                         logger.warning(f"Tab at index {index} doesn't support saving")
                         continue

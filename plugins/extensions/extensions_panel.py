@@ -7,6 +7,7 @@ installing new plugins, and managing plugin configurations.
 
 import os
 import importlib
+import importlib.util
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from PySide6.QtWidgets import (
@@ -39,12 +40,7 @@ class ExtensionsPanel(QWidget):
         self.plugins_path = Path(__file__).parent.parent
         self.installed_plugins: List[Dict[str, Any]] = []
         
-        # UI components
-        self.plugins_list: Optional[QListWidget] = None
-        self.plugin_info: Optional[QTextEdit] = None
-        self.refresh_button: Optional[QPushButton] = None
-        self.enable_button: Optional[QPushButton] = None
-        self.disable_button: Optional[QPushButton] = None
+        # UI components - will be initialized in setup_ui()
         
         # Initialize UI
         self.setup_ui()

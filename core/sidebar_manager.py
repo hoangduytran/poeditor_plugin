@@ -28,8 +28,8 @@ class SidebarManager(QWidget):
         self._active_panel: Optional[str] = None
         self._visible = True  # CRITICAL: Always start visible
         
-        # UI components
-        self.panel_stack: Optional[QStackedWidget] = None
+        # UI components - initialize immediately to avoid None issues
+        self.panel_stack = QStackedWidget()
         
         self.setup_ui()
         # SAFETY: Ensure sidebar is always visible to prevent blank screen deadlock
@@ -57,8 +57,7 @@ class SidebarManager(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        # Panel stack
-        self.panel_stack = QStackedWidget()
+        # Configure the panel stack (already created in __init__)
         self.panel_stack.setMinimumWidth(250)
         layout.addWidget(self.panel_stack)
         
@@ -66,7 +65,7 @@ class SidebarManager(QWidget):
         self.setMinimumWidth(250)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         
-    def add_panel(self, panel_id: str, widget: QWidget, icon=None, title: str = None) -> None:
+    def add_panel(self, panel_id: str, widget: QWidget, icon=None, title: Optional[str] = None) -> None:
         """
         Add a panel to the sidebar.
         
@@ -135,6 +134,20 @@ class SidebarManager(QWidget):
 
     def is_visible(self) -> bool:
         return self._visible
+    
+    def toggle_visibility(self) -> None:
+        """Toggle sidebar visibility."""
+        try:
+            if self._visible:
+                self.hide()
+                self._visible = False
+                logger.info("Sidebar hidden")
+            else:
+                self.show()
+                self._visible = True
+                logger.info("Sidebar shown")
+        except Exception as e:
+            logger.error(f"Failed to toggle sidebar visibility: {e}")
 
     def get_activity_bar(self):
         """
