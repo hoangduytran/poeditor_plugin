@@ -48,11 +48,12 @@ class ThemeManager(QObject):
         """Singleton pattern implementation."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._initialized = False  # Initialize the flag
         return cls._instance
     
     def __init__(self):
         # Singleton pattern: prevent reinitialization
-        if getattr(self, '_initialized', False):
+        if self._initialized:
             return
         
         super().__init__()

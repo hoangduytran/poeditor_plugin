@@ -334,7 +334,7 @@ class ThemeSwitcherTest(QMainWindow):
             logger.debug(f"[Theme Switcher] Theme status: {current_theme.name}, Dark mode: {is_dark}")
             
             # Get CSS file name for additional debugging
-            css_filename = os.path.basename(current_theme.css_path) if hasattr(current_theme, 'css_path') else "unknown"
+            css_filename = os.path.basename(current_theme.css_path)
             logger.debug(f"[Theme Switcher] CSS file: {css_filename}")
             
             # Return a more informative status

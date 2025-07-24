@@ -307,8 +307,8 @@ class SimpleExplorer(QWidget):
     
     def __del__(self):
         """Handle widget deletion."""
-        if hasattr(self, 'settings'):
-            self.save_settings()
+        # Settings are always initialized in __init__
+        self.save_settings()
     
     def _add_file_item(self, file_info: FileInfo):
         """Add a file item to the list."""

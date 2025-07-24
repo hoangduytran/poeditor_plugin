@@ -42,6 +42,11 @@ class ExplorerPanel(QWidget):
         self.file_filter = FileFilter()
         self.directory_model = DirectoryModel(self.current_path)
         
+        # Timer for debounced filtering
+        self._filter_timer = QTimer()
+        self._filter_timer.setSingleShot(True)
+        self._filter_timer.timeout.connect(self.load_directory)
+        
         # UI components
         self.path_label: Optional[QLabel] = None
         self.filter_input: Optional[QLineEdit] = None
@@ -181,11 +186,6 @@ class ExplorerPanel(QWidget):
         self.file_filter = FileFilter(pattern, self.hidden_checkbox.isChecked())
         
         # Debounce the reload
-        if not hasattr(self, '_filter_timer'):
-            self._filter_timer = QTimer()
-            self._filter_timer.setSingleShot(True)
-            self._filter_timer.timeout.connect(self.load_directory)
-        
         self._filter_timer.start(300)  # 300ms delay
         
         logger.debug(f"Filter changed to: {pattern}")

@@ -405,7 +405,11 @@ class MainAppWindow(QMainWindow):
     def _on_theme_changed(self, theme) -> None:
         """Handle theme changes."""
         try:
-            theme_name = getattr(theme, 'name', theme)
+            # Handle both Theme objects and string theme names
+            try:
+                theme_name = theme.name
+            except AttributeError:
+                theme_name = str(theme)
             logger.info(f"Theme changed to: {theme_name}")
             
             # Propagate theme changes to other components
@@ -487,10 +491,11 @@ class MainAppWindow(QMainWindow):
         """Toggle sidebar visibility."""
         try:
             if self.sidebar_manager:
-                # Check if method exists before calling
-                toggle_method = getattr(self.sidebar_manager, 'toggle_visibility', None)
-                if toggle_method and callable(toggle_method):
-                    toggle_method()
+                # Use direct method access with try/except
+                try:
+                    self.sidebar_manager.toggle_visibility()
+                except AttributeError:
+                    logger.warning("sidebar_manager.toggle_visibility method not available")
         except Exception as e:
             logger.error(f"Failed to toggle sidebar: {e}")
 
@@ -597,10 +602,11 @@ class MainAppWindow(QMainWindow):
             if self.sidebar_manager:
                 sidebar_visible = self.settings.value('sidebarVisible', True, type=bool)
                 if not sidebar_visible:
-                    # Check if method exists before calling
-                    toggle_method = getattr(self.sidebar_manager, 'toggle_visibility', None)
-                    if toggle_method and callable(toggle_method):
-                        toggle_method()
+                    # Use direct method access with try/except
+                    try:
+                        self.sidebar_manager.toggle_visibility()
+                    except AttributeError:
+                        logger.warning("sidebar_manager.toggle_visibility method not available")
             
             logger.info("Settings restored")
             
@@ -701,14 +707,15 @@ class MainAppWindow(QMainWindow):
             
             # Add panels to sidebar manager (only panel_id and widget)
             if self.sidebar_manager:
-                # Check if method exists before calling
-                add_panel_method = getattr(self.sidebar_manager, 'add_panel', None)
-                if add_panel_method and callable(add_panel_method):
-                    add_panel_method("explorer", explorer_panel)
-                    add_panel_method("search", search_panel)
-                    add_panel_method("preferences", preferences_panel)
-                    add_panel_method("extensions", extensions_panel)
-                    add_panel_method("account", account_panel)
+                # Use direct method access with try/except
+                try:
+                    self.sidebar_manager.add_panel("explorer", explorer_panel)
+                    self.sidebar_manager.add_panel("search", search_panel)
+                    self.sidebar_manager.add_panel("preferences", preferences_panel)
+                    self.sidebar_manager.add_panel("extensions", extensions_panel)
+                    self.sidebar_manager.add_panel("account", account_panel)
+                except AttributeError as e:
+                    logger.warning(f"sidebar_manager.add_panel method not available: {e}")
 
             # Add buttons to activity bar (with icons and titles)
             if self.activity_bar:
@@ -729,13 +736,13 @@ class MainAppWindow(QMainWindow):
 
                 # Connect activity bar to sidebar manager
                 if self.sidebar_manager:
-                    # Check if method exists before connecting
-                    set_active_panel_method = getattr(self.sidebar_manager, 'set_active_panel', None)
-                    if set_active_panel_method and callable(set_active_panel_method):
-                        self.activity_bar.panel_requested.connect(set_active_panel_method)
-
+                    # Use direct method access with try/except
+                    try:
+                        self.activity_bar.panel_requested.connect(self.sidebar_manager.set_active_panel)
                         # Show the explorer panel by default
-                        set_active_panel_method("explorer")
+                        self.sidebar_manager.set_active_panel("explorer")
+                    except AttributeError as e:
+                        logger.warning(f"sidebar_manager.set_active_panel method not available: {e}")
 
             logger.info("Successfully added all sidebar buttons to main application")
             
@@ -866,15 +873,16 @@ class MainAppWindow(QMainWindow):
             
             # Check if file is already open in a tab
             if self.tab_manager:
-                # Check if method exists before calling
-                find_tab_method = getattr(self.tab_manager, 'find_tab_by_path', None)
-                if find_tab_method and callable(find_tab_method):
-                    existing_index = find_tab_method(file_path)
+                # Use direct method access with try/except
+                try:
+                    existing_index = self.tab_manager.find_tab_by_path(file_path)
                     if isinstance(existing_index, int) and existing_index >= 0:
-                        # File already open, switch to that tab
-                        self.tab_manager.setCurrentIndex(int(existing_index))
-                        logger.debug(f"Switched to existing tab for: {file_path}")
+                        # Tab exists, switch to it
+                        self.tab_manager.setCurrentIndex(existing_index)
+                        logger.info(f"Switched to existing tab for: {file_path}")
                         return
+                except AttributeError:
+                    logger.warning("tab_manager.find_tab_by_path method not available")
                 
                 # Open new tab for the file
                 from pathlib import Path
@@ -1045,7 +1053,11 @@ class MainAppWindow(QMainWindow):
     def _on_global_theme_changed(self, theme):
         """Handle global theme changes."""
         try:
-            theme_name = theme.name if hasattr(theme, 'name') else str(theme)
+            # Handle both Theme objects and string theme names
+            try:
+                theme_name = theme.name
+            except AttributeError:
+                theme_name = str(theme)
             logger.info(f"Global theme changed to: {theme_name}")
             
             # Update application styling
@@ -1071,17 +1083,19 @@ class MainAppWindow(QMainWindow):
             
             # Tab manager handles its own typography updates
             if self.tab_manager:
-                # Check if method exists before calling
-                typo_method = getattr(self.tab_manager, '_on_typography_changed', None)
-                if typo_method and callable(typo_method):
-                    typo_method()
+                # Use direct method access with try/except
+                try:
+                    self.tab_manager._on_typography_changed()
+                except AttributeError:
+                    logger.warning("tab_manager._on_typography_changed method not available")
                     
             # Activity bar handles its own typography updates
             if self.activity_bar:
-                # Check if method exists before calling
-                activity_typo_method = getattr(self.activity_bar, '_on_typography_changed', None)
-                if activity_typo_method and callable(activity_typo_method):
-                    activity_typo_method()
+                # Use direct method access with try/except
+                try:
+                    self.activity_bar._on_typography_changed()
+                except AttributeError:
+                    logger.warning("activity_bar._on_typography_changed method not available")
             
             # Note: SidebarManager doesn't have typography methods (it's just a container)
             
@@ -1095,17 +1109,19 @@ class MainAppWindow(QMainWindow):
         try:
             # Tab manager handles its own theme updates
             if self.tab_manager:
-                # Check if method exists before calling
-                theme_method = getattr(self.tab_manager, '_on_theme_changed', None)
-                if theme_method and callable(theme_method):
-                    theme_method(theme_name)
+                # Use direct method access with try/except
+                try:
+                    self.tab_manager._on_theme_changed(theme_name)
+                except AttributeError:
+                    logger.warning("tab_manager._on_theme_changed method not available")
                     
             # Activity bar handles its own theme updates
             if self.activity_bar:
-                # Check if method exists before calling
-                activity_theme_method = getattr(self.activity_bar, '_on_theme_changed', None)
-                if activity_theme_method and callable(activity_theme_method):
-                    activity_theme_method(theme_name)
+                # Use direct method access with try/except
+                try:
+                    self.activity_bar._on_theme_changed(theme_name)
+                except AttributeError:
+                    logger.warning("activity_bar._on_theme_changed method not available")
             
             # Note: SidebarManager doesn't have theme methods (it's just a container)
             

@@ -173,10 +173,21 @@ class ExtensionsPanel(QWidget):
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     
-                    # Extract metadata
-                    plugin_info['version'] = getattr(module, '__version__', 'Unknown')
-                    plugin_info['description'] = getattr(module, '__plugin_description__', 'No description available')
-                    plugin_info['plugin_name'] = getattr(module, '__plugin_name__', plugin_name.title())
+                    # Extract metadata - use try/except for safe attribute access
+                    try:
+                        plugin_info['version'] = module.__version__
+                    except AttributeError:
+                        plugin_info['version'] = 'Unknown'
+                    
+                    try:
+                        plugin_info['description'] = module.__plugin_description__
+                    except AttributeError:
+                        plugin_info['description'] = 'No description available'
+                    
+                    try:
+                        plugin_info['plugin_name'] = module.__plugin_name__
+                    except AttributeError:
+                        plugin_info['plugin_name'] = plugin_name.title()
                     
             except Exception as e:
                 plugin_info['error'] = str(e)
