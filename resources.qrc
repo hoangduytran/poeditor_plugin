@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
-    <qresource prefix="/icons">
+    <qresource prefix="/">
         <!-- Explorer Icons -->
         <file>icons/explorer_inactive.svg</file>
         <file>icons/explorer_active.svg</file>

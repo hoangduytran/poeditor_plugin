@@ -33,8 +33,10 @@ class SidebarDockWidget(QDockWidget):
         layout.setSpacing(0)
         # Toolbar with arrow button
         toolbar = QToolBar()
+        toolbar.setObjectName("sidebar_toolbar")  # Set object name for CSS targeting
         toolbar.setMovable(False)
         arrow_btn = QPushButton("▼")
+        arrow_btn.setObjectName("sidebar_arrow_button")  # Set object name for CSS targeting
         arrow_btn.setToolTip("Sidebar options")
         arrow_btn.clicked.connect(self._show_menu)
         toolbar.addWidget(arrow_btn)
