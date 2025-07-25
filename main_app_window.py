@@ -4,7 +4,7 @@ Main Application Window for POEditor.
 
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtGui import QAction
-from managers.theme_manager import ThemeManager
+from services.theme_manager import ThemeManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ class MainAppWindow(QMainWindow):
 
     def setup_theme_system(self):
         """Initialize and setup the theme system."""
-        from managers.theme_manager import ThemeManager
+        from services.theme_manager import ThemeManager
         
         theme_manager = ThemeManager.get_instance()
         theme_manager.set_theme("Dark")  # Default theme

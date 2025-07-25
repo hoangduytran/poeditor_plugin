@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtCore import Qt, QSettings
 from lg import logger
-from managers.theme_manager import ThemeManager
+from services.theme_manager import ThemeManager
 from widgets.sidebar_dock_widget import SidebarDockWidget
 
 # Custom editor classes with file_path attribute
@@ -487,8 +487,8 @@ class MainAppWindow(QMainWindow):
             # Connect to theme change signals
             theme_manager.theme_changed.connect(self._on_theme_changed)
             
-            # Apply initial theme (will be loaded from settings)
-            theme_manager.refresh_theme()
+            # Apply saved theme from settings
+            theme_manager.apply_saved_theme()
             
             logger.info("Theme system initialized")
             
