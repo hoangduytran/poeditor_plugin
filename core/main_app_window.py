@@ -451,35 +451,35 @@ class MainAppWindow(QMainWindow):
     
     def apply_styles(self) -> None:
         """Apply application styles."""
-        try:
-            # Minimal styling - let components style themselves
-            self.setStyleSheet("""
-                /* Absolutely minimal main window styling */
-                QMainWindow {
-                    background-color: #ffffff;
-                }
+        # try:
+        #     # Minimal styling - let components style themselves
+        #     self.setStyleSheet("""
+        #         /* Absolutely minimal main window styling */
+        #         QMainWindow {
+        #             background-color: #ffffff;
+        #         }
                 
-                /* Light menu bar */
-                QMenuBar {
-                    background-color: #f8f8f8;
-                    border-bottom: 1px solid #e0e0e0;
-                }
+        #         /* Light menu bar */
+        #         QMenuBar {
+        #             background-color: #f8f8f8;
+        #             border-bottom: 1px solid #e0e0e0;
+        #         }
                 
-                /* Light status bar */
-                QStatusBar {
-                    background-color: #f0f0f0;
-                    border-top: 1px solid #e0e0e0;
-                }
+        #         /* Light status bar */
+        #         QStatusBar {
+        #             background-color: #f0f0f0;
+        #             border-top: 1px solid #e0e0e0;
+        #         }
                 
-                /* Minimal splitter */
-                QSplitter::handle:horizontal {
-                    width: 2px;
-                    background-color: #e0e0e0;
-                }
-            """)
+        #         /* Minimal splitter */
+        #         QSplitter::handle:horizontal {
+        #             width: 2px;
+        #             background-color: #e0e0e0;
+        #         }
+        #     """)
             
-        except Exception as e:
-            logger.error(f"Failed to apply styles: {e}")
+        # except Exception as e:
+        #     logger.error(f"Failed to apply styles: {e}")
     
     def setup_theme_system(self) -> None:
         """Initialize the theme system."""

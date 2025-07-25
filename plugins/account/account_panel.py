@@ -179,7 +179,7 @@ class AccountPanel(QWidget):
         # Logout button
         self.logout_button = QPushButton("🚪 Sign Out")
         self.logout_button.clicked.connect(self.logout)
-        self.logout_button.setStyleSheet("QPushButton { background-color: #d73a49; color: white; }")
+        # self.logout_button.setStyleSheet("QPushButton { background-color: #d73a49; color: white; }")
         actions_layout.addWidget(self.logout_button)
         
         content_layout.addWidget(actions_group)

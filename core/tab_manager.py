@@ -92,16 +92,16 @@ class TabManager(QTabWidget):
         self.setMovable(True)
         self.setDocumentMode(True)
         
-        # Style the tab widget
-        self.setStyleSheet("""
-            QTabWidget::pane {
-                border: 1px solid #464647;
-                background-color: #1e1e1e;
-            }
-            QTabWidget::tab-bar {
-                alignment: left;
-            }
-        """)
+        # # Style the tab widget
+        # self.setStyleSheet("""
+        #     QTabWidget::pane {
+        #         border: 1px solid #464647;
+        #         background-color: #1e1e1e;
+        #     }
+        #     QTabWidget::tab-bar {
+        #         alignment: left;
+        #     }
+        # """)
     
     def connect_signals(self) -> None:
         """Connect internal signals."""

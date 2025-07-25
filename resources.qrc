@@ -22,9 +22,6 @@
         <file>icons/account_active.svg</file>
         
         <!-- Theme CSS Files (optional - for embedded fallback) -->
-        <file>themes/css/dark_theme.css</file>
-        <file>themes/css/light_theme.css</file>
-        <file>themes/css/colorful_theme.css</file>
         <!-- Activity Bar CSS (immutable) -->
         <file>themes/css/activity_bar.css</file>
     </qresource>
