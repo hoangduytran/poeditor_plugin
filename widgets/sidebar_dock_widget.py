@@ -12,14 +12,56 @@ from lg import logger
 
 class SidebarDockWidget(QDockWidget):
     def __init__(self, sidebar_manager: QWidget, parent: Optional[QWidget] = None):
+        # Debug: Log theme state before initialization
+        logger.info("=== THEME DEBUG: Before SidebarDockWidget initialization ===")
+        if parent:
+            logger.info(f"Parent style: {type(parent.style()).__name__}")
+            logger.info(f"Parent palette: {parent.palette()}")
+        
         super().__init__("Sidebar", parent)
         self.sidebar_manager = sidebar_manager
-        self._main_window_parent = parent  # Store reference to the main window
+        self._main_window_parent = parent
+        
+        # Debug: Log theme state after super init
+        logger.info("=== THEME DEBUG: After super().__init__ ===")
+        logger.info(f"DockWidget style: {type(self.style()).__name__}")
+        logger.info(f"DockWidget palette: {self.palette()}")
+        
+        # Force the dock widget to use stylesheet styling
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        self.setAutoFillBackground(True)
+        
+        # # Apply explicit styling to override Qt's native gradient
+        # self.setStyleSheet("""
+        #     QDockWidget {
+        #         background-color: #252526;
+        #         color: #cccccc;
+        #         border: 1px solid #464647;
+        #     }
+        #     QDockWidget::title {
+        #         background-color: #252526;
+        #         color: #cccccc;
+        #         padding: 4px;
+        #         padding-left: 8px;
+        #         text-align: left;
+        #         border: none;
+        #         font-weight: bold;
+        #         text-transform: uppercase;
+        #         font-size: 11px;
+        #         letter-spacing: 1px;
+        #     }
+        # """)
+        
         self.setObjectName("SidebarDockWidget")
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.setWidget(self._wrap_with_toolbar(sidebar_manager))
+
+        # Debug: Log theme state after widget setup
+        logger.info("=== THEME DEBUG: After complete widget setup ===")
+        logger.info(f"Final DockWidget style: {type(self.style()).__name__}")
+        logger.info(f"Final DockWidget palette: {self.palette()}")
 
         # Connect floating state change signal for logging
         self.topLevelChanged.connect(self._on_floating_changed)
@@ -35,11 +77,33 @@ class SidebarDockWidget(QDockWidget):
         toolbar = QToolBar()
         toolbar.setObjectName("sidebar_toolbar")  # Set object name for CSS targeting
         toolbar.setMovable(False)
+        
+        # Debug: Log toolbar styling information
+        logger.info("=== THEME DEBUG: Toolbar creation ===")
+        logger.info(f"Toolbar stylesheet: '{toolbar.styleSheet()}'")
+        logger.info(f"Toolbar palette: {toolbar.palette()}")
+        logger.info(f"Toolbar background role: {toolbar.backgroundRole()}")
+        logger.info(f"Toolbar auto fill background: {toolbar.autoFillBackground()}")
+        logger.info(f"Application style name: {toolbar.style().objectName()}")
+        logger.info(f"Toolbar style object: {type(toolbar.style()).__name__}")
+        
         arrow_btn = QPushButton("▼")
         arrow_btn.setObjectName("sidebar_arrow_button")  # Set object name for CSS targeting
         arrow_btn.setToolTip("Sidebar options")
         arrow_btn.clicked.connect(self._show_menu)
+        
+        # Debug: Log button styling information
+        logger.info("=== THEME DEBUG: Arrow button creation ===")
+        logger.info(f"Arrow button stylesheet: '{arrow_btn.styleSheet()}'")
+        logger.info(f"Arrow button palette: {arrow_btn.palette()}")
+        logger.info(f"Arrow button background role: {arrow_btn.backgroundRole()}")
+        
         toolbar.addWidget(arrow_btn)
+        
+        # Debug: Log final toolbar state after adding button
+        logger.info(f"Final toolbar size hint: {toolbar.sizeHint()}")
+        logger.info(f"Final toolbar minimum size: {toolbar.minimumSize()}")
+        
         layout.addWidget(toolbar)
         layout.addWidget(widget)
         self._arrow_btn = arrow_btn
@@ -182,14 +246,49 @@ class SidebarDockWidget(QDockWidget):
         logger.warning("Attempted to close SidebarDockWidget - prevented.")
         event.ignore()
 
+    def _log_current_theme_state(self, context: str):
+        """Log current theme state for debugging."""
+        logger.info(f"=== THEME DEBUG: {context} ===")
+        logger.info(f"DockWidget style: {type(self.style()).__name__}")
+        logger.info(f"DockWidget palette: {self.palette()}")
+        logger.info(f"DockWidget stylesheet: '{self.styleSheet()}'")
+        
+        # Check toolbar and button if they exist
+        if hasattr(self, '_arrow_btn') and self._arrow_btn:
+            toolbar = self._arrow_btn.parent()
+            if toolbar:
+                logger.info(f"Toolbar style after theme: {type(toolbar.style()).__name__}")
+                logger.info(f"Toolbar palette after theme: {toolbar.palette()}")
+                logger.info(f"Toolbar stylesheet after theme: '{toolbar.styleSheet()}'")
+            
+            logger.info(f"Arrow button style after theme: {type(self._arrow_btn.style()).__name__}")
+            logger.info(f"Arrow button palette after theme: {self._arrow_btn.palette()}")
+            logger.info(f"Arrow button stylesheet after theme: '{self._arrow_btn.styleSheet()}'")
+
     def event(self, event: QEvent) -> bool:
         if event.type() == QEvent.Type.Hide:
             logger.warning("Attempted to hide SidebarDockWidget - prevented.")
             return True
         elif event.type() == QEvent.Type.Show:
             logger.debug("SidebarDockWidget show event")
+            # Debug: Log theme state on show
+            logger.info("=== THEME DEBUG: On Show Event ===")
+            logger.info(f"Show event - Style: {type(self.style()).__name__}")
+            logger.info(f"Show event - Palette: {self.palette()}")
         elif event.type() == QEvent.Type.Move:
             logger.debug("SidebarDockWidget move event")
         elif event.type() == QEvent.Type.Resize:
             logger.debug("SidebarDockWidget resize event")
+        elif event.type() == QEvent.Type.StyleChange:
+            logger.info("=== THEME DEBUG: Style Change Event ===")
+            logger.info(f"Style changed to: {type(self.style()).__name__}")
+        elif event.type() == QEvent.Type.PaletteChange:
+            logger.info("=== THEME DEBUG: Palette Change Event ===")
+            logger.info(f"Palette changed to: {self.palette()}")
+            # Log detailed theme state after palette change
+            self._log_current_theme_state("After Palette Change")
+        elif event.type() == QEvent.Type.ParentChange:
+            logger.info("=== THEME DEBUG: Parent Change Event ===")
+            logger.info(f"Parent changed - New style: {type(self.style()).__name__}")
+            logger.info(f"Parent changed - New palette: {self.palette()}")
         return super().event(event)

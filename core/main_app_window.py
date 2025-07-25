@@ -13,6 +13,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtCore import Qt, QSettings
 from lg import logger
+from managers.theme_manager import ThemeManager
+from widgets.sidebar_dock_widget import SidebarDockWidget
 
 # Custom editor classes with file_path attribute
 class FileAwareTextEdit(QTextEdit):
@@ -193,6 +195,9 @@ class MainAppWindow(QMainWindow):
             bottom_action.triggered.connect(lambda: self.move_activity_bar_to(Qt.DockWidgetArea.BottomDockWidgetArea))
             activity_bar_menu.addAction(bottom_action)
             
+            # Development menu (for debugging and testing)
+            self._setup_development_menu(menu_bar)
+            
             # Help menu
             help_menu = menu_bar.addMenu('&Help')
             
@@ -211,6 +216,114 @@ class MainAppWindow(QMainWindow):
             
         except Exception as e:
             logger.error(f"Failed to setup status bar: {e}")
+    
+    def _setup_development_menu(self, menu_bar):
+        """Setup development menu with CSS debugging features."""
+        try:
+            logger.debug("Setting up development menu...")
+            
+            # Create Development menu
+            dev_menu = menu_bar.addMenu("Development")
+            logger.debug("Development menu created")
+
+            # Theme reloading action
+            reload_action = QAction("Reload Current Theme", self)
+            reload_action.setShortcut("Ctrl+Shift+R")
+            reload_action.triggered.connect(self._reload_current_theme)
+            dev_menu.addAction(reload_action)
+
+            # CSS info action
+            css_info_action = QAction("CSS Manager Info", self)
+            css_info_action.triggered.connect(self._show_css_info)
+            dev_menu.addAction(css_info_action)
+
+            # CSS injection action
+            inject_css_action = QAction("Inject Test CSS", self)
+            inject_css_action.triggered.connect(self._inject_test_css)
+            dev_menu.addAction(inject_css_action)
+
+            logger.debug("Development menu created with CSS features")
+
+        except Exception as e:
+            logger.error(f"Failed to create development menu: {e}")
+
+    def _reload_current_theme(self):
+        """Reload the current theme from disk."""
+        try:
+            theme_manager = ThemeManager.get_instance()
+            if theme_manager.reload_current_theme():
+                logger.info("Theme reloaded successfully")
+                # Show status message
+                if hasattr(self, 'statusBar'):
+                    self.statusBar().showMessage("Theme reloaded", 2000)
+            else:
+                logger.warning("Theme reload failed or not available")
+        except Exception as e:
+            logger.error(f"Error during theme reload: {e}")
+
+    def _show_css_info(self):
+        """Show CSS manager information."""
+        try:
+            theme_manager = ThemeManager.get_instance()
+            info = theme_manager.get_css_manager_info()
+
+            info_text = []
+            info_text.append(f"CSS System: {'File-based' if info['use_file_css'] else 'Resource-based'}")
+            info_text.append(f"Current Theme: {info['current_theme']}")
+
+            if info.get('loaded_css_files'):
+                info_text.append("\nLoaded CSS Files:")
+                for name, size in info['loaded_css_files'].items():
+                    info_text.append(f"  {name}: {size} characters")
+
+            if info.get('available_themes'):
+                info_text.append(f"\nAvailable Themes: {', '.join(info['available_themes'])}")
+
+            # Add debug info about CSS Manager state
+            if hasattr(theme_manager, 'css_manager') and theme_manager.css_manager:
+                info_text.append(f"\nCSS Manager initialized: True")
+                info_text.append(f"CSS Cache size: {len(theme_manager.css_manager.css_cache)}")
+                info_text.append(f"CSS Directory: {theme_manager.css_manager.css_directory}")
+            else:
+                info_text.append(f"\nCSS Manager initialized: False")
+
+            print("=== CSS MANAGER DEBUG INFO ===")
+            for line in info_text:
+                print(line)
+            print("==============================")
+
+            logger.info("CSS Manager Info:\n" + "\n".join(info_text))
+
+        except Exception as e:
+            logger.error(f"Error getting CSS info: {e}")
+
+    def _inject_test_css(self):
+        """Inject test CSS to verify the toolbar issue."""
+        test_css = """
+        /* Test CSS for Sidebar Toolbar */
+        QToolBar#sidebar_toolbar {
+            background-color: #ff0000 !important;
+            border: 2px solid #00ff00 !important;
+            min-height: 40px !important;
+        }
+
+        QPushButton#sidebar_arrow_button {
+            background-color: #0000ff !important;
+            color: #ffffff !important;
+            font-weight: bold !important;
+        }
+        """
+
+        try:
+            theme_manager = ThemeManager.get_instance()
+            if theme_manager.inject_css(test_css):
+                logger.info("Test CSS injected - toolbar should now be red with green border")
+                if hasattr(self, 'statusBar'):
+                    self.statusBar().showMessage("Test CSS injected", 3000)
+            else:
+                logger.error("Failed to inject test CSS")
+        except Exception as e:
+            logger.error(f"Error injecting test CSS: {e}")
     
     def setup_main_layout(self) -> None:
         """Setup main window layout with fixed ActivityBar and dockable Sidebar."""
@@ -251,7 +364,7 @@ class MainAppWindow(QMainWindow):
 
             # Create the sidebar manager and dock widget
             self.sidebar_manager = SidebarManager()
-            from widgets.sidebar_dock_widget import SidebarDockWidget
+            
             self.sidebar_dock_widget = SidebarDockWidget(self.sidebar_manager, self.inner_main_window)
 
             # Create TabManager (main editor area) as central widget of inner window

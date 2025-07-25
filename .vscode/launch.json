@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug POEditor App",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "python": "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/bin/python",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "QT_LOGGING_RULES": "*=true"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false,
+            "showReturnValue": true,
+            "subProcess": false
+        },
+        {
+            "name": "Run POEditor App (No Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "python": "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/bin/python",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": false,
+            "stopOnEntry": false
+        }
+    ]
+}

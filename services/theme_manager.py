@@ -255,6 +255,11 @@ class ThemeManager(QObject):
             app = QApplication.instance()
             if app and isinstance(app, QApplication):
                 app.setStyleSheet(css)
+                
+                # # Set palette for dark theme to ensure proper fallback colors
+                # if self._current_theme.name.lower() == 'dark':
+                #     self._apply_dark_palette(app)
+                
                 self.theme_applied.emit(self._current_theme.name)
                 logger.info(f"Applied theme CSS: {self._current_theme.name}")
                 return True
@@ -265,6 +270,50 @@ class ThemeManager(QObject):
         except Exception as e:
             logger.error(f"Failed to apply theme: {e}")
             return False
+    
+    def _apply_dark_palette(self, app: QApplication) -> None:
+        """
+        Apply a dark palette to the application to ensure proper fallback colors
+        for widgets that don't fully inherit from stylesheet.
+        
+        Args:
+            app: The QApplication instance
+        """
+        try:
+            from PySide6.QtGui import QPalette, QColor
+            
+            # Create a dark palette
+            dark_palette = QPalette()
+            
+            # Main colors
+            window_color = QColor("#2d2d30")
+            window_text_color = QColor("#cccccc")
+            base_color = QColor("#1e1e1e")
+            alternate_base_color = QColor("#2a2a2a")
+            button_color = QColor("#3c3c3c")
+            button_text_color = QColor("#cccccc")
+            highlight_color = QColor("#007acc")
+            highlighted_text_color = QColor("#ffffff")
+            
+            # Set all color roles
+            dark_palette.setColor(QPalette.ColorRole.Window, window_color)
+            dark_palette.setColor(QPalette.ColorRole.WindowText, window_text_color)
+            dark_palette.setColor(QPalette.ColorRole.Base, base_color)
+            dark_palette.setColor(QPalette.ColorRole.AlternateBase, alternate_base_color)
+            dark_palette.setColor(QPalette.ColorRole.Button, button_color)
+            dark_palette.setColor(QPalette.ColorRole.ButtonText, button_text_color)
+            dark_palette.setColor(QPalette.ColorRole.Highlight, highlight_color)
+            dark_palette.setColor(QPalette.ColorRole.HighlightedText, highlighted_text_color)
+            dark_palette.setColor(QPalette.ColorRole.Text, window_text_color)
+            dark_palette.setColor(QPalette.ColorRole.ToolTipBase, base_color)
+            dark_palette.setColor(QPalette.ColorRole.ToolTipText, window_text_color)
+            
+            # Apply the palette
+            app.setPalette(dark_palette)
+            logger.info("Applied dark palette to application")
+            
+        except Exception as e:
+            logger.error(f"Failed to apply dark palette: {e}")
     
     def refresh_theme(self) -> bool:
         """

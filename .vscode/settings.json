@@ -2,18 +2,35 @@
     "python.defaultInterpreterPath": "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.analysis.extraPaths": [
-        "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/lib/python3.11/site-packages"
+        "/Volumes/MYPART/hoangduytran/Dev/pyenv_3110/lib/python3.11/site-packages",
+        "${workspaceFolder}"
     ],
-    
+    /* Python debugging and analysis settings */
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "basic",
     /* Qt Style Sheet settings */
     "css.validate": false,
     "files.associations": {
         "*.qss": "css",
-        "**/themes/css/*.css": "qss" 
+        "**/themes/css/*.css": "qss",
+        "*.ui": "xml"
     },
-    
     /* Create a new language ID for QSS files */
     "[qss]": {
         "editor.semanticHighlighting.enabled": true
-    }
+    },
+    /* File exclusion for Python projects */
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/*.pyo": true,
+        "**/*.egg-info": true
+    },
+    /* Editor settings */
+    "editor.formatOnSave": true,
+    "python-envs.pythonProjects": []
 }

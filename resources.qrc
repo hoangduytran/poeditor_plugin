@@ -20,10 +20,8 @@
         <!-- Account Icons -->
         <file>icons/account_inactive.svg</file>
         <file>icons/account_active.svg</file>
-    </qresource>
-    
-    <qresource prefix="/">
-        <!-- Theme CSS Files -->
+        
+        <!-- Theme CSS Files (optional - for embedded fallback) -->
         <file>themes/css/dark_theme.css</file>
         <file>themes/css/light_theme.css</file>
         <file>themes/css/colorful_theme.css</file>

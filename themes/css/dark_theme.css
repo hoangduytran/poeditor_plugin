@@ -15,7 +15,7 @@ Primary Colors:
 - Selection: #094771 (list.activeSelectionBackground)
 */
 
-/* === BASE RESET AND TYPOGRAPHY === */
+/* === BASE RESET AND TYPOGRAPHY === bg = 1e1e1e*/
 QWidget {
     font-family: "Segoe UI", "Ubuntu", "Droid Sans", sans-serif;
     font-size: 13px;
@@ -24,7 +24,7 @@ QWidget {
 }
 
 QMainWindow {
-    background-color: #1e1e1e;
+    background-color: #683030ff;
     color: #cccccc;
     border: none;
     outline: none;
@@ -78,6 +78,17 @@ QWidget[objectName="account_panel"] {
 
 /* === PANEL TITLES === */
 QLabel[objectName="panel_title"] {
+    background-color: transparent;
+    color: #969696;
+    font-weight: normal;
+    font-size: 11px;
+    padding: 8px 12px 4px 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Add specific styling for panel-header class */
+QLabel[class="panel-header"] {
     background-color: transparent;
     color: #969696;
     font-weight: normal;
@@ -924,21 +935,27 @@ QDockWidget {
     border: 1px solid #464647;
 }
 
-/* Make the selector more specific to increase priority */
-QDockWidget::title,
-QMainWindow QDockWidget::title,
-QDockWidget[objectName="UnifiedSidebarDock"]::title,
-QDockWidget[objectName="SidebarDockWidget"]::title,
-QDockWidget[objectName="ActivityBarDock"]::title,
-QDockWidget#UnifiedSidebarDock::title,
-QDockWidget#SidebarDockWidget::title,
-QDockWidget#ActivityBarDock::title {
+/* Simple, effective dock widget title styling */
+QDockWidget::title {
     background-color: #2d2d30;
     color: #cccccc;
     padding: 4px;
     padding-left: 8px;
     border: none;
-    font-weight: bold; /* Make the title more prominent */
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+/* Ensure title styling works in main window context */
+QMainWindow QDockWidget::title {
+    background-color: #2d2d30;
+    color: #cccccc;
+    padding: 4px;
+    padding-left: 8px;
+    border: none;
+    font-weight: bold;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 1px;
@@ -967,6 +984,38 @@ QToolBar::separator {
     margin: 2px;
 }
 
+/* === SIDEBAR TOOLBAR === */
+QToolBar#sidebar_toolbar {
+    background-color: #252526;
+    border: none;
+    border-bottom: 1px solid #464647;
+    color: #cccccc;
+    spacing: 2px;
+    padding: 2px;
+    margin: 0px;
+    min-height: 32px;
+}
+
+QToolBar#sidebar_toolbar QPushButton {
+    background-color: transparent;
+    border: none;
+    color: #cccccc;
+    padding: 6px 8px;
+    margin: 2px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+QToolBar#sidebar_toolbar QPushButton:hover {
+    background-color: #2a2d2e;
+    color: #ffffff;
+}
+
+QToolBar#sidebar_toolbar QPushButton:pressed {
+    background-color: #094771;
+    color: #ffffff;
+}
+
 QToolButton {
     background-color: transparent;
     border: none;
@@ -983,12 +1032,10 @@ QToolButton:pressed {
     background-color: #094771;
 }
 
-/* === SIDEBAR DOCK WIDGET TOOLBAR === */
-/* Specific styling for the toolbar in SidebarDockWidget to ensure dark theme compliance */
-QDockWidget[objectName="SidebarDockWidget"] QToolBar,
-QDockWidget#SidebarDockWidget QToolBar,
-QToolBar[objectName="sidebar_toolbar"] {
-    background-color: #252526; /* Same as sidebar background */
+/* === DOCK WIDGET TOOLBAR === */
+/* Generic styling for toolbars inside dock widgets */
+QDockWidget QToolBar {
+    background-color: #252526;
     border: none;
     border-bottom: 1px solid #464647;
     color: #cccccc;
@@ -997,10 +1044,7 @@ QToolBar[objectName="sidebar_toolbar"] {
     margin: 0px;
 }
 
-QDockWidget[objectName="SidebarDockWidget"] QToolBar QPushButton,
-QDockWidget#SidebarDockWidget QToolBar QPushButton,
-QToolBar[objectName="sidebar_toolbar"] QPushButton,
-QPushButton[objectName="sidebar_arrow_button"] {
+QDockWidget QToolBar QPushButton {
     background-color: transparent;
     border: none;
     color: #cccccc;
@@ -1009,20 +1053,30 @@ QPushButton[objectName="sidebar_arrow_button"] {
     font-size: 12px;
 }
 
-QDockWidget[objectName="SidebarDockWidget"] QToolBar QPushButton:hover,
-QDockWidget#SidebarDockWidget QToolBar QPushButton:hover,
-QToolBar[objectName="sidebar_toolbar"] QPushButton:hover,
-QPushButton[objectName="sidebar_arrow_button"]:hover {
+QDockWidget QToolBar QPushButton:hover {
     background-color: #2a2d2e;
     color: #ffffff;
 }
 
-QDockWidget[objectName="SidebarDockWidget"] QToolBar QPushButton:pressed,
-QDockWidget#SidebarDockWidget QToolBar QPushButton:pressed,
-QToolBar[objectName="sidebar_toolbar"] QPushButton:pressed,
-QPushButton[objectName="sidebar_arrow_button"]:pressed {
+QDockWidget QToolBar QPushButton:pressed {
     background-color: #094771;
     color: #ffffff;
+}
+
+QPushButton#sidebar_arrow_button {
+    background-color: #3c3c3c;
+    color: #cccccc;
+    border: 1px solid #464647;
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+QPushButton#sidebar_arrow_button:hover {
+    background-color: #464647;
+}
+
+QPushButton#sidebar_arrow_button:pressed {
+    background-color: #0e639c;
 }
 
 /* === DIALOG BOXES === */

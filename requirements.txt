@@ -1,0 +1,3 @@
+# POEditor Application Dependencies
+PySide6>=6.5.0
+setuptools

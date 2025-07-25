@@ -9,8 +9,8 @@ import os
 from typing import Optional
 from pathlib import Path
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PySide6.QtCore import Signal, Slot, Qt
 from lg import logger
 
 from widgets.simple_explorer import SimpleExplorer
@@ -51,9 +51,14 @@ class ExplorerPanel(PanelInterface):
         header_layout = QHBoxLayout()
         header_layout.setContentsMargins(8, 8, 8, 4)
         
-        # Title
+        # Title - Fix for dark theme styling
         title_label = QLabel("EXPLORER")
         title_label.setObjectName("panel_title")
+        # Enable proper background styling in Qt
+        title_label.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        # Add class property for more specific CSS targeting
+        title_label.setProperty("class", "panel-header")
+        
         header_layout.addWidget(title_label)
         
         header_layout.addStretch()
@@ -177,7 +182,3 @@ class ExplorerPanel(PanelInterface):
         """Clear the current filter."""
         self.explorer._clear_filter()
         logger.info("Filter cleared")
-
-
-# Export for main application
-__all__ = ['ExplorerPanel']
