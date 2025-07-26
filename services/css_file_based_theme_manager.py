@@ -96,8 +96,8 @@ class CSSFileBasedThemeManager(QObject):
         old_theme = self.current_theme
         self.current_theme = theme_name
         
-        # Map theme name to file name (e.g., "Dark" -> "dark_theme")
-        theme_file_name = f"{theme_name.lower()}_theme"
+        # Map theme name to file name using CSS manager
+        theme_file_name = self._get_theme_filename(theme_name)
 
         # Load and apply the theme CSS (now cached for speed)
         css_content = self._load_theme_css(theme_file_name)
@@ -158,13 +158,7 @@ class CSSFileBasedThemeManager(QObject):
             logger.info(f"BEFORE - Background: {bg_color.name()}, Text: {text_color.name()}")
                 
             app.setStyleSheet(css_content)
-            
-            # Force palette update for Qt themes
-            if self.current_theme and self.current_theme.lower() == 'dark':
-                self._apply_dark_palette(app)
-            elif self.current_theme and self.current_theme.lower() == 'light':
-                self._apply_light_palette(app)
-            
+                        
             # Get palette after applying
             new_palette = app.palette()
             new_bg_color = new_palette.color(new_palette.ColorRole.Window)
@@ -188,7 +182,7 @@ class CSSFileBasedThemeManager(QObject):
         
         try:
             # Clear cache for the current theme to force reload
-            theme_file_name = f"{self.current_theme.lower()}_theme"
+            theme_file_name = self._get_theme_filename(self.current_theme)
             if theme_file_name in self._css_cache:
                 del self._css_cache[theme_file_name]
                 logger.debug(f"Cleared cache for theme: {self.current_theme}")
@@ -210,7 +204,7 @@ class CSSFileBasedThemeManager(QObject):
 
     def get_raw_css(self, theme_name: str) -> Optional[str]:
         """Get raw CSS content for debugging."""
-        theme_file_name = f"{theme_name.lower()}_theme"
+        theme_file_name = self._get_theme_filename(theme_name)
         
         if self.use_file_css and self.css_manager:
             return self.css_manager.get_css(theme_file_name)
@@ -262,9 +256,21 @@ class CSSFileBasedThemeManager(QObject):
         return info
 
     def get_available_themes(self) -> list:
-        """Get list of available themes."""
-        themes = ["Dark", "Light", "Colorful"]
-        return themes
+        """Get list of available themes by dynamically discovering CSS files."""
+        if self.use_file_css and self.css_manager:
+            # Use CSS manager's dynamic theme discovery
+            return self.css_manager.get_available_themes()
+        else:
+            # Fallback to hardcoded themes for resource-based CSS
+            return ["Dark", "Light", "Colorful"]
+    
+    def _get_theme_filename(self, theme_name: str) -> str:
+        """Get the CSS filename for a given theme name."""
+        if self.use_file_css and self.css_manager:
+            return self.css_manager.get_theme_filename(theme_name)
+        else:
+            # Fallback for resource-based CSS
+            return f"{theme_name.lower()}_theme"
 
     def get_current_theme(self) -> Optional[Theme]:
         """Get the currently applied theme as a Theme object."""
@@ -443,7 +449,7 @@ class CSSFileBasedThemeManager(QObject):
         available_themes = self.get_available_themes()
         
         for theme_name in available_themes:
-            theme_file_name = f"{theme_name.lower()}_theme"
+            theme_file_name = self._get_theme_filename(theme_name)
             try:
                 css_content = self._load_theme_css_uncached(theme_file_name)
                 if css_content:
@@ -476,30 +482,8 @@ class CSSFileBasedThemeManager(QObject):
         
         return ""
     
-    def _apply_dark_palette(self, app):
-        """Apply dark palette colors to complement the CSS."""
-        from PySide6.QtGui import QPalette, QColor
-        
-        palette = app.palette()
-        
-        # Dark theme colors matching dark_theme.css
-        dark_bg = QColor("#1e1e1e")      # Main background
-        dark_text = QColor("#cccccc")    # Main text
-        dark_base = QColor("#252526")    # Input backgrounds
-        dark_button = QColor("#3c3c3c")  # Button backgrounds
-        dark_highlight = QColor("#094771")  # Selection
-        
-        palette.setColor(QPalette.ColorRole.Window, dark_bg)
-        palette.setColor(QPalette.ColorRole.WindowText, dark_text)
-        palette.setColor(QPalette.ColorRole.Base, dark_base)
-        palette.setColor(QPalette.ColorRole.Text, dark_text)
-        palette.setColor(QPalette.ColorRole.Button, dark_button)
-        palette.setColor(QPalette.ColorRole.ButtonText, dark_text)
-        palette.setColor(QPalette.ColorRole.Highlight, dark_highlight)
-        palette.setColor(QPalette.ColorRole.HighlightedText, dark_text)
-        
-        app.setPalette(palette)
-        logger.info("Applied dark palette to complement CSS")
+    # REMOVED: _apply_dark_palette method - was never called and contained hardcoded #094771 color
+    # This method was defining palette colors but was not being used by the CSS-based theme system
     
     def _apply_light_palette(self, app):
         """Apply light palette colors to complement the CSS."""

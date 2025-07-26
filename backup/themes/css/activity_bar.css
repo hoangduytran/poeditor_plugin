@@ -1,0 +1,71 @@
+/* Activity Bar Styles - IMMUTABLE */
+/* This file should NEVER be changed to maintain consistent activity bar appearance */
+/* Activity bar always uses dark theme regardless of selected theme */
+
+/* === ACTIVITY BAR CONTAINER === */
+/* Using !important to prevent theme CSS from overriding */
+QWidget[objectName="activity_bar"] {
+    background-color: #2c2c2c !important;
+    border-right: 1px solid #3e3e42 !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    color: #cccccc !important;
+}
+
+/* Ensure any child widgets in activity bar also maintain dark theme */
+QWidget[objectName="activity_bar"] QWidget {
+    background-color: #2c2c2c !important;
+    color: #cccccc !important;
+}
+
+/* === ACTIVITY BUTTONS === */
+QPushButton[objectName^="activity_button"] {
+    background-color: transparent !important;
+    border: none !important;
+    border-left: 2px solid transparent !important;
+    color: #858585 !important;
+    font-size: 16px;
+    padding: 0px;
+    margin: 0px;
+    min-height: 48px;
+    max-height: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    text-align: center;
+}
+
+QPushButton[objectName^="activity_button"]:hover {
+    background-color: #37373d !important;
+    border-left: 2px solid transparent !important;
+    color: #cccccc !important;
+}
+
+QPushButton[objectName^="activity_button"]:pressed {
+    background-color: #37373d !important;
+    color: #ffffff !important;
+}
+
+/* Active state styling */
+QPushButton[objectName^="activity_button"][active="true"] {
+    color: #ffffff !important;
+    background-color: #37373d !important;
+    border-left: 2px solid #0078d4 !important;
+}
+
+QPushButton[objectName^="activity_button"][active="true"]:hover {
+    background-color: #414145 !important;
+    border-left: 2px solid #0078d4 !important;
+    color: #ffffff !important;
+}
+
+/* === ACTIVITY BAR LAYOUT === */
+QVBoxLayout {
+    margin: 0px;
+    padding: 0px;
+}
+
+/* === ACTIVITY BAR ICONS === */
+/* Icon colors are handled programmatically by ActivityButton: */
+/* - Gray (#858585) icons for inactive state */
+/* - White (#ffffff) icons for active and hover states */
+/* CSS handles background colors and borders only */

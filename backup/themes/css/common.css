@@ -1,0 +1,224 @@
+/* Common Base Styles for All Themes */
+/* These styles are shared across all themes and provide consistent base styling */
+/* Note: This file uses Qt Style Sheets (QSS) syntax, which extends CSS with Qt-specific properties */
+/* Some properties like alternate-background-color, show-decoration-selected, subcontrol-position, etc. */
+/* are specific to Qt and may show as errors in standard CSS validators */
+
+/* === RESET AND BASE === */
+QWidget {
+    font-family: "Segoe UI", "Ubuntu", "Droid Sans", sans-serif;
+    font-size: 13px;
+}
+
+QMainWindow {
+    border: none;
+    outline: none;
+}
+
+/* === LAYOUT COMPONENTS === */
+QSplitter::handle {
+    background-color: transparent;
+    border: none;
+}
+
+QSplitter::handle:horizontal {
+    width: 2px;
+}
+
+QSplitter::handle:vertical {
+    height: 2px;
+}
+
+/* === FORM ELEMENTS BASE === */
+QLineEdit, QComboBox, QSpinBox {
+    border-radius: 2px;
+    padding: 4px 6px;
+    font-size: 13px;
+    border: 1px solid #464647;
+}
+
+QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+    outline: none;
+}
+
+QPushButton {
+    border-radius: 2px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: normal;
+    border: 1px solid #464647;
+}
+
+QPushButton:disabled {
+    opacity: 0.6;
+}
+
+/* === LIST AND TREE BASE === */
+QListWidget, QTreeView, QTableWidget {
+    border: none;
+    outline: none;
+    font-size: 13px;
+    alternate-background-color: transparent;
+    show-decoration-selected: 1;
+}
+
+QListWidget::item, QTreeView::item, QTableWidget::item {
+    padding: 2px 8px;
+    border: none;
+    height: 18px;
+}
+
+QHeaderView::section {
+    padding: 4px 8px;
+    border: none;
+    font-weight: normal;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+/* === SCROLLBARS BASE === */
+QScrollBar:vertical {
+    width: 14px;
+    border: none;
+    margin: 0px;
+}
+
+QScrollBar:horizontal {
+    height: 14px;
+    border: none;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    border: none;
+    border-radius: 7px;
+    margin: 2px;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    background: none;
+    border: none;
+    height: 0px;
+    width: 0px;
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: transparent;
+}
+
+/* === TABS BASE === */
+QTabWidget::pane {
+    border: none;
+}
+
+QTabWidget::tab-bar {
+    alignment: left;
+}
+
+QTabBar::tab {
+    padding: 8px 16px;
+    margin: 0;
+    margin-right: 2px;
+    border: none;
+    font-size: 13px;
+    min-width: 100px;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px;
+}
+
+QTabBar::close-button {
+    image: url(:/icons/close.png);
+    subcontrol-position: right;
+}
+
+QTabBar::close-button:hover {
+    background-color: #e81123;
+    border-radius: 2px;
+}
+
+/* === GROUPBOX BASE === */
+QGroupBox {
+    border-radius: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    font-weight: bold;
+    border: 1px solid #464647;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 8px;
+    padding: 0 4px 0 4px;
+}
+
+/* === MENU BASE === */
+QMenuBar::item {
+    background-color: transparent;
+    padding: 4px 8px;
+}
+
+/* === EXPLORER COMPONENTS === */
+/* Status labels for file counts, etc */
+QLabel[class="status-label"] {
+    font-size: 11px;
+    padding: 2px;
+}
+
+/* Breadcrumb navigation area */
+QScrollArea[class="breadcrumb-scroll"] {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* Breadcrumb buttons (navigation links) */
+QPushButton[class="breadcrumb-button"] {
+    border: none;
+    padding: 4px 8px;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+QPushButton[class="breadcrumb-button"]:hover {
+    border-radius: 3px;
+}
+
+QPushButton[class="breadcrumb-button"]:pressed {
+    border-radius: 3px;
+}
+
+/* Breadcrumb separators */
+QLabel[class="breadcrumb-separator"] {
+    font-weight: bold;
+}
+
+/* === INFO AND HELP LABELS === */
+/* Small informational text used throughout the UI */
+QLabel[class="info-label"] {
+    font-size: 11px;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+QMenu::item {
+    padding: 6px 16px;
+}
+
+/* === CHECKBOX BASE === */
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    border: 1px solid #464647;
+}
+
+/* === TOOLTIP BASE === */
+QToolTip {
+    padding: 4px;
+    border-radius: 2px;
+    border: 1px solid #464647;
+}
