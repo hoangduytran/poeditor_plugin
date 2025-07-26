@@ -1,0 +1,113 @@
+/* Light Theme - Simple and reliable light colors */
+
+/* Main application colors */
+QWidget {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Button light theme */
+QPushButton {
+    background-color: #f3f3f3;
+    border-color: #cccccc;
+    color: #000000;
+}
+
+QPushButton:hover {
+    background-color: #e5e5e5;
+    border-color: #0078d4;
+}
+
+QPushButton:pressed {
+    background-color: #d6d6d6;
+    border-color: #005a9e;
+}
+
+QPushButton:disabled {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #888888;
+}
+
+/* Tree view light theme */
+QTreeView {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}
+
+QTreeView::item:hover {
+    background-color: #f0f8ff;
+}
+
+QTreeView::item:selected {
+    background-color: #0078d4;
+    color: #ffffff;
+}
+
+/* Line edit light theme */
+QLineEdit {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+    selection-background-color: #0078d4;
+    selection-color: #ffffff;
+}
+
+QLineEdit:focus {
+    border-color: #0078d4;
+}
+
+/* Label light theme */
+QLabel {
+    color: #000000;
+    background-color: transparent;
+}
+
+/* Toolbar light theme */
+QToolBar {
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #cccccc;
+}
+
+/* Menu light theme */
+QMenu {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}
+
+QMenu::item:selected {
+    background-color: #0078d4;
+    color: #ffffff;
+}
+
+QMenu::separator {
+    background-color: #e0e0e0;
+}
+
+/* Status bar light theme */
+QStatusBar {
+    background-color: #0078d4;
+    color: #ffffff;
+    border-top-color: #0078d4;
+}
+
+/* Group box light theme */
+QGroupBox {
+    color: #000000;
+    border-color: #cccccc;
+    background-color: transparent;
+}
+
+QGroupBox::title {
+    color: #000000;
+    background-color: #ffffff;
+}
+
+/* Text edit light theme */
+QTextEdit {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}

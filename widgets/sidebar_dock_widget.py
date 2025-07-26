@@ -12,6 +12,13 @@ from lg import logger
 
 class SidebarDockWidget(QDockWidget):
     def __init__(self, sidebar_manager: QWidget, parent: Optional[QWidget] = None):
+
+        # self.setFeatures(
+        #     QDockWidget.DockWidgetFeature.DockWidgetMovable |
+        #     QDockWidget.DockWidgetFeature.DockWidgetFloatable |
+        #     QDockWidget.DockWidgetFeature.DockWidgetClosable
+        # )
+
         # Debug: Log theme state before initialization
         logger.info("=== THEME DEBUG: Before SidebarDockWidget initialization ===")
         if parent:
@@ -21,6 +28,11 @@ class SidebarDockWidget(QDockWidget):
         super().__init__("Sidebar", parent)
         self.sidebar_manager = sidebar_manager
         self._main_window_parent = parent
+        self._is_app_closing = False  # Track if app is closing
+        self._force_close_requested = False  # Track if force close was requested
+        
+        # Note: Status bar styling is handled in common.css to ensure consistency across themes
+        # The status bar should always maintain VS Code-like appearance regardless of theme changes
         
         # Debug: Log theme state after super init
         logger.info("=== THEME DEBUG: After super().__init__ ===")
@@ -55,11 +67,11 @@ class SidebarDockWidget(QDockWidget):
         self.setObjectName("SidebarDockWidget")
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        # Remove global context menu policy - let child widgets handle their own
         self.setWidget(self._wrap_with_toolbar(sidebar_manager))
         
-        # Connect the custom context menu signal to show the menu
-        self.customContextMenuRequested.connect(self._show_menu)
+        # Install event filter to detect title bar clicks
+        self.installEventFilter(self)
 
         # Debug: Log theme state after widget setup
         logger.info("=== THEME DEBUG: After complete widget setup ===")
@@ -69,7 +81,63 @@ class SidebarDockWidget(QDockWidget):
         # Connect floating state change signal for logging
         self.topLevelChanged.connect(self._on_floating_changed)
 
+        # Connect to application quit signal to ensure proper cleanup
+        app = QApplication.instance()
+        if app:
+            app.aboutToQuit.connect(self._on_app_about_to_quit)
+            logger.info("Connected to QApplication.aboutToQuit signal for proper cleanup")
+
+        # Connect to main window destroyed signal if available
+        if isinstance(parent, QMainWindow):
+            parent.destroyed.connect(self._on_main_window_destroyed)
+            logger.info("Connected to main window destroyed signal")
+            
+            # Monkey patch the main window's closeEvent to ensure we know when it's closing
+            self._original_main_window_close = parent.closeEvent
+            parent.closeEvent = self._main_window_close_wrapper
+            logger.info("Monkey patched main window closeEvent")
+
         logger.info(f"SidebarDockWidget initialized with parent: {type(parent).__name__ if parent else 'None'}")
+
+    def _main_window_close_wrapper(self, event):
+        """Wrap the main window's closeEvent to ensure we get notified before it closes."""
+        logger.info("Main window closeEvent triggered - marking sidebar for forced closure")
+        self._is_app_closing = True
+        self._force_close_requested = True
+        
+        # Force close immediately if floating
+        if self.isFloating():
+            logger.info("Sidebar is floating during main window close - forcing immediate closure")
+            self.hide()
+            self.setParent(None)
+            self.close()
+            
+        # Call the original closeEvent
+        if hasattr(self, '_original_main_window_close'):
+            self._original_main_window_close(event)
+
+    def _on_main_window_destroyed(self):
+        """Handle main window destruction."""
+        logger.info("Main window being destroyed - marking app as closing")
+        self._is_app_closing = True
+        self._force_close_requested = True
+
+    def _on_app_about_to_quit(self):
+        """Handle application quit to ensure sidebar closes properly."""
+        logger.info("Application is about to quit - forcing sidebar to close")
+        self._is_app_closing = True
+        self._force_close_requested = True
+        
+        # Force close the sidebar immediately
+        if self.isVisible():
+            logger.info("Sidebar is visible - forcing close")
+            # Use deleteLater() to ensure proper cleanup
+            self.deleteLater()
+            
+        # Also close any child widgets
+        if hasattr(self, 'sidebar_manager') and self.sidebar_manager:
+            logger.info("Closing sidebar manager")
+            self.sidebar_manager.close()
 
     def _wrap_with_toolbar(self, widget: QWidget) -> QWidget:
         container = QWidget()
@@ -119,8 +187,38 @@ class SidebarDockWidget(QDockWidget):
         current_parent = type(self.parent()).__name__ if self.parent() else "None"
         logger.info(f"SidebarDockWidget floating state changed to: {state}, current parent: {current_parent}")
 
+    def eventFilter(self, obj, event):
+        """Filter events to detect right-clicks on title bar only."""
+        if obj == self and event.type() == QEvent.Type.ContextMenu:
+            # Check if the click is on the title bar area
+            if self._is_click_on_title_bar(event.pos()):
+                logger.debug("Right-click detected on title bar")
+                self._show_menu(event.pos())
+                return True  # Event handled, don't propagate
+            else:
+                logger.debug("Right-click detected outside title bar, allowing propagation")
+                return False  # Let the event propagate to child widgets
+        
+        return super().eventFilter(obj, event)
+
+    def _is_click_on_title_bar(self, pos: QPoint) -> bool:
+        """Check if the given position is within the title bar area."""
+        # Get the title bar rect - this is approximate as Qt doesn't expose exact title bar geometry
+        # The title bar is typically at the top of the widget
+        widget_rect = self.rect()
+        
+        # Estimate title bar height (usually around 20-30 pixels depending on style)
+        # This is a reasonable approximation for most desktop environments
+        title_bar_height = 30
+        
+        # Check if click is in the top area where title bar would be
+        title_bar_rect = widget_rect.adjusted(0, 0, 0, -widget_rect.height() + title_bar_height)
+        
+        logger.debug(f"Click position: {pos}, Title bar area: {title_bar_rect}, Widget rect: {widget_rect}")
+        return title_bar_rect.contains(pos)
+
     def _show_menu(self, pos: Optional[QPoint] = None):
-        logger.debug("SidebarDockWidget menu requested")
+        logger.debug("SidebarDockWidget menu requested from title bar")
         menu = QMenu(self)
         
         # # Set object name to match CSS selector in dark_theme.css
@@ -278,8 +376,41 @@ class SidebarDockWidget(QDockWidget):
             logger.exception("Full traceback for float sidebar error:")
 
     def closeEvent(self, event):
-        logger.warning("Attempted to close SidebarDockWidget - prevented.")
-        event.ignore()
+        """Handle close events - prevent user closure but allow app closure."""
+        # Additional check for main window status
+        main_window_closing = False
+        if self._main_window_parent:
+            # Check if main window is in the process of closing
+            try:
+                main_window_closing = (not self._main_window_parent.isVisible())
+            except (RuntimeError, AttributeError):
+                # If we get an error accessing the main window, it's likely being destroyed
+                main_window_closing = True
+        
+        if self._is_app_closing or self._force_close_requested or main_window_closing:
+            logger.info(f"SidebarDockWidget closing due to application shutdown (app_closing={self._is_app_closing}, force_requested={self._force_close_requested}, main_window_closing={main_window_closing})")
+            
+            # Remove all signal connections to prevent callback errors
+            try:
+                app = QApplication.instance()
+                if app:
+                    app.aboutToQuit.disconnect(self._on_app_about_to_quit)
+            except:
+                pass
+                
+            # Ensure we really close
+            QDockWidget.closeEvent(self, event)
+            event.accept()
+        else:
+            logger.warning("Attempted to close SidebarDockWidget by user - prevented.")
+            event.ignore()
+
+    def force_close(self):
+        """Force close the sidebar (used during app shutdown)."""
+        logger.info("Force closing SidebarDockWidget")
+        self._is_app_closing = True
+        self._force_close_requested = True
+        self.deleteLater()
 
     def _log_current_theme_state(self, context: str):
         """Log current theme state for debugging."""
@@ -304,8 +435,13 @@ class SidebarDockWidget(QDockWidget):
 
     def event(self, event: QEvent) -> bool:
         if event.type() == QEvent.Type.Hide:
-            logger.warning("Attempted to hide SidebarDockWidget - prevented.")
-            return True
+            # Don't prevent hide events during app shutdown
+            if self._is_app_closing or self._force_close_requested:
+                logger.debug("SidebarDockWidget hide event during shutdown - allowing")
+                return super().event(event)
+            else:
+                logger.warning("Attempted to hide SidebarDockWidget - prevented.")
+                return True
         elif event.type() == QEvent.Type.Show:
             logger.debug("SidebarDockWidget show event")
             # Debug: Log theme state on show

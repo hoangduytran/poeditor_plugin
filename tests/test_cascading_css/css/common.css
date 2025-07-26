@@ -1,0 +1,118 @@
+/* Common CSS - Base styles that don't change between themes */
+
+/* Application-wide base styles */
+QWidget {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+/* Button base styles */
+QPushButton {
+    border: 2px solid;
+    padding: 8px 16px;
+    border-radius: 6px;
+    min-width: 80px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    border-width: 3px;
+}
+
+QPushButton:pressed {
+    padding: 9px 17px 7px 15px;
+}
+
+/* Tree view base styles */
+QTreeView {
+    border: 1px solid;
+    border-radius: 4px;
+    outline: none;
+}
+
+QTreeView::item {
+    padding: 4px 8px;
+    border: none;
+    min-height: 20px;
+}
+
+QTreeView::item:hover {
+    border-radius: 3px;
+}
+
+QTreeView::item:selected {
+    border-radius: 3px;
+}
+
+/* Line edit base styles */
+QLineEdit {
+    border: 2px solid;
+    border-radius: 4px;
+    padding: 6px 8px;
+    /* font-size: 12px; */
+}
+
+QLineEdit:focus {
+    border-width: 3px;
+}
+
+/* Label base styles */
+QLabel {
+    padding: 2px;
+    border: none;
+}
+
+/* Toolbar base styles */
+QToolBar {
+    border: none;
+    spacing: 4px;
+    padding: 4px;
+}
+
+/* Menu base styles */
+QMenu {
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 2px;
+}
+
+QMenu::item {
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin: 1px;
+}
+
+QMenu::separator {
+    height: 1px;
+    margin: 4px 8px;
+}
+
+/* Group box base styles */
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid;
+    border-radius: 8px;
+    margin-top: 1ex;
+    padding-top: 8px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 8px;
+    margin-left: 8px;
+}
+
+/* Status bar base styles */
+QStatusBar {
+    border-top: 1px solid;
+    padding: 4px;
+}
+
+/* Text edit base styles */
+QTextEdit {
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 4px;
+}

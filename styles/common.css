@@ -1,0 +1,112 @@
+/* Status Bar - VS Code style - should remain consistent across all themes */
+QStatusBar {
+    background-color: #007acc;
+    /* VS Code blue */
+    color: #ffffff;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    font-size: 12px;
+    font-weight: normal;
+    min-height: 22px;
+    max-height: 22px;
+}
+
+QStatusBar::item {
+    background-color: transparent;
+    border: none;
+    padding: 2px 8px;
+    margin: 0px 1px;
+    color: #ffffff;
+}
+
+QStatusBar QLabel {
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    padding: 2px 4px;
+    margin: 0px;
+}
+
+/* Status bar sections with different background for better separation */
+QStatusBar QWidget {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+/* Hover effect for interactive status bar items */
+QStatusBar QPushButton {
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    padding: 2px 8px;
+    margin: 0px 1px;
+    font-size: 12px;
+}
+
+QStatusBar QPushButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+QStatusBar QPushButton:pressed {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Status bar separator */
+QStatusBar::separator {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 1px;
+    margin: 4px 2px;
+}
+
+/* Specific styling for common status bar elements */
+QStatusBar[objectName="mainStatusBar"] {
+    background-color: #007acc;
+    color: #ffffff;
+}
+
+/* Language indicator */
+QStatusBar QLabel[objectName="languageLabel"] {
+    color: #ffffff;
+    background-color: transparent;
+    padding: 2px 6px;
+}
+
+/* Line/Column indicator */
+QStatusBar QLabel[objectName="positionLabel"] {
+    color: #ffffff;
+    background-color: transparent;
+    padding: 2px 6px;
+}
+
+/* File encoding indicator */
+QStatusBar QLabel[objectName="encodingLabel"] {
+    color: #ffffff;
+    background-color: transparent;
+    padding: 2px 6px;
+}
+
+/* Status messages */
+QStatusBar QLabel[objectName="statusMessage"] {
+    color: #ffffff;
+    background-color: transparent;
+    padding: 2px 8px;
+    font-weight: normal;
+}
+
+/* Progress bar in status bar */
+QStatusBar QProgressBar {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    text-align: center;
+    color: #ffffff;
+    max-height: 14px;
+    margin: 2px;
+}
+
+QStatusBar QProgressBar::chunk {
+    background-color: #ffffff;
+    border-radius: 1px;
+}

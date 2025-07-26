@@ -1,0 +1,160 @@
+/* Dark Theme - VS Code Dark+ inspired colors */
+
+/* Main application colors */
+QWidget {
+    background-color: #1e1e1e;
+    color: #cccccc;
+}
+
+/* Button dark theme */
+QPushButton {
+    background-color: #0e639c;
+    border-color: #007acc;
+    color: #ffffff;
+}
+
+QPushButton:hover {
+    background-color: #1177bb;
+    border-color: #14a0f5;
+}
+
+QPushButton:pressed {
+    background-color: #005a9e;
+    border-color: #005a9e;
+}
+
+QPushButton:disabled {
+    background-color: #2d2d30;
+    border-color: #464647;
+    color: #656565;
+}
+
+/* Tree view dark theme */
+QTreeView {
+    background-color: #252526;
+    border-color: #3c3c3c;
+    color: #cccccc;
+}
+
+QTreeView::item:hover {
+    background-color: #2a2d2e;
+}
+
+QTreeView::item:selected {
+    background-color: #094771;
+    color: #ffffff;
+}
+
+QTreeView::item:selected: !active {
+    background-color: #3e3e42;
+}
+
+QTreeView::branch:has-siblings: !adjoins-item,
+QTreeView::branch:has-siblings:adjoins-item,
+QTreeView::branch: !has-children: !has-siblings:adjoins-item {
+    border-bottom-color: #464647;
+}
+
+/* Line edit dark theme */
+QLineEdit {
+    background-color: #3c3c3c;
+    border-color: #464647;
+    color: #cccccc;
+    selection-background-color: #094771;
+    selection-color: #ffffff;
+}
+
+QLineEdit:focus {
+    border-color: #007acc;
+    background-color: #404040;
+}
+
+QLineEdit:disabled {
+    background-color: #2d2d30;
+    color: #656565;
+    border-color: #464647;
+}
+
+/* Label dark theme */
+QLabel {
+    color: #cccccc;
+    background-color: transparent;
+}
+
+/* Toolbar dark theme */
+QToolBar {
+    background-color: #2d2d30;
+    border-bottom: 1px solid #464647;
+}
+
+QToolBar::separator {
+    background-color: #464647;
+}
+
+/* Menu dark theme */
+QMenu {
+    background-color: #2d2d30;
+    border-color: #464647;
+    color: #cccccc;
+}
+
+QMenu::item:selected {
+    background-color: #094771;
+    color: #ffffff;
+}
+
+QMenu::item:disabled {
+    color: #656565;
+}
+
+QMenu::separator {
+    background-color: #464647;
+}
+
+/* Scroll bar dark theme */
+QScrollBar:vertical {
+    background-color: #2d2d30;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #464647;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #555555;
+}
+
+QScrollBar:horizontal {
+    background-color: #2d2d30;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #464647;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #555555;
+}
+
+/* Status bar dark theme */
+QStatusBar {
+    background-color: #007acc;
+    color: #ffffff;
+    border-top-color: #007acc;
+}
+
+QStatusBar::item {
+    color: #ffffff;
+}
+
+/* Group box dark theme */
+QGroupBox {
+    color: #cccccc;
+    border-color: #464647;
+    background-color: transparent;
+}
+
+QGroupBox::title {
+    color: #cccccc;
+    background-color: #1e1e1e;
+}
