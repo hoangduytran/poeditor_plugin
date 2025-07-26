@@ -74,39 +74,39 @@ class SidebarDockWidget(QDockWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         # Toolbar with arrow button
-        toolbar = QToolBar()
-        toolbar.setObjectName("sidebar_toolbar")  # Set object name for CSS targeting
-        toolbar.setMovable(False)
+        # toolbar = QToolBar()
+        # toolbar.setObjectName("sidebar_toolbar")  # Set object name for CSS targeting
+        # toolbar.setMovable(False)
         
         # Debug: Log toolbar styling information
-        logger.info("=== THEME DEBUG: Toolbar creation ===")
-        logger.info(f"Toolbar stylesheet: '{toolbar.styleSheet()}'")
-        logger.info(f"Toolbar palette: {toolbar.palette()}")
-        logger.info(f"Toolbar background role: {toolbar.backgroundRole()}")
-        logger.info(f"Toolbar auto fill background: {toolbar.autoFillBackground()}")
-        logger.info(f"Application style name: {toolbar.style().objectName()}")
-        logger.info(f"Toolbar style object: {type(toolbar.style()).__name__}")
+        # logger.info("=== THEME DEBUG: Toolbar creation ===")
+        # logger.info(f"Toolbar stylesheet: '{toolbar.styleSheet()}'")
+        # logger.info(f"Toolbar palette: {toolbar.palette()}")
+        # logger.info(f"Toolbar background role: {toolbar.backgroundRole()}")
+        # logger.info(f"Toolbar auto fill background: {toolbar.autoFillBackground()}")
+        # logger.info(f"Application style name: {toolbar.style().objectName()}")
+        # logger.info(f"Toolbar style object: {type(toolbar.style()).__name__}")
         
-        arrow_btn = QPushButton("▼")
-        arrow_btn.setObjectName("sidebar_arrow_button")  # Set object name for CSS targeting
-        arrow_btn.setToolTip("Sidebar options")
-        arrow_btn.clicked.connect(self._show_menu)
+        # arrow_btn = QPushButton("▼")
+        # arrow_btn.setObjectName("sidebar_arrow_button")  # Set object name for CSS targeting
+        # arrow_btn.setToolTip("Sidebar options")
+        # arrow_btn.clicked.connect(self._show_menu)
         
         # Debug: Log button styling information
-        logger.info("=== THEME DEBUG: Arrow button creation ===")
-        logger.info(f"Arrow button stylesheet: '{arrow_btn.styleSheet()}'")
-        logger.info(f"Arrow button palette: {arrow_btn.palette()}")
-        logger.info(f"Arrow button background role: {arrow_btn.backgroundRole()}")
+        # logger.info("=== THEME DEBUG: Arrow button creation ===")
+        # logger.info(f"Arrow button stylesheet: '{arrow_btn.styleSheet()}'")
+        # logger.info(f"Arrow button palette: {arrow_btn.palette()}")
+        # logger.info(f"Arrow button background role: {arrow_btn.backgroundRole()}")
         
-        toolbar.addWidget(arrow_btn)
+        # toolbar.addWidget(arrow_btn)
         
         # Debug: Log final toolbar state after adding button
-        logger.info(f"Final toolbar size hint: {toolbar.sizeHint()}")
-        logger.info(f"Final toolbar minimum size: {toolbar.minimumSize()}")
+        # logger.info(f"Final toolbar size hint: {toolbar.sizeHint()}")
+        # logger.info(f"Final toolbar minimum size: {toolbar.minimumSize()}")
         
-        layout.addWidget(toolbar)
+        # layout.addWidget(toolbar)
         layout.addWidget(widget)
-        self._arrow_btn = arrow_btn
+        # self._arrow_btn = arrow_btn
         logger.debug("SidebarDockWidget toolbar with arrow button created")
         return container
 
@@ -148,9 +148,13 @@ class SidebarDockWidget(QDockWidget):
             logger.debug("Added 'Float Sidebar' option to menu")
 
         # Show menu and log position
-        menu_pos = self._arrow_btn.mapToGlobal(self._arrow_btn.rect().bottomLeft())
-        logger.debug(f"Showing sidebar menu at position: {menu_pos}")
-        menu.exec_(menu_pos)
+        # menu_pos = self._arrow_btn.mapToGlobal(self._arrow_btn.rect().bottomLeft())
+        # logger.debug(f"Showing sidebar menu at position: {menu_pos}")
+        # menu.exec_(menu_pos)
+        
+        # Temporary: Show menu at cursor position since toolbar is commented out
+        logger.debug("Toolbar is commented out - menu functionality disabled")
+        menu.exec_()
 
     def _move_to_area(self, area: Qt.DockWidgetArea):
         """Move the sidebar to the specified dock area."""
@@ -254,16 +258,18 @@ class SidebarDockWidget(QDockWidget):
         logger.info(f"DockWidget stylesheet: '{self.styleSheet()}'")
         
         # Check toolbar and button if they exist
-        if hasattr(self, '_arrow_btn') and self._arrow_btn:
-            toolbar = self._arrow_btn.parent()
-            if toolbar:
-                logger.info(f"Toolbar style after theme: {type(toolbar.style()).__name__}")
-                logger.info(f"Toolbar palette after theme: {toolbar.palette()}")
-                logger.info(f"Toolbar stylesheet after theme: '{toolbar.styleSheet()}'")
-            
-            logger.info(f"Arrow button style after theme: {type(self._arrow_btn.style()).__name__}")
-            logger.info(f"Arrow button palette after theme: {self._arrow_btn.palette()}")
-            logger.info(f"Arrow button stylesheet after theme: '{self._arrow_btn.styleSheet()}'")
+        # if hasattr(self, '_arrow_btn') and self._arrow_btn:
+        #     toolbar = self._arrow_btn.parent()
+        #     if toolbar:
+        #         logger.info(f"Toolbar style after theme: {type(toolbar.style()).__name__}")
+        #         logger.info(f"Toolbar palette after theme: {toolbar.palette()}")
+        #         logger.info(f"Toolbar stylesheet after theme: '{toolbar.styleSheet()}'")
+        #     
+        #     logger.info(f"Arrow button style after theme: {type(self._arrow_btn.style()).__name__}")
+        #     logger.info(f"Arrow button palette after theme: {self._arrow_btn.palette()}")
+        #     logger.info(f"Arrow button stylesheet after theme: '{self._arrow_btn.styleSheet()}'")
+        
+        logger.info("Toolbar and arrow button are commented out")
 
     def event(self, event: QEvent) -> bool:
         if event.type() == QEvent.Type.Hide:

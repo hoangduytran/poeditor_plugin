@@ -924,11 +924,10 @@ QToolBar::separator {
 
 /* === SIDEBAR TOOLBAR === */
 QToolBar#sidebar_toolbar {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #4a90e2, stop: 1 #357abd);
+    background-color: #252526;
     border: none;
-    border-bottom: 1px solid #2c5aa0;
-    color: #ffffff;
+    border-bottom: 1px solid #464647;
+    color: #cccccc;
     spacing: 2px;
     padding: 2px;
     margin: 0px;
@@ -938,7 +937,7 @@ QToolBar#sidebar_toolbar {
 QToolBar#sidebar_toolbar QPushButton {
     background-color: transparent;
     border: none;
-    color: #ffffff;
+    color: #cccccc;
     padding: 6px 8px;
     margin: 2px;
     font-size: 12px;
@@ -946,13 +945,13 @@ QToolBar#sidebar_toolbar QPushButton {
 }
 
 QToolBar#sidebar_toolbar QPushButton:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background-color: #2a2d2e;
+    color: #cccccc;
 }
 
 QToolBar#sidebar_toolbar QPushButton:pressed {
-    background-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
+    background-color: #37373d;
+    color: #cccccc;
 }
 
 QToolButton {
@@ -972,12 +971,12 @@ QToolButton:pressed {
 }
 
 /* === SIDEBAR DOCK WIDGET TOOLBAR === */
-/* Specific styling for the toolbar in SidebarDockWidget to ensure colorful theme compliance */
+/* Specific styling for the toolbar in SidebarDockWidget to ensure dark theme compliance */
 QDockWidget#SidebarDockWidget QToolBar {
-    background-color: #f5efdc; /* Same as sidebar background */
+    background-color: #252526; /* Same as sidebar background */
     border: none;
-    border-bottom: 1px solid #e9d9b7;
-    color: #586e75;
+    border-bottom: 1px solid #464647;
+    color: #cccccc;
     spacing: 0px;
     padding: 0px;
     margin: 0px;
@@ -987,7 +986,7 @@ QDockWidget#SidebarDockWidget QToolBar QPushButton,
 QPushButton[objectName="sidebar_arrow_button"] {
     background-color: transparent;
     border: none;
-    color: #586e75;
+    color: #cccccc;
     padding: 6px 8px;
     margin: 0px;
     font-size: 12px;
@@ -995,14 +994,14 @@ QPushButton[objectName="sidebar_arrow_button"] {
 
 QDockWidget#SidebarDockWidget QToolBar QPushButton:hover,
 QPushButton[objectName="sidebar_arrow_button"]:hover {
-    background-color: #f0ead6;
-    color: #073642;
+    background-color: #2a2d2e;
+    color: #cccccc;
 }
 
 QDockWidget#SidebarDockWidget QToolBar QPushButton:pressed,
 QPushButton[objectName="sidebar_arrow_button"]:pressed {
-    background-color: #eee8d5;
-    color: #073642;
+    background-color: #37373d;
+    color: #cccccc;
 }
 
 /* === DIALOG BOXES === */
