@@ -5,9 +5,9 @@ Wraps SidebarManager and provides a toolbar with an arrow button to show/hide a 
 Prevents closing and allows docking only left/right.
 """
 from typing import Optional
-from PySide6.QtWidgets import QDockWidget, QWidget, QVBoxLayout, QToolBar, QPushButton, QMenu, QMainWindow
-from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt, QEvent
+from PySide6.QtWidgets import QDockWidget, QWidget, QVBoxLayout, QToolBar, QPushButton, QMenu, QMainWindow, QApplication
+from PySide6.QtGui import QAction, QCursor
+from PySide6.QtCore import Qt, QEvent, QPoint
 from lg import logger
 
 class SidebarDockWidget(QDockWidget):
@@ -55,8 +55,11 @@ class SidebarDockWidget(QDockWidget):
         self.setObjectName("SidebarDockWidget")
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.setWidget(self._wrap_with_toolbar(sidebar_manager))
+        
+        # Connect the custom context menu signal to show the menu
+        self.customContextMenuRequested.connect(self._show_menu)
 
         # Debug: Log theme state after widget setup
         logger.info("=== THEME DEBUG: After complete widget setup ===")
@@ -116,10 +119,39 @@ class SidebarDockWidget(QDockWidget):
         current_parent = type(self.parent()).__name__ if self.parent() else "None"
         logger.info(f"SidebarDockWidget floating state changed to: {state}, current parent: {current_parent}")
 
-    def _show_menu(self):
+    def _show_menu(self, pos: Optional[QPoint] = None):
         logger.debug("SidebarDockWidget menu requested")
-        menu = QMenu()
-
+        menu = QMenu(self)
+        
+        # # Set object name to match CSS selector in dark_theme.css
+        # menu.setObjectName("sidebar_context_menu")
+        
+        # # Try to force menu to pick up application styling
+        # # This addresses the issue where dynamically created QMenu widgets
+        # # sometimes don't inherit the application's stylesheet correctly
+        # from PySide6.QtWidgets import QApplication
+        # app = QApplication.instance()
+        # if app:
+        #     # Ensure the menu inherits the application's stylesheet
+        #     current_stylesheet = app.styleSheet()
+        #     if current_stylesheet:
+        #         logger.debug("Applying application stylesheet to context menu")
+        #         menu.setStyle(app.style())
+                
+        #         # Note: We don't set the stylesheet directly here
+        #         # because it's already defined in dark_theme.css
+        
+        # Enable window drop shadow for the menu if possible
+        try:
+            # This is platform-dependent and might not work on all systems
+            if hasattr(menu, 'setWindowFlag') and hasattr(Qt, 'WindowType'):
+                menu.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+                if hasattr(menu, 'setAttribute') and hasattr(Qt, 'WidgetAttribute'):
+                    menu.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+            logger.debug("Applied translucent background for better drop shadow visibility")
+        except Exception as e:
+            logger.debug(f"Could not set advanced window styling for menu: {e}")
+        
         # Add dock options
         left_action = QAction("Dock Left", self)
         left_action.triggered.connect(lambda: self._move_to_area(Qt.DockWidgetArea.LeftDockWidgetArea))
@@ -147,14 +179,13 @@ class SidebarDockWidget(QDockWidget):
             menu.addAction(float_action)
             logger.debug("Added 'Float Sidebar' option to menu")
 
-        # Show menu and log position
-        # menu_pos = self._arrow_btn.mapToGlobal(self._arrow_btn.rect().bottomLeft())
-        # logger.debug(f"Showing sidebar menu at position: {menu_pos}")
-        # menu.exec_(menu_pos)
-        
-        # Temporary: Show menu at cursor position since toolbar is commented out
-        logger.debug("Toolbar is commented out - menu functionality disabled")
-        menu.exec_()
+        # Show the menu at the context menu position or cursor position
+        if pos is not None:
+            logger.debug(f"Showing sidebar menu at position: {pos}")
+            menu.exec_(self.mapToGlobal(pos))
+        else:
+            logger.debug("Showing sidebar menu at cursor position")
+            menu.exec_(QCursor.pos())
 
     def _move_to_area(self, area: Qt.DockWidgetArea):
         """Move the sidebar to the specified dock area."""
@@ -297,4 +328,5 @@ class SidebarDockWidget(QDockWidget):
             logger.info("=== THEME DEBUG: Parent Change Event ===")
             logger.info(f"Parent changed - New style: {type(self.style()).__name__}")
             logger.info(f"Parent changed - New palette: {self.palette()}")
+        
         return super().event(event)
