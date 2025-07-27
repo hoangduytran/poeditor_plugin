@@ -40,6 +40,24 @@ class UndoRedoManager:
     
     This manager maintains a stack of file operations and provides
     methods to undo and redo them.
+    
+    Example:
+        >>> manager = UndoRedoManager(max_history=100)
+        >>> operation = FileOperation(
+        ...     operation_type="copy",
+        ...     source_paths=["/path/to/file.txt"],
+        ...     target_path="/destination/",
+        ...     timestamp=datetime.now(),
+        ...     is_undoable=True,
+        ...     undo_data={"created_files": ["/destination/file.txt"]}
+        ... )
+        >>> manager.record_operation(operation)
+        >>> if manager.can_undo():
+        ...     undone_op = manager.undo()
+        
+    Thread Safety:
+        This service is not thread-safe. Operations should be performed on the main thread
+        or with appropriate external synchronization.
     """
     
     def __init__(self, max_history: int = 100):

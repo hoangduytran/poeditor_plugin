@@ -41,6 +41,23 @@ class FileOperationsService(QObject):
     
     This service provides a centralized way to perform file operations
     with proper error handling, undo/redo support, and event notifications.
+    
+    This service uses:
+    - FileNumberingService to handle naming conflicts
+    - UndoRedoManager to track operations for undo/redo capability
+    - Qt clipboard for copy/paste operations
+    
+    Example:
+        >>> file_ops = FileOperationsService()
+        >>> file_ops.operationCompleted.connect(lambda op_type, sources, target: 
+        ...     print(f"Operation {op_type} completed"))
+        >>> file_ops.copy_to_clipboard(["/path/to/file.txt"])
+        >>> new_paths = file_ops.paste("/destination/")
+        
+    Thread Safety:
+        This service must be used from the main thread only. File operations are
+        performed synchronously, but signals can be connected to handle UI updates
+        asynchronously after operations complete.
     """
     
     # Signals

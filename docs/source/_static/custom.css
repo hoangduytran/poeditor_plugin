@@ -1,0 +1,45 @@
+/* Custom styles for POEditor documentation */
+
+/* Improve code block readability */
+div[class^="highlight"] pre {
+    background-color: #f8f8f8;
+    border-left: 3px solid #2980b9;
+    padding-left: 15px;
+}
+
+/* Add a special styling for API classes */
+dl.class {
+    border-top: 1px solid #e1e4e5;
+    padding-top: 20px;
+    margin-top: 30px;
+}
+
+dl.class>dt {
+    background-color: #e7f2fa;
+    border-left: 3px solid #2980b9;
+    padding: 10px;
+    font-size: 110%;
+}
+
+/* Add styling for examples */
+.rubric:contains("Example")+.doctest {
+    background-color: #f5f9ec;
+    border-left: 3px solid #72b73e;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* Style section headers */
+.section>h1,
+.section>h2 {
+    border-bottom: 1px solid #e1e4e5;
+    padding-bottom: 8px;
+}
+
+/* Add styling for thread safety notes */
+.rubric:contains("Thread Safety")+p {
+    background-color: #fff8e1;
+    border-left: 3px solid #ffb74d;
+    padding: 10px;
+    margin-bottom: 20px;
+}

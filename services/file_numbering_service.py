@@ -19,6 +19,16 @@ class FileNumberingService:
     
     This service handles detection of existing numbering patterns and 
     generation of the next appropriate number in the sequence.
+    
+    Example:
+        >>> numbering_service = FileNumberingService()
+        >>> new_name = numbering_service.generate_numbered_name('/path/to/existing.txt')
+        >>> print(new_name)
+        /path/to/existing (1).txt
+    
+    Thread Safety:
+        This service is not thread-safe. Operations should be performed on the main thread
+        or with appropriate external synchronization.
     """
     
     def __init__(self):
@@ -34,6 +44,10 @@ class FileNumberingService:
         """
         Extract numbering pattern from a file or directory name.
         
+        This method analyzes file or folder names to identify if they contain
+        a numerical suffix that follows one of the standard patterns (parentheses,
+        underscore, or hyphen).
+        
         Args:
             path: The file or directory path to analyze
             
@@ -44,6 +58,13 @@ class FileNumberingService:
                 separator: The separator used (" (", "_", or "-")
                 number: The extracted number, or 0 if none found
                 extension: The file extension, if any
+                
+        Example:
+            >>> service = FileNumberingService()
+            >>> service.extract_pattern('/path/document (3).pdf')
+            ('document', ' (', 3, ').pdf')
+            >>> service.extract_pattern('/path/image_5.jpg')
+            ('image', '_', 5, '.jpg')
         """
         file_name = os.path.basename(path)
         

@@ -1,0 +1,19 @@
+<svg width="200" height="80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rectangle -->
+  <rect width="200" height="80" fill="#f8f8f8" rx="10" ry="10" stroke="#2980b9" stroke-width="2"/>
+  
+  <!-- PO Editor text -->
+  <text x="100" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2980b9">PO Editor</text>
+  
+  <!-- Explorer icon (simplified folder) -->
+  <path d="M30,25 L50,25 L55,30 L70,30 L70,55 L30,55 Z" fill="#72b73e" stroke="#333" stroke-width="1"/>
+  
+  <!-- Document icon (simplified) -->
+  <rect x="130" y="25" width="20" height="30" fill="white" stroke="#333" stroke-width="1"/>
+  <line x1="135" y1="35" x2="145" y2="35" stroke="#333" stroke-width="1"/>
+  <line x1="135" y1="40" x2="145" y2="40" stroke="#333" stroke-width="1"/>
+  <line x1="135" y1="45" x2="145" y2="45" stroke="#333" stroke-width="1"/>
+  
+  <!-- Plugin label -->
+  <text x="100" y="70" font-family="Arial, sans-serif" font-size="12" font-style="italic" text-anchor="middle" fill="#333">Plugin Documentation</text>
+</svg>
