@@ -11,10 +11,12 @@ from lg import logger
 class CSSManager:
     def __init__(self, css_directory: Optional[str] = None):
         self.css_directory = css_directory or "themes/css"
+        self.styles_directory = "styles"
         self.current_css_file = os.path.join(self.css_directory, "light_theme.css") # default
         self.css_cache: Dict[str, str] = {}
         self.applied_styles: List[str] = []
         self._load_all_css_files()
+        self._load_style_files()
     
     def _load_all_css_files(self):
         try:
@@ -48,6 +50,32 @@ class CSSManager:
         """Set CSS content for a specific name."""
         self.css_cache[name] = content
         logger.debug(f"Updated CSS content for: {name}")
+    
+    def _load_style_files(self):
+        """Load CSS files from the styles directory."""
+        try:
+            styles_path = Path(self.styles_directory)
+            if not styles_path.exists():
+                logger.warning(f"Styles directory not found: {styles_path}")
+                return
+            
+            # Load specific style files
+            style_files = ["context_menu.css", "common.css"]
+            for style_file in style_files:
+                file_path = styles_path / style_file
+                if file_path.exists():
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                            filename = file_path.stem
+                            self.css_cache[filename] = content
+                        logger.info(f"Loaded style file: {file_path} ({len(content)} chars)")
+                    except Exception as e:
+                        logger.error(f"Failed to load style file {file_path}: {e}")
+                        
+            logger.info(f"CSSManager loaded styles from {self.styles_directory}")
+        except Exception as e:
+            logger.error(f"Failed to load style files: {e}")
     
     def reload_css_file(self, name: str) -> bool:
         """Reload a specific CSS file from disk."""

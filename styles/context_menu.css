@@ -1,0 +1,158 @@
+/* 
+ * Context Menu Styling for POEditor Application
+ *
+ * Provides styling for context menus with theme support (light/dark)
+ */
+
+/* Base Context Menu Styling */
+QMenu {
+    background-color: var(--menu-background);
+    border: 1px solid var(--menu-border);
+    border-radius: 4px;
+    padding: 4px 0px;
+    margin: 0px;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 24px;
+    background-color: transparent;
+    color: var(--menu-text);
+}
+
+QMenu::item:selected {
+    background-color: var(--menu-highlight);
+    color: var(--menu-text-selected);
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: var(--menu-separator);
+    margin: 4px 10px;
+}
+
+QMenu::icon {
+    margin-left: 10px;
+}
+
+/* Shortcut display in menu */
+QMenu::item:disabled {
+    color: var(--menu-text-disabled);
+}
+
+/* Keyboard shortcut hints in menu items */
+QMenu::item::shortcut {
+    color: var(--menu-shortcut-text);
+    margin-left: 10px;
+}
+
+QMenu::item:selected::shortcut {
+    color: var(--menu-shortcut-text-selected);
+}
+
+/* Submenu indicator */
+QMenu::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QMenu::right-arrow {
+    margin: 4px;
+    image: url(:/icons/menu_arrow_right.svg);
+}
+
+/* Context Menu with Icons */
+QMenu#FileContextMenu::icon {
+    padding-left: 4px;
+}
+
+/* Explorer Context Menu specific styling */
+QMenu#ExplorerContextMenu {
+    min-width: 180px;
+}
+
+/* Checkable menu items */
+QMenu::indicator:checked {
+    image: url(:/icons/menu_check.svg);
+}
+
+/* Dark Theme Specific */
+.dark-theme QMenu {
+    background-color: #252526;
+    border-color: #1E1E1E;
+}
+
+.dark-theme QMenu::item {
+    color: #CCCCCC;
+}
+
+.dark-theme QMenu::item:selected {
+    background-color: #04395E;
+    color: #FFFFFF;
+}
+
+.dark-theme QMenu::separator {
+    background-color: #3D3D3D;
+}
+
+.dark-theme QMenu::item::shortcut {
+    color: #969696;
+}
+
+.dark-theme QMenu::item:selected::shortcut {
+    color: #C0C0C0;
+}
+
+/* Light Theme Specific */
+.light-theme QMenu {
+    background-color: #FFFFFF;
+    border-color: #D4D4D4;
+}
+
+.light-theme QMenu::item {
+    color: #333333;
+}
+
+.light-theme QMenu::item:selected {
+    background-color: #C5E1F5;
+    color: #000000;
+}
+
+.light-theme QMenu::separator {
+    background-color: #E0E0E0;
+}
+
+.light-theme QMenu::item::shortcut {
+    color: #777777;
+}
+
+.light-theme QMenu::item:selected::shortcut {
+    color: #444444;
+}
+
+/* High Contrast Theme */
+.high-contrast QMenu {
+    background-color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+.high-contrast QMenu::item {
+    color: #FFFFFF;
+}
+
+.high-contrast QMenu::item:selected {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+.high-contrast QMenu::separator {
+    background-color: #FFFFFF;
+    height: 2px;
+}
+
+.high-contrast QMenu::item::shortcut {
+    color: #FFFF00;
+}
+
+.high-contrast QMenu::item:selected::shortcut {
+    color: #000000;
+}

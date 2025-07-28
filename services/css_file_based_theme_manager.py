@@ -463,24 +463,40 @@ class CSSFileBasedThemeManager(QObject):
     
     def _load_theme_css_uncached(self, theme_file_name: str) -> str:
         """Load theme CSS without using cache (for initial cache population)."""
+        base_css_content = ""
+        component_css = []
+        
         # Try file-based CSS first
         if self.use_file_css and self.css_manager:
-            css_content = self.css_manager.get_css(theme_file_name)
-            if css_content:
-                return css_content
+            # Get the base theme CSS
+            base_css_content = self.css_manager.get_css(theme_file_name) or ""
+            
+            # Add component CSS
+            context_menu_css = self.css_manager.get_css("context_menu") or ""
+            if context_menu_css:
+                component_css.append(context_menu_css)
+                
+            common_css = self.css_manager.get_css("common") or ""
+            if common_css:
+                component_css.append(common_css)
         
-        # Fallback to resource-based CSS
-        try:
-            file = QFile(f":/themes/css/{theme_file_name}.css")
-            if file.open(QIODevice.OpenModeFlag.ReadOnly):
-                byte_array = file.readAll()
-                content = bytes(byte_array.data()).decode('utf-8')
-                file.close()
-                return content
-        except Exception as e:
-            logger.error(f"Error loading theme CSS from resources {theme_file_name}: {e}")
+        # Fallback to resource-based CSS if file-based failed
+        if not base_css_content:
+            try:
+                file = QFile(f":/themes/css/{theme_file_name}.css")
+                if file.open(QIODevice.OpenModeFlag.ReadOnly):
+                    byte_array = file.readAll()
+                    base_css_content = bytes(byte_array.data()).decode('utf-8')
+                    file.close()
+            except Exception as e:
+                logger.error(f"Error loading resource-based CSS for {theme_file_name}: {e}")
         
-        return ""
+        # Combine base CSS and component CSS
+        full_css = base_css_content
+        for css in component_css:
+            full_css += "\n\n" + css
+            
+        return full_css
     
     # REMOVED: _apply_dark_palette method - was never called and contained hardcoded #094771 color
     # This method was defining palette colors but was not being used by the CSS-based theme system

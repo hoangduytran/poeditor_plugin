@@ -3,20 +3,22 @@ Explorer Context Menu
 
 Provides context menu functionality for the Explorer panel, integrating with
 file operations service, undo/redo manager, and supporting various selection states.
+Includes keyboard shortcut support and accessibility features.
 """
 
 import os
 import platform
 import subprocess
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 from PySide6.QtWidgets import QMenu, QMessageBox, QApplication, QInputDialog
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QIcon, QKeySequence, QAction
+from PySide6.QtCore import QObject, Signal, Qt, QMimeData, QUrl
+from PySide6.QtGui import QIcon, QKeySequence, QAction, QFont
 
 from lg import logger
 from services.file_operations_service import FileOperationsService
 from services.undo_redo_service import UndoRedoManager
+from services.keyboard_shortcut_service import keyboard_shortcut_service
 
 
 class ExplorerContextMenu(QObject):
@@ -25,12 +27,16 @@ class ExplorerContextMenu(QObject):
     
     Provides context-sensitive menus for files, folders, and empty areas,
     with appropriate operations based on selection state.
+    Supports keyboard shortcuts and accessibility features.
     """
     
     # Signals for operations that require additional UI
     show_properties = Signal(list)  # list of file paths
     show_open_with = Signal(list)   # list of file paths
     refresh_requested = Signal()    # Signal emitted when refresh is requested
+    
+    # Property to track current selection for shortcut operations
+    selected_items = []
     
     def __init__(self, 
                  file_operations_service: FileOperationsService,
@@ -46,9 +52,13 @@ class ExplorerContextMenu(QObject):
         self.file_operations_service = file_operations_service
         self.undo_redo_manager = undo_redo_manager
         self.current_directory = None  # Will be updated when creating menu
+        self.keyboard_shortcut_service = keyboard_shortcut_service
         
         # Icons for common operations
         self._load_icons()
+        
+        # Register keyboard shortcuts
+        self._register_shortcuts()
     
     def _load_icons(self):
         """Load icons for menu actions."""
@@ -69,6 +79,370 @@ class ExplorerContextMenu(QObject):
             "find": QIcon("icons/search.svg"),
             "favorites": QIcon("icons/star.svg"),
         }
+        
+    def _register_shortcuts(self):
+        """Register keyboard shortcuts for common file operations."""
+        # Define shortcuts for file operations
+        shortcuts = [
+            {
+                'id': 'explorer.cut',
+                'name': 'Cut',
+                'sequence': 'Ctrl+X',
+                'callback': self._shortcut_cut,
+                'category': 'File Operations',
+                'description': 'Cut selected files or folders'
+            },
+            {
+                'id': 'explorer.copy',
+                'name': 'Copy',
+                'sequence': 'Ctrl+C',
+                'callback': self._shortcut_copy,
+                'category': 'File Operations',
+                'description': 'Copy selected files or folders'
+            },
+            {
+                'id': 'explorer.paste',
+                'name': 'Paste',
+                'sequence': 'Ctrl+V',
+                'callback': self._shortcut_paste,
+                'category': 'File Operations',
+                'description': 'Paste files or folders'
+            },
+            {
+                'id': 'explorer.delete',
+                'name': 'Delete',
+                'sequence': 'Delete',
+                'callback': self._shortcut_delete,
+                'category': 'File Operations',
+                'description': 'Delete selected files or folders'
+            },
+            {
+                'id': 'explorer.rename',
+                'name': 'Rename',
+                'sequence': 'F2',
+                'callback': self._shortcut_rename,
+                'category': 'File Operations',
+                'description': 'Rename selected file or folder'
+            },
+            {
+                'id': 'explorer.newFile',
+                'name': 'New File',
+                'sequence': 'Ctrl+N',
+                'callback': self._shortcut_new_file,
+                'category': 'File Operations',
+                'description': 'Create a new file'
+            },
+            {
+                'id': 'explorer.newFolder',
+                'name': 'New Folder',
+                'sequence': 'Ctrl+Shift+N',
+                'callback': self._shortcut_new_folder,
+                'category': 'File Operations',
+                'description': 'Create a new folder'
+            },
+            {
+                'id': 'explorer.refresh',
+                'name': 'Refresh',
+                'sequence': 'F5',
+                'callback': self._shortcut_refresh,
+                'category': 'File Operations',
+                'description': 'Refresh the file explorer'
+            },
+        ]
+        
+        # Register all shortcuts with the keyboard shortcut service
+        for shortcut in shortcuts:
+            self.keyboard_shortcut_service.register_shortcut(
+                id=shortcut['id'],
+                name=shortcut['name'],
+                default_sequence=shortcut['sequence'],
+                callback=shortcut['callback'],
+                category=shortcut['category'],
+                context="explorer",
+                context_sensitive=True,
+                description=shortcut['description']
+            )
+            
+    # Shortcut handler methods
+    def _shortcut_cut(self):
+        """Handle cut shortcut."""
+        self._handle_selection_shortcut('cut')
+    
+    def _shortcut_copy(self):
+        """Handle copy shortcut."""
+        self._handle_selection_shortcut('copy')
+    
+    def _shortcut_paste(self):
+        """Handle paste shortcut."""
+        # Only works if we have a current directory
+        if self.current_directory:
+            self._paste_items(self.current_directory)
+    
+    def _shortcut_delete(self):
+        """Handle delete shortcut."""
+        self._handle_selection_shortcut('delete')
+    
+    def _shortcut_rename(self):
+        """Handle rename shortcut."""
+        self._handle_selection_shortcut('rename')
+    
+    def _shortcut_new_file(self):
+        """Handle new file shortcut."""
+        if self.current_directory:
+            self._create_new_file(self.current_directory)
+    
+    def _shortcut_new_folder(self):
+        """Handle new folder shortcut."""
+        if self.current_directory:
+            self._create_new_folder(self.current_directory)
+    
+    def _shortcut_refresh(self):
+        """Handle refresh shortcut."""
+        self.refresh_requested.emit()
+    
+    def _handle_selection_shortcut(self, operation: str):
+        """
+        Handle shortcuts for operations that require selected items.
+        
+        This is called by the individual shortcut handlers when
+        we need to apply an operation to currently selected items.
+        
+        The Explorer panel should update this object's 'selected_items'
+        property whenever selection changes.
+        
+        Args:
+            operation: The operation to perform ('cut', 'copy', 'delete', 'rename')
+        """
+        # This requires the Explorer panel to set this property when selection changes
+        if not self.selected_items:
+            logger.debug(f"No items selected for {operation} shortcut")
+            return
+        
+        items = self.selected_items
+        paths = [item['path'] for item in items]
+        
+        if operation == 'cut':
+            self._cut_items(paths)
+        elif operation == 'copy':
+            self._copy_items(paths)
+        elif operation == 'delete':
+            self._delete_items(paths)
+        elif operation == 'rename' and len(items) == 1:
+            self._rename_item(items[0]['path'])
+            
+    def _cut_items(self, paths: List[str]):
+        """Cut selected items to clipboard."""
+        try:
+            # Create mime data
+            mime_data = self._create_file_mime_data(paths)
+            
+            # Set operation type for paste
+            mime_data.setData("application/x-explorer-operation", b"cut")
+            
+            # Set clipboard data
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
+            
+            logger.debug(f"Cut items to clipboard: {paths}")
+        except Exception as e:
+            logger.error(f"Error cutting items: {e}")
+            
+    def _copy_items(self, paths: List[str]):
+        """Copy selected items to clipboard."""
+        try:
+            # Create mime data
+            mime_data = self._create_file_mime_data(paths)
+            
+            # Set operation type for paste
+            mime_data.setData("application/x-explorer-operation", b"copy")
+            
+            # Set clipboard data
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
+            
+            logger.debug(f"Copied items to clipboard: {paths}")
+        except Exception as e:
+            logger.error(f"Error copying items: {e}")
+            
+    def _paste_items(self, target_path: str):
+        """Paste items from clipboard to target path."""
+        try:
+            # Get clipboard data
+            clipboard = QApplication.clipboard()
+            mime_data = clipboard.mimeData()
+            
+            if not self._clipboard_has_files(mime_data):
+                logger.warning("Clipboard does not contain files")
+                return
+            
+            # Get paths from clipboard
+            paths = self._get_paths_from_mime_data(mime_data)
+            
+            # Get operation type (cut or copy)
+            operation_bytes = mime_data.data("application/x-explorer-operation")
+            operation = operation_bytes.data().decode('utf-8') if operation_bytes else "copy"
+            
+            # Perform operation
+            if operation == "cut":
+                self.file_operations_service.move_items(paths, target_path)
+            else:  # copy
+                self.file_operations_service.copy_items(paths, target_path)
+                
+            logger.debug(f"Pasted items to {target_path}: {paths}")
+        except Exception as e:
+            logger.error(f"Error pasting items: {e}")
+            
+    def _delete_items(self, paths: List[str]):
+        """Delete selected items."""
+        try:
+            # Confirm deletion
+            confirm = QMessageBox.question(
+                None,  # Parent window
+                "Confirm Delete",
+                f"Are you sure you want to delete {len(paths)} item(s)?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if confirm == QMessageBox.StandardButton.Yes:
+                # Delete items
+                self.file_operations_service.delete_items(paths)
+                logger.debug(f"Deleted items: {paths}")
+        except Exception as e:
+            logger.error(f"Error deleting items: {e}")
+            
+    def _rename_item(self, path: str):
+        """Rename selected item."""
+        try:
+            # Get current name
+            current_name = os.path.basename(path)
+            
+            # Show dialog to get new name
+            new_name, ok = QInputDialog.getText(
+                None,  # Parent window
+                "Rename",
+                "Enter new name:",
+                text=current_name
+            )
+            
+            if ok and new_name:
+                # Rename item
+                new_path = os.path.join(os.path.dirname(path), new_name)
+                self.file_operations_service.rename_item(path, new_path)
+                logger.debug(f"Renamed {path} to {new_path}")
+        except Exception as e:
+            logger.error(f"Error renaming item: {e}")
+            
+    def _create_new_file(self, directory: str):
+        """Create a new file in the specified directory."""
+        try:
+            # Show dialog to get file name
+            file_name, ok = QInputDialog.getText(
+                None,  # Parent window
+                "New File",
+                "Enter file name:",
+            )
+            
+            if ok and file_name:
+                # Create file using the correct method name
+                self.file_operations_service.create_new_file(directory, file_name)
+                logger.debug(f"Created new file: {file_name} in {directory}")
+        except Exception as e:
+            logger.error(f"Error creating new file: {e}")
+            
+    def _create_new_folder(self, directory: str):
+        """Create a new folder in the specified directory."""
+        try:
+            # Show dialog to get folder name
+            folder_name, ok = QInputDialog.getText(
+                None,  # Parent window
+                "New Folder",
+                "Enter folder name:",
+            )
+            
+            if ok and folder_name:
+                # Create folder using the correct method name
+                self.file_operations_service.create_new_folder(directory, folder_name)
+                logger.debug(f"Created new folder: {folder_name} in {directory}")
+        except Exception as e:
+            logger.error(f"Error creating new folder: {e}")
+            
+    def _clipboard_has_files(self, mime_data: QMimeData) -> bool:
+        """Check if clipboard has file data."""
+        return mime_data.hasFormat("application/x-explorer-file-list")
+    
+    def _create_file_mime_data(self, paths: List[str]) -> QMimeData:
+        """Create mime data for file operations."""
+        mime_data = QMimeData()
+        
+        # Store paths as text
+        mime_data.setText("\n".join(paths))
+        
+        # Store paths in custom format for internal operations
+        path_bytes = "\n".join(paths).encode('utf-8')
+        mime_data.setData("application/x-explorer-file-list", path_bytes)
+        
+        # Create URLs for system-wide drag and drop
+        urls = [QUrl.fromLocalFile(path) for path in paths]
+        mime_data.setUrls(urls)
+        
+        return mime_data
+    
+    def _get_paths_from_mime_data(self, mime_data: QMimeData) -> List[str]:
+        """Get file paths from mime data."""
+        if mime_data.hasFormat("application/x-explorer-file-list"):
+            # Get paths from custom format
+            path_bytes = mime_data.data("application/x-explorer-file-list")
+            try:
+                # Just use the text representation as fallback
+                return mime_data.text().split("\n")
+            except Exception as e:
+                logger.error(f"Error decoding paths from mime data: {e}")
+                return []
+        elif mime_data.hasUrls():
+            # Get paths from URLs
+            urls = mime_data.urls()
+            return [url.toLocalFile() for url in urls if url.isLocalFile()]
+        elif mime_data.hasText():
+            # Get paths from text
+            return mime_data.text().split("\n")
+        
+        return []
+        
+    def _open_items(self, paths: List[str]):
+        """Open selected items."""
+        for path in paths:
+            try:
+                if os.path.isfile(path):
+                    # Open file
+                    if platform.system() == "Windows":
+                        # Windows-specific method, use subprocess as fallback
+                        subprocess.call(["start", "", path], shell=True)
+                    elif platform.system() == "Darwin":  # macOS
+                        subprocess.call(["open", path])
+                    else:  # Linux
+                        subprocess.call(["xdg-open", path])
+                elif os.path.isdir(path):
+                    # Open directory in file explorer
+                    if platform.system() == "Windows":
+                        subprocess.call(["explorer", path])
+                    elif platform.system() == "Darwin":  # macOS
+                        subprocess.call(["open", path])
+                    else:  # Linux
+                        subprocess.call(["xdg-open", path])
+            except Exception as e:
+                logger.error(f"Error opening item {path}: {e}")
+                
+    def _open_in_new_window(self, paths: List[str]):
+        """Open directories in new window."""
+        for path in paths:
+            try:
+                if os.path.isdir(path):
+                    # This should be implemented based on application design
+                    # For example, by emitting a signal to open a new window
+                    logger.debug(f"Opening directory in new window: {path}")
+                    # self.open_in_new_window_signal.emit(path)
+            except Exception as e:
+                logger.error(f"Error opening directory in new window {path}: {e}")
     
     def create_menu(self, selected_items: List[Dict[str, Any]], current_directory: Optional[str] = None) -> QMenu:
         """
@@ -85,9 +459,13 @@ class ExplorerContextMenu(QObject):
             QMenu: The context menu
         """
         menu = QMenu()
+        menu.setObjectName("ExplorerContextMenu")
         
         # Store the current directory for use in menu actions
         self.current_directory = current_directory
+        
+        # Update selected items for shortcut operations
+        self.selected_items = selected_items
         
         # Check selection state
         if not selected_items:
