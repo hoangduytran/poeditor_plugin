@@ -25,6 +25,9 @@ from PySide6.QtCore import Qt, Signal, QDir, QModelIndex, QItemSelectionModel, Q
 from PySide6.QtGui import QAction
 
 from core.explorer_settings import ExplorerSettings
+from services.file_operations_service import FileOperationsService
+from services.undo_redo_service import UndoRedoManager
+from widgets.explorer_context_menu import ExplorerContextMenu
 from lg import logger
 
 
@@ -148,6 +151,43 @@ class SimpleFileView(QTreeView):
         super().__init__(parent)
         self._setup_model()
         self._setup_view()
+        self._setup_context_menu()
+
+    def _setup_context_menu(self):
+        """Set up the context menu for file operations."""
+        # Initialize required services
+        self.file_operations_service = FileOperationsService()
+        self.undo_redo_manager = UndoRedoManager()
+        
+        # Create the context menu manager
+        self.context_menu = ExplorerContextMenu(
+            self.file_operations_service,
+            self.undo_redo_manager
+        )
+        
+        # Enable custom context menu
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
+        
+        # Connect context menu signals
+        self.context_menu.refresh_requested.connect(self._refresh_view)
+
+    def _refresh_view(self):
+        """Refresh the file view."""
+        try:
+            # Get current path
+            current_path = self.get_current_path()
+            
+            # Reset the model and view
+            self.proxy_model.invalidate()
+            self.file_system_model.setRootPath("")  # Clear
+            
+            # Set the path again to refresh
+            self.set_current_path(current_path)
+            
+            logger.debug(f"File view refreshed for path: {current_path}")
+        except Exception as e:
+            logger.error(f"Error refreshing file view: {e}")
 
     def _setup_model(self):
         """
@@ -219,6 +259,45 @@ class SimpleFileView(QTreeView):
         
         # Connect double-click handler
         self.doubleClicked.connect(self._on_activated)
+
+    def _show_context_menu(self, position):
+        """Show the context menu for file operations."""
+        try:
+            # Get the item at the clicked position
+            index = self.indexAt(position)
+            selected_items = []
+            current_directory = self.get_current_path()
+            
+            if index.isValid():
+                # Get selected items (can be multiple with Ctrl+click)
+                selected_indexes = self.selectedIndexes()
+                if not selected_indexes:
+                    # If nothing is selected, use the clicked item
+                    selected_indexes = [index]
+                
+                for sel_index in selected_indexes:
+                    # Map proxy index to source index
+                    source_index = self.proxy_model.mapToSource(sel_index)
+                    if source_index.isValid():
+                        file_path = self.file_system_model.filePath(source_index)
+                        is_dir = self.file_system_model.isDir(source_index)
+                        name = self.file_system_model.fileName(source_index)
+                        
+                        selected_items.append({
+                            'path': file_path,
+                            'is_dir': is_dir,
+                            'name': name
+                        })
+                        
+                        # Update the context menu's selected items for shortcuts
+                        self.context_menu.selected_items = selected_items
+            
+            # Create and show the context menu
+            menu = self.context_menu.create_menu(selected_items, current_directory)
+            menu.exec(self.mapToGlobal(position))
+            
+        except Exception as e:
+            logger.error(f"Error showing context menu: {e}")
 
     def mousePressEvent(self, event):
         # Clear selection when clicking on empty area

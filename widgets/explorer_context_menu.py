@@ -19,6 +19,8 @@ from lg import logger
 from services.file_operations_service import FileOperationsService
 from services.undo_redo_service import UndoRedoManager
 from services.keyboard_shortcut_service import keyboard_shortcut_service
+from widgets.explorer_context_menu_accessibility import menu_accessibility_manager
+from widgets.explorer_context_menu_keyboard_navigation import setup_menu_keyboard_navigation
 
 
 class ExplorerContextMenu(QObject):
@@ -62,6 +64,17 @@ class ExplorerContextMenu(QObject):
     
     def _load_icons(self):
         """Load icons for menu actions."""
+        # Check if icons directory exists, if not use empty icons
+        icons_dir = "icons"
+        if not os.path.exists(icons_dir):
+            logger.debug(f"Icons directory {icons_dir} not found, using empty icons")
+            self.icons = {key: QIcon() for key in [
+                "open", "open_with", "open_new_window", "cut", "copy", "paste",
+                "duplicate", "rename", "delete", "new_file", "new_folder",
+                "properties", "terminal", "find", "favorites"
+            ]}
+            return
+            
         self.icons = {
             "open": QIcon("icons/open.svg"),
             "open_with": QIcon("icons/open_with.svg"),
@@ -167,16 +180,29 @@ class ExplorerContextMenu(QObject):
     def _shortcut_cut(self):
         """Handle cut shortcut."""
         self._handle_selection_shortcut('cut')
+        
+        # Announce to screen reader
+        if self.selected_items:
+            count = len(self.selected_items)
+            menu_accessibility_manager.announce_to_screen_reader(f"Cut {count} {'item' if count == 1 else 'items'}")
     
     def _shortcut_copy(self):
         """Handle copy shortcut."""
         self._handle_selection_shortcut('copy')
+        
+        # Announce to screen reader
+        if self.selected_items:
+            count = len(self.selected_items)
+            menu_accessibility_manager.announce_to_screen_reader(f"Copied {count} {'item' if count == 1 else 'items'}")
     
     def _shortcut_paste(self):
         """Handle paste shortcut."""
         # Only works if we have a current directory
         if self.current_directory:
             self._paste_items(self.current_directory)
+            
+            # Announce to screen reader
+            menu_accessibility_manager.announce_to_screen_reader(f"Pasted items to {os.path.basename(self.current_directory)}")
     
     def _shortcut_delete(self):
         """Handle delete shortcut."""
@@ -267,28 +293,9 @@ class ExplorerContextMenu(QObject):
     def _paste_items(self, target_path: str):
         """Paste items from clipboard to target path."""
         try:
-            # Get clipboard data
-            clipboard = QApplication.clipboard()
-            mime_data = clipboard.mimeData()
-            
-            if not self._clipboard_has_files(mime_data):
-                logger.warning("Clipboard does not contain files")
-                return
-            
-            # Get paths from clipboard
-            paths = self._get_paths_from_mime_data(mime_data)
-            
-            # Get operation type (cut or copy)
-            operation_bytes = mime_data.data("application/x-explorer-operation")
-            operation = operation_bytes.data().decode('utf-8') if operation_bytes else "copy"
-            
-            # Perform operation
-            if operation == "cut":
-                self.file_operations_service.move_items(paths, target_path)
-            else:  # copy
-                self.file_operations_service.copy_items(paths, target_path)
-                
-            logger.debug(f"Pasted items to {target_path}: {paths}")
+            # Use the file operations service paste method
+            self.file_operations_service.paste(target_path)
+            logger.debug(f"Pasted items to {target_path}")
         except Exception as e:
             logger.error(f"Error pasting items: {e}")
             
@@ -407,42 +414,6 @@ class ExplorerContextMenu(QObject):
             return mime_data.text().split("\n")
         
         return []
-        
-    def _open_items(self, paths: List[str]):
-        """Open selected items."""
-        for path in paths:
-            try:
-                if os.path.isfile(path):
-                    # Open file
-                    if platform.system() == "Windows":
-                        # Windows-specific method, use subprocess as fallback
-                        subprocess.call(["start", "", path], shell=True)
-                    elif platform.system() == "Darwin":  # macOS
-                        subprocess.call(["open", path])
-                    else:  # Linux
-                        subprocess.call(["xdg-open", path])
-                elif os.path.isdir(path):
-                    # Open directory in file explorer
-                    if platform.system() == "Windows":
-                        subprocess.call(["explorer", path])
-                    elif platform.system() == "Darwin":  # macOS
-                        subprocess.call(["open", path])
-                    else:  # Linux
-                        subprocess.call(["xdg-open", path])
-            except Exception as e:
-                logger.error(f"Error opening item {path}: {e}")
-                
-    def _open_in_new_window(self, paths: List[str]):
-        """Open directories in new window."""
-        for path in paths:
-            try:
-                if os.path.isdir(path):
-                    # This should be implemented based on application design
-                    # For example, by emitting a signal to open a new window
-                    logger.debug(f"Opening directory in new window: {path}")
-                    # self.open_in_new_window_signal.emit(path)
-            except Exception as e:
-                logger.error(f"Error opening directory in new window {path}: {e}")
     
     def create_menu(self, selected_items: List[Dict[str, Any]], current_directory: Optional[str] = None) -> QMenu:
         """
@@ -466,6 +437,11 @@ class ExplorerContextMenu(QObject):
         
         # Update selected items for shortcut operations
         self.selected_items = selected_items
+        
+        # Track the widget that had focus before showing the menu
+        focused_widget = QApplication.focusWidget()
+        if focused_widget:
+            menu_accessibility_manager.track_focus(focused_widget)
         
         # Check selection state
         if not selected_items:
@@ -496,6 +472,15 @@ class ExplorerContextMenu(QObject):
         # Plugin operations (if any)
         # This would be integrated with the plugin system
         # self._add_plugin_operations(menu, selected_items)
+        
+        # Add accessibility features to the menu
+        menu_accessibility_manager.add_accessibility_to_menu(menu)
+        
+        # Connect to menu's aboutToHide signal to restore focus
+        menu.aboutToHide.connect(menu_accessibility_manager.restore_focus)
+        
+        # Setup enhanced keyboard navigation
+        setup_menu_keyboard_navigation(menu)
         
         return menu
     
@@ -542,6 +527,15 @@ class ExplorerContextMenu(QObject):
         # Refresh
         refresh_action = QAction("Refresh", menu)
         # Emit a signal that parent widgets can connect to
+        
+        # Add accessibility features to the background menu
+        menu_accessibility_manager.add_accessibility_to_menu(menu)
+        
+        # Connect to menu's aboutToHide signal to restore focus
+        menu.aboutToHide.connect(menu_accessibility_manager.restore_focus)
+        
+        # Setup enhanced keyboard navigation
+        setup_menu_keyboard_navigation(menu)
         refresh_action.triggered.connect(self.refresh_requested.emit)
         menu.addAction(refresh_action)
         
