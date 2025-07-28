@@ -6,10 +6,12 @@ file operations service, undo/redo manager, and supporting various selection sta
 """
 
 import os
-from typing import List, Optional, Dict, Any
+import platform
+import subprocess
+from typing import List, Dict, Any, Optional
 
-from PySide6.QtWidgets import QMenu, QMessageBox, QApplication
-from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtWidgets import QMenu, QMessageBox, QApplication, QInputDialog
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QIcon, QKeySequence, QAction
 
 from lg import logger
@@ -28,6 +30,7 @@ class ExplorerContextMenu(QObject):
     # Signals for operations that require additional UI
     show_properties = Signal(list)  # list of file paths
     show_open_with = Signal(list)   # list of file paths
+    refresh_requested = Signal()    # Signal emitted when refresh is requested
     
     def __init__(self, 
                  file_operations_service: FileOperationsService,
@@ -42,6 +45,7 @@ class ExplorerContextMenu(QObject):
         super().__init__()
         self.file_operations_service = file_operations_service
         self.undo_redo_manager = undo_redo_manager
+        self.current_directory = None  # Will be updated when creating menu
         
         # Icons for common operations
         self._load_icons()
@@ -66,7 +70,7 @@ class ExplorerContextMenu(QObject):
             "favorites": QIcon("icons/star.svg"),
         }
     
-    def create_menu(self, selected_items: List[Dict[str, Any]]) -> QMenu:
+    def create_menu(self, selected_items: List[Dict[str, Any]], current_directory: Optional[str] = None) -> QMenu:
         """
         Create a context menu based on the selected items.
         
@@ -75,11 +79,15 @@ class ExplorerContextMenu(QObject):
                 - 'path': str - Full path to the item
                 - 'is_dir': bool - True if directory, False if file
                 - 'name': str - Item name
+            current_directory: Current directory path, used for paste operations
         
         Returns:
             QMenu: The context menu
         """
         menu = QMenu()
+        
+        # Store the current directory for use in menu actions
+        self.current_directory = current_directory
         
         # Check selection state
         if not selected_items:
@@ -138,8 +146,8 @@ class ExplorerContextMenu(QObject):
         paste_action.setEnabled(has_urls)
         paste_action.triggered.connect(
             lambda: self.file_operations_service.paste(
-                self.file_operations_service.get_current_directory()
-            )
+                self.current_directory
+            ) if self.current_directory else logger.error("No current directory set")
         )
         menu.addAction(paste_action)
         
@@ -149,15 +157,14 @@ class ExplorerContextMenu(QObject):
         # Terminal here
         terminal_action = QAction(self.icons.get("terminal", QIcon()), "Open Terminal Here", menu)
         terminal_action.triggered.connect(
-            lambda: self._open_terminal(self.file_operations_service.get_current_directory())
+            lambda: self._open_terminal(self.current_directory) if self.current_directory else logger.error("No current directory set")
         )
         menu.addAction(terminal_action)
         
         # Refresh
         refresh_action = QAction("Refresh", menu)
-        refresh_action.triggered.connect(
-            lambda: self.file_operations_service.refresh()
-        )
+        # Emit a signal that parent widgets can connect to
+        refresh_action.triggered.connect(self.refresh_requested.emit)
         menu.addAction(refresh_action)
         
         return menu
@@ -259,7 +266,8 @@ class ExplorerContextMenu(QObject):
         
         # Delete
         delete_action = QAction(self.icons.get("delete", QIcon()), "Delete", menu)
-        delete_action.setShortcut(QKeySequence(Qt.Key.Key_Delete))
+        # Use string representation for the key which works across PySide6 versions
+        delete_action.setShortcut(QKeySequence("Del"))
         delete_action.triggered.connect(lambda: self._confirm_delete(paths))
         menu.addAction(delete_action)
     
@@ -342,6 +350,7 @@ class ExplorerContextMenu(QObject):
         else:
             msg = f"Are you sure you want to delete {count} items?"
         
+        # Use StandardButton which is available in PySide6
         result = QMessageBox.question(
             None,
             "Confirm Delete",
@@ -370,16 +379,22 @@ class ExplorerContextMenu(QObject):
                 import platform
                 import subprocess
                 
-                try:
-                    if platform.system() == 'Darwin':  # macOS
-                        subprocess.call(('open', path))
-                    elif platform.system() == 'Windows':
-                        subprocess.Popen(['start', path], shell=True)
-                    else:  # Linux and other Unix
-                        subprocess.call(('xdg-open', path))
+                # Use direct platform-specific calls without try/except
+                if platform.system() == 'Darwin':  # macOS
+                    result = subprocess.call(('open', path))
+                    if result != 0:
+                        logger.error(f"Failed to open file {path} with return code {result}")
+                    else:
+                        logger.debug(f"Opened file: {path}")
+                elif platform.system() == 'Windows':
+                    subprocess.Popen(['start', path], shell=True)
                     logger.debug(f"Opened file: {path}")
-                except Exception as e:
-                    logger.error(f"Failed to open file {path}: {e}")
+                else:  # Linux and other Unix
+                    result = subprocess.call(('xdg-open', path))
+                    if result != 0:
+                        logger.error(f"Failed to open file {path} with return code {result}")
+                    else:
+                        logger.debug(f"Opened file: {path}")
     
     def _open_in_new_window(self, paths: List[str]):
         """
@@ -405,16 +420,25 @@ class ExplorerContextMenu(QObject):
         import subprocess
         import platform
         
-        try:
-            if platform.system() == 'Darwin':  # macOS
-                subprocess.Popen(['open', '-a', 'Terminal', path])
-            elif platform.system() == 'Windows':
-                subprocess.Popen(['cmd.exe'], cwd=path, shell=True)
-            else:  # Linux
-                subprocess.Popen(['x-terminal-emulator'], cwd=path)
-            logger.debug(f"Opened terminal at {path}")
-        except Exception as e:
-            logger.error(f"Failed to open terminal at {path}: {e}")
+        # Direct calls without try/except
+        if platform.system() == 'Darwin':  # macOS
+            process = subprocess.Popen(['open', '-a', 'Terminal', path])
+            if process.returncode is not None and process.returncode != 0:
+                logger.error(f"Failed to open terminal at {path} with return code {process.returncode}")
+            else:
+                logger.debug(f"Opened terminal at {path}")
+        elif platform.system() == 'Windows':
+            process = subprocess.Popen(['cmd.exe'], cwd=path, shell=True)
+            if process.returncode is not None and process.returncode != 0:
+                logger.error(f"Failed to open terminal at {path} with return code {process.returncode}")
+            else:
+                logger.debug(f"Opened terminal at {path}")
+        else:  # Linux
+            process = subprocess.Popen(['x-terminal-emulator'], cwd=path)
+            if process.returncode is not None and process.returncode != 0:
+                logger.error(f"Failed to open terminal at {path} with return code {process.returncode}")
+            else:
+                logger.debug(f"Opened terminal at {path}")
     
     def _find_in_folder(self, path: str):
         """
@@ -441,12 +465,10 @@ class ExplorerContextMenu(QObject):
         Handle renaming of a file or folder.
         
         Args:
-            path: Path to the file or folder to rename
-            current_name: Current name of the file or folder
+            path: Full path to the file or folder to rename
+            current_name: Current filename (without directory path)
         """
-        from PySide6.QtWidgets import QInputDialog
-        
-        # Show rename dialog
+        # Show rename dialog using the imported QInputDialog
         new_name, ok = QInputDialog.getText(
             None, 
             "Rename", 
@@ -454,10 +476,14 @@ class ExplorerContextMenu(QObject):
             text=current_name
         )
         
+        # Only proceed if user pressed OK and provided a different name
         if ok and new_name and new_name != current_name:
-            try:
-                import os
-                dir_path = os.path.dirname(path)
-                self.file_operations_service.rename_item(path, new_name)
-            except Exception as e:
-                logger.error(f"Error renaming {path} to {new_name}: {e}")
+            # Call the file operations service to handle the rename
+            # The service is expected to handle the full path logic internally
+            new_path = self.file_operations_service.rename_item(path, new_name)
+            
+            # Check if rename was successful (service returns new path or empty string on failure)
+            if new_path:
+                logger.debug(f"Renamed '{current_name}' to '{new_name}'")
+            else:
+                logger.error(f"Failed to rename {path} to {new_name}")

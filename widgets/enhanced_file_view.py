@@ -73,6 +73,7 @@ class EnhancedFileView(SimpleFileView):
         # Connect context menu signals
         self.context_menu_manager.show_properties.connect(self._show_properties)
         self.context_menu_manager.show_open_with.connect(self._show_open_with)
+        self.context_menu_manager.refresh_requested.connect(self._refresh_view)
         
     def _show_context_menu(self, position):
         """
@@ -115,8 +116,11 @@ class EnhancedFileView(SimpleFileView):
                     'name': name
                 })
         
-        # Create menu based on selection
-        menu = self.context_menu_manager.create_menu(selected_items)
+        # Get the current directory
+        current_directory = self.rootPath()
+        
+        # Create menu based on selection and current directory
+        menu = self.context_menu_manager.create_menu(selected_items, current_directory)
         
         # Show menu at position
         menu.exec_(self.viewport().mapToGlobal(position))
@@ -254,3 +258,16 @@ class EnhancedFileView(SimpleFileView):
     def rootPath(self) -> str:
         """Get the current root path of the view."""
         return self.file_system_model.rootPath()
+        
+    def _refresh_view(self):
+        """
+        Refresh the file view by reloading the current directory.
+        
+        This updates the view to reflect any changes in the file system
+        that may have occurred (new files, deleted files, etc).
+        """
+        current_path = self.rootPath()
+        if current_path:
+            # Refresh by resetting the root path
+            self.file_system_model.setRootPath(current_path)
+            logger.info(f"Refreshed view for directory: {current_path}")

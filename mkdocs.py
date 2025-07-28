@@ -14,23 +14,120 @@ import subprocess
 import importlib.util
 import time
 import argparse
+import socket
+import signal
 from pathlib import Path
 from typing import List, Set, Optional
 
+def check_port_available(port: int) -> bool:
+    """Check if the specified port is available.
+    
+    Args:
+        port: The port number to check
+        
+    Returns:
+        bool: True if the port is available, False otherwise
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            # Try to bind to the port
+            s.bind(('localhost', port))
+            return True
+        except socket.error:
+            return False
+
+def find_available_port(start_port: int, max_attempts: int = 10) -> Optional[int]:
+    """Find an available port starting from the specified port.
+    
+    Args:
+        start_port: The port number to start checking from
+        max_attempts: Maximum number of ports to check
+        
+    Returns:
+        Optional[int]: An available port number, or None if no port is available
+    """
+    current_port = start_port
+    for _ in range(max_attempts):
+        if check_port_available(current_port):
+            return current_port
+        current_port += 1
+    return None
+
+def kill_process_on_port(port: int) -> bool:
+    """Attempt to kill the process using the specified port.
+    
+    Args:
+        port: The port number used by the process to kill
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        if sys.platform == 'win32':
+            # Windows
+            result = subprocess.run(
+                ['netstat', '-ano', '|', 'findstr', f':{port}'], 
+                shell=True, 
+                capture_output=True, 
+                text=True
+            )
+            if result.returncode == 0:
+                lines = result.stdout.strip().split('\n')
+                for line in lines:
+                    if f':{port}' in line:
+                        parts = line.strip().split()
+                        if len(parts) > 4:
+                            pid = parts[-1]
+                            subprocess.run(['taskkill', '/F', '/PID', pid])
+                            print(f"Killed process {pid} using port {port}")
+                            return True
+        else:
+            # For macOS and Linux
+            cmd = f"lsof -i tcp:{port} -t"
+            result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
+            
+            if result.returncode != 0 or not result.stdout.strip():
+                return False
+            
+            # Get PID from the output
+            pid = result.stdout.strip().split('\n')[0]
+            
+            # Kill the process
+            try:
+                os.kill(int(pid), signal.SIGTERM)
+                # Give it a moment to terminate
+                time.sleep(0.5)
+                
+                # Check if it's still running
+                if check_port_available(port):
+                    return True
+                
+                # If still not available, try SIGKILL
+                os.kill(int(pid), signal.SIGKILL)
+                time.sleep(0.5)
+                
+                return check_port_available(port)
+            except ProcessLookupError:
+                # Process might have terminated already
+                return check_port_available(port)
+            except Exception as e:
+                print(f"Error killing process: {str(e)}")
+                return False
+    except Exception as e:
+        print(f"Error finding process on port {port}: {str(e)}")
+        return False
+
 def check_dependencies():
-    """Check if required dependencies are installed."""
-    required_packages = ['sphinx', 'sphinx_rtd_theme']
-    missing_packages = []
-    
-    for package in required_packages:
-        if importlib.util.find_spec(package) is None:
-            missing_packages.append(package)
-    
-    if missing_packages:
-        print(f"Missing required packages: {', '.join(missing_packages)}")
-        print("Installing missing packages...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install"] + missing_packages)
-        print("Dependencies installed successfully.")
+    """Check if Sphinx and needed extensions are installed."""
+    try:
+        import sphinx
+        import sphinx_rtd_theme
+    except ImportError as e:
+        print(f"Error: Missing dependency - {str(e)}")
+        print("Please install the required packages:")
+        print("pip install -U sphinx sphinx_rtd_theme")
+        return False
+    return True
 
 def create_sphinx_config():
     """Create the Sphinx configuration directory and files."""
@@ -75,44 +172,7 @@ autodoc_member_order = 'bysource'
 autodoc_typehints = 'description'
 ''')
     
-    # Create index.rst
-    index_rst = os.path.join(source_dir, 'index.rst')
-    with open(index_rst, 'w') as f:
-        f.write('''POEditor Plugin API Documentation
-=============================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   services/index
-   models/index
-
-Core Services
-------------
-
-.. toctree::
-   :maxdepth: 2
-   
-   services/file_numbering_service
-   services/undo_redo_service
-   services/file_operations_service
-
-Models
-------
-
-.. toctree::
-   :maxdepth: 2
-   
-   models/file_system_models
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-''')
+    # Skip creating index.rst - using existing file in docs directory
 
 def create_module_docs():
     """Create .rst files for each module to document."""
@@ -141,7 +201,8 @@ def create_module_docs():
     service_files = {
         'file_numbering_service': 'services/file_numbering_service.py',
         'undo_redo_service': 'services/undo_redo_service.py',
-        'file_operations_service': 'services/file_operations_service.py'
+        'file_operations_service': 'services/file_operations_service.py',
+        'drag_drop_service': 'services/drag_drop_service.py'
     }
     
     for service_name, service_path in service_files.items():
@@ -285,6 +346,8 @@ def watch_for_changes(interval: int = 1):
     except KeyboardInterrupt:
         print("\nStopping documentation watch mode.")
 
+# Functions already defined at the top of the file
+
 def main():
     """Main function to generate API documentation."""
     parser = argparse.ArgumentParser(description="Generate API documentation for POEditor Plugin")
@@ -292,6 +355,7 @@ def main():
     parser.add_argument("--serve", "-s", action="store_true", help="Start a simple HTTP server to view documentation")
     parser.add_argument("--port", "-p", type=int, default=8080, help="Port for the HTTP server (default: 8080)")
     parser.add_argument("--update-only", "-u", action="store_true", help="Only update API docs, don't build HTML")
+    parser.add_argument("--force", "-f", action="store_true", help="Force kill any process using the specified port")
     args = parser.parse_args()
     
     print("Generating API documentation for POEditor Plugin...")
@@ -318,14 +382,52 @@ def main():
     # Start HTTP server if requested
     if args.serve:
         build_dir = os.path.join(os.getcwd(), 'docs', 'build', 'html')
-        print(f"\nStarting HTTP server at http://localhost:{args.port}/")
+        
+        # Check if port is available
+        port_to_use = args.port
+        if not check_port_available(port_to_use):
+            print(f"Port {port_to_use} is already in use.")
+            
+            if args.force:
+                # Try to kill the process using the port
+                print(f"Attempting to kill process using port {port_to_use}...")
+                if kill_process_on_port(port_to_use):
+                    print(f"Successfully freed port {port_to_use}.")
+                    # Wait a moment for the port to be fully released
+                    time.sleep(1)
+                else:
+                    print(f"Failed to free port {port_to_use}.")
+                    # Try to find an alternative port
+                    alternative_port = find_available_port(port_to_use + 1)
+                    if alternative_port:
+                        print(f"Using alternative port {alternative_port} instead.")
+                        port_to_use = alternative_port
+                    else:
+                        print("No available ports found. Please free up a port and try again.")
+                        return
+            else:
+                # Try to find an alternative port
+                alternative_port = find_available_port(port_to_use + 1)
+                if alternative_port:
+                    print(f"Using alternative port {alternative_port} instead.")
+                    port_to_use = alternative_port
+                else:
+                    print("No available ports found. Please free up a port and try again.")
+                    print("Or use --force to attempt to kill the process using the port.")
+                    return
+        
+        print(f"\nStarting HTTP server at http://localhost:{port_to_use}/")
         print("Press Ctrl+C to stop the server.")
         
         # Start server in a subprocess
-        server_process = subprocess.Popen(
-            [sys.executable, "-m", "http.server", str(args.port)],
-            cwd=build_dir
-        )
+        try:
+            server_process = subprocess.Popen(
+                [sys.executable, "-m", "http.server", str(port_to_use)],
+                cwd=build_dir
+            )
+        except Exception as e:
+            print(f"Error starting server: {str(e)}")
+            return
         
         try:
             if args.watch:

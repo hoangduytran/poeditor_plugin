@@ -73,8 +73,21 @@ class DragDropService(QObject):
         mime_data = QMimeData()
         
         # Add URLs to the mime data
-        urls = [QUrl.fromLocalFile(path) for path in source_paths]
-        mime_data.setUrls(urls)
+        urls = []
+        for path in source_paths:
+            try:
+                url = QUrl.fromLocalFile(path)
+                if url.isValid():
+                    urls.append(url)
+                else:
+                    logger.warning(f"Created invalid URL for path: {path}")
+            except Exception as e:
+                logger.error(f"Error creating URL from path {path}: {str(e)}")
+                
+        if urls:
+            mime_data.setUrls(urls)
+        else:
+            logger.warning("No valid URLs created from source paths")
         
         # Add text representation as backup
         mime_data.setText("\n".join(source_paths))
@@ -87,14 +100,20 @@ class DragDropService(QObject):
         default_action = Qt.DropAction.CopyAction
         
         # Check if source is within our application
-        if all(path.startswith(QApplication.applicationDirPath()) for path in source_paths):
-            default_action = Qt.DropAction.MoveAction
+        try:
+            app_dir = QApplication.applicationDirPath()
+            if app_dir and all(path.startswith(app_dir) for path in source_paths):
+                default_action = Qt.DropAction.MoveAction
+        except Exception as e:
+            logger.error(f"Error checking application directory: {str(e)}")
         
         # Emit signal that drag has started
         self.drag_started.emit(source_paths)
         
         # Execute the drag and capture the result
-        result = drag.exec(Qt.DropAction.CopyAction | Qt.DropAction.MoveAction | Qt.DropAction.LinkAction, default_action)
+        # In PySide6, drag.exec() takes supportedActions as a combination of flags
+        # and defaultAction as a separate parameter
+        result = drag.exec_(Qt.DropAction.CopyAction | Qt.DropAction.MoveAction | Qt.DropAction.LinkAction, default_action)
         
         # Reset the drag state
         self.drag_in_progress = False
@@ -117,6 +136,14 @@ class DragDropService(QObject):
         """
         if not self.file_operations_service:
             logger.error("Cannot process drop: file operations service not set")
+            return False
+        
+        if not mime_data:
+            logger.error("Cannot process drop: mime data is empty")
+            return False
+        
+        if not target_dir:
+            logger.error("Cannot process drop: target directory not specified")
             return False
             
         # Extract URLs from mime data
@@ -167,6 +194,10 @@ class DragDropService(QObject):
         logger.info(f"Copy action: {len(source_paths)} items to {target_dir}")
         
         try:
+            if not self.file_operations_service:
+                logger.error("File operations service is not set")
+                return False
+                
             self.file_operations_service.copy_to_clipboard(source_paths)
             self.file_operations_service.paste(target_dir)
             return True
@@ -188,6 +219,10 @@ class DragDropService(QObject):
         logger.info(f"Move action: {len(source_paths)} items to {target_dir}")
         
         try:
+            if not self.file_operations_service:
+                logger.error("File operations service is not set")
+                return False
+                
             self.file_operations_service.cut_to_clipboard(source_paths)
             self.file_operations_service.paste(target_dir)
             return True
@@ -209,6 +244,10 @@ class DragDropService(QObject):
         logger.info(f"Link action: {len(source_paths)} items to {target_dir}")
         
         try:
+            if not self.file_operations_service:
+                logger.error("File operations service is not set")
+                return False
+                
             # For now, treat links as copies since link creation would need
             # platform-specific implementation
             return self._handle_copy_action(source_paths, target_dir)

@@ -26,6 +26,7 @@ The best software engineering practices include:
    - Make use of the logger in lg to log your tests.
    - Use mocks for plugin interfaces if they are not already existed.
    - Add integration tests for plugin registration and UI behavior.
+   - Always use pylint and pyflakes, py_compile to perform sanity checks of files and clean up/fix issues.
 
 
 5. **Documentation**  

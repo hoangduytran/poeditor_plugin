@@ -12,6 +12,7 @@ POEditor Plugin API Documentation
    models/index
    panels/index
    plugins/index
+   explorer/index
 
 Core Services
 ------------
@@ -22,6 +23,7 @@ Core Services
    services/file_numbering_service
    services/undo_redo_service
    services/file_operations_service
+   services/drag_drop_service
    services/theme_manager
 
 Models
@@ -47,6 +49,17 @@ Core Components
    core/plugin_manager
    core/sidebar_manager
    core/tab_manager
+
+Enhanced Explorer Components
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+   
+   widgets/enhanced_explorer_widget
+   widgets/enhanced_file_view
+   widgets/explorer_context_menu
+   panels/enhanced_explorer_panel
 
 Indices and tables
 ==================
