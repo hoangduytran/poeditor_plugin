@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .layer { stroke: #333; stroke-width: 2; }
+    .layer-ui { fill: #7AB0FF; }
+    .layer-services { fill: #9EE09E; }
+    .layer-core { fill: #FFCE9E; }
+    .layer-model { fill: #FFABAB; }
+    .component { fill: white; stroke: #333; stroke-width: 1; }
+    .label { font-family: 'Arial', sans-serif; font-weight: bold; text-anchor: middle; }
+    .component-label { font-family: 'Arial', sans-serif; font-size: 12px; text-anchor: middle; }
+    .arrow { stroke: #666; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+    .description { font-family: 'Arial', sans-serif; font-size: 12px; fill: #666; }
+  </style>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="40" font-family="'Arial', sans-serif" font-size="24" font-weight="bold" text-anchor="middle">POEditor Plugin Architecture</text>
+
+  <!-- UI Layer -->
+  <rect class="layer layer-ui" x="100" y="80" width="600" height="100" rx="10" />
+  <text class="label" x="400" y="110" font-size="18">UI Layer</text>
+  <text class="description" x="400" y="130" text-anchor="middle">PySide6 widgets and custom UI components</text>
+  
+  <!-- UI Components -->
+  <rect class="component" x="120" y="140" width="110" height="30" rx="5" />
+  <text class="component-label" x="175" y="160">Activity Bar</text>
+  
+  <rect class="component" x="245" y="140" width="110" height="30" rx="5" />
+  <text class="component-label" x="300" y="160">Sidebar Panels</text>
+  
+  <rect class="component" x="370" y="140" width="110" height="30" rx="5" />
+  <text class="component-label" x="425" y="160">Tab Management</text>
+  
+  <rect class="component" x="495" y="140" width="90" height="30" rx="5" />
+  <text class="component-label" x="540" y="160">Theme Editor</text>
+  
+  <rect class="component" x="600" y="140" width="80" height="30" rx="5" />
+  <text class="component-label" x="640" y="160">Dialogs</text>
+
+  <!-- Services Layer -->
+  <rect class="layer layer-services" x="100" y="200" width="600" height="100" rx="10" />
+  <text class="label" x="400" y="230" font-size="18">Services Layer</text>
+  <text class="description" x="400" y="250" text-anchor="middle">Business logic and application services</text>
+  
+  <!-- Service Components -->
+  <rect class="component" x="120" y="260" width="140" height="30" rx="5" />
+  <text class="component-label" x="190" y="280">File Operations</text>
+  
+  <rect class="component" x="275" y="260" width="120" height="30" rx="5" />
+  <text class="component-label" x="335" y="280">Theme Manager</text>
+  
+  <rect class="component" x="410" y="260" width="120" height="30" rx="5" />
+  <text class="component-label" x="470" y="280">Undo/Redo</text>
+  
+  <rect class="component" x="545" y="260" width="140" height="30" rx="5" />
+  <text class="component-label" x="615" y="280">Drag & Drop</text>
+
+  <!-- Core Layer -->
+  <rect class="layer layer-core" x="100" y="320" width="600" height="100" rx="10" />
+  <text class="label" x="400" y="350" font-size="18">Core Layer</text>
+  <text class="description" x="400" y="370" text-anchor="middle">Application foundation and plugin system</text>
+  
+  <!-- Core Components -->
+  <rect class="component" x="120" y="380" width="120" height="30" rx="5" />
+  <text class="component-label" x="180" y="400">Plugin Manager</text>
+  
+  <rect class="component" x="255" y="380" width="120" height="30" rx="5" />
+  <text class="component-label" x="315" y="400">API Interface</text>
+  
+  <rect class="component" x="390" y="380" width="120" height="30" rx="5" />
+  <text class="component-label" x="450" y="400">Sidebar Manager</text>
+  
+  <rect class="component" x="525" y="380" width="160" height="30" rx="5" />
+  <text class="component-label" x="605" y="400">Main App Window</text>
+
+  <!-- Model Layer -->
+  <rect class="layer layer-model" x="100" y="440" width="600" height="100" rx="10" />
+  <text class="label" x="400" y="470" font-size="18">Model Layer</text>
+  <text class="description" x="400" y="490" text-anchor="middle">Data structures and representation</text>
+  
+  <!-- Model Components -->
+  <rect class="component" x="120" y="500" width="150" height="30" rx="5" />
+  <text class="component-label" x="195" y="520">File System Models</text>
+  
+  <rect class="component" x="285" y="500" width="150" height="30" rx="5" />
+  <text class="component-label" x="360" y="520">Activity Models</text>
+  
+  <rect class="component" x="450" y="500" width="150" height="30" rx="5" />
+  <text class="component-label" x="525" y="520">Core Activities</text>
+  
+  <rect class="component" x="615" y="500" width="70" height="30" rx="5" />
+  <text class="component-label" x="650" y="520">Config</text>
+
+  <!-- Connection Arrows -->
+  <!-- UI to Services -->
+  <path class="arrow" d="M175,170 L175,260" />
+  <path class="arrow" d="M300,170 L300,230" />
+  <path class="arrow" d="M425,170 L425,230" />
+  <path class="arrow" d="M540,170 L540,260" />
+  <path class="arrow" d="M640,170 L640,230" />
+  
+  <!-- Services to Core -->
+  <path class="arrow" d="M190,290 L190,380" />
+  <path class="arrow" d="M335,290 L335,380" />
+  <path class="arrow" d="M470,290 L470,380" />
+  <path class="arrow" d="M615,290 L615,380" />
+  
+  <!-- Core to Model -->
+  <path class="arrow" d="M180,410 L180,500" />
+  <path class="arrow" d="M315,410 L360,500" />
+  <path class="arrow" d="M450,410 L450,500" />
+  <path class="arrow" d="M605,410 L650,500" />
+
+  <!-- Legend -->
+  <rect x="650" y="30" width="15" height="15" fill="#7AB0FF" stroke="#333" stroke-width="1" />
+  <text x="670" y="43" font-family="Arial" font-size="12">UI Layer</text>
+  
+  <rect x="650" y="50" width="15" height="15" fill="#9EE09E" stroke="#333" stroke-width="1" />
+  <text x="670" y="63" font-family="Arial" font-size="12">Services Layer</text>
+  
+  <rect x="650" y="70" width="15" height="15" fill="#FFCE9E" stroke="#333" stroke-width="1" />
+  <text x="670" y="83" font-family="Arial" font-size="12">Core Layer</text>
+  
+  <rect x="650" y="90" width="15" height="15" fill="#FFABAB" stroke="#333" stroke-width="1" />
+  <text x="670" y="103" font-family="Arial" font-size="12">Model Layer</text>
+</svg>

@@ -364,7 +364,7 @@ def main():
     check_dependencies()
     
     # Create Sphinx configuration
-    create_sphinx_config()
+    # create_sphinx_config()
     
     # Create module documentation
     create_module_docs()

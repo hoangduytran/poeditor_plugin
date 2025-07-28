@@ -1,0 +1,139 @@
+/*
+ * Custom CSS for POEditor Plugin documentation
+ */
+
+/* Improve readability with slightly wider content */
+.wy-nav-content {
+    max-width: 900px;
+}
+
+/* Improve table styling */
+table.docutils {
+    width: 100%;
+    margin-bottom: 1.5em;
+}
+
+table.docutils thead th {
+    background-color: #f0f0f0;
+    padding: 8px;
+    text-align: left;
+}
+
+table.docutils tbody td {
+    padding: 6px 8px;
+    vertical-align: top;
+}
+
+/* Style for notes, warnings, etc. */
+.admonition {
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+}
+
+.admonition-title {
+    margin: -12px -12px 12px;
+    padding: 6px 12px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    font-weight: bold;
+}
+
+/* Code blocks with better highlighting */
+div[class^="highlight"] {
+    border-radius: 4px;
+    border: 1px solid #e1e4e5;
+}
+
+div[class^="highlight"] pre {
+    padding: 12px;
+    font-size: 14px;
+}
+
+/* Better spacing for list items */
+.rst-content .section ul li,
+.rst-content .section ol li {
+    margin-bottom: 6px;
+}
+
+/* Improve code inside text */
+code.literal {
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 90%;
+    background-color: rgba(0, 0, 0, 0.05);
+    font-weight: normal;
+}
+
+/* Improve heading spacing */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+h1 {
+    border-bottom: 1px solid #e1e4e5;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    border-bottom: 1px solid #e1e4e5;
+    padding-bottom: 0.2em;
+}
+
+/* Better spacing for paragraphs */
+p {
+    margin-bottom: 1em;
+    line-height: 1.5;
+}
+
+/* Style for figure captions */
+.figure .caption {
+    font-style: italic;
+    font-size: 90%;
+    color: #555;
+    margin-top: 8px;
+    text-align: center;
+}
+
+/* Cards for feature sections */
+.toc-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    flex: 1 1 300px;
+    border: 1px solid #e1e4e5;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.card p:last-child {
+    margin-bottom: 0;
+}
+
+.card h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e4e5;
+}
+
+/* Add a little more white space generally */
+.wy-nav-content {
+    padding: 2em;
+}
