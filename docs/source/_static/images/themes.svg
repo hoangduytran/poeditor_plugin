@@ -1,5 +1,73 @@
-/* This is a placeholder SVG image */
-<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="300" height="200" fill="#f0f0f0" stroke="#cccccc" stroke-width="2" />
-  <text x="150" y="100" font-family="Arial" font-size="20" text-anchor="middle" fill="#555555">Themes</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background split -->
+  <rect width="100" height="150" fill="#ffffff"/>
+  <rect x="100" width="100" height="150" fill="#2d3748"/>
+  
+  <!-- Divider line -->
+  <line x1="100" y1="0" x2="100" y2="150" stroke="#cbd5e0" stroke-width="2"/>
+  
+  <!-- Light theme side -->
+  <text x="50" y="20" text-anchor="middle" font-family="Arial" font-size="10" fill="#2d3748" font-weight="bold">Light Theme</text>
+  
+  <!-- Light theme window -->
+  <rect x="10" y="30" width="80" height="60" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1" rx="4"/>
+  
+  <!-- Light theme title bar -->
+  <rect x="10" y="30" width="80" height="15" fill="#edf2f7" rx="4 4 0 0"/>
+  <circle cx="18" cy="37" r="2" fill="#e53e3e"/>
+  <circle cx="26" cy="37" r="2" fill="#ed8936"/>
+  <circle cx="34" cy="37" r="2" fill="#38a169"/>
+  
+  <!-- Light theme content -->
+  <rect x="15" y="50" width="30" height="3" fill="#4a5568" rx="1"/>
+  <rect x="15" y="56" width="40" height="3" fill="#4a5568" rx="1"/>
+  <rect x="15" y="62" width="25" height="3" fill="#4a5568" rx="1"/>
+  
+  <!-- Light theme sidebar -->
+  <rect x="55" y="50" width="30" height="35" fill="#e2e8f0" rx="2"/>
+  <rect x="58" y="53" width="24" height="2" fill="#4a5568" rx="1"/>
+  <rect x="58" y="58" width="20" height="2" fill="#4a5568" rx="1"/>
+  <rect x="58" y="63" width="22" height="2" fill="#4a5568" rx="1"/>
+  
+  <!-- Theme toggle switch -->
+  <rect x="40" y="105" width="40" height="16" fill="#cbd5e0" rx="8"/>
+  <circle cx="48" cy="113" r="6" fill="#ffffff"/>
+  <text x="50" y="130" text-anchor="middle" font-family="Arial" font-size="7" fill="#4a5568">Toggle</text>
+  
+  <!-- Dark theme side -->
+  <text x="150" y="20" text-anchor="middle" font-family="Arial" font-size="10" fill="#ffffff" font-weight="bold">Dark Theme</text>
+  
+  <!-- Dark theme window -->
+  <rect x="110" y="30" width="80" height="60" fill="#1a202c" stroke="#2d3748" stroke-width="1" rx="4"/>
+  
+  <!-- Dark theme title bar -->
+  <rect x="110" y="30" width="80" height="15" fill="#2d3748" rx="4 4 0 0"/>
+  <circle cx="118" cy="37" r="2" fill="#e53e3e"/>
+  <circle cx="126" cy="37" r="2" fill="#ed8936"/>
+  <circle cx="134" cy="37" r="2" fill="#38a169"/>
+  
+  <!-- Dark theme content -->
+  <rect x="115" y="50" width="30" height="3" fill="#e2e8f0" rx="1"/>
+  <rect x="115" y="56" width="40" height="3" fill="#e2e8f0" rx="1"/>
+  <rect x="115" y="62" width="25" height="3" fill="#e2e8f0" rx="1"/>
+  
+  <!-- Dark theme sidebar -->
+  <rect x="155" y="50" width="30" height="35" fill="#4a5568" rx="2"/>
+  <rect x="158" y="53" width="24" height="2" fill="#e2e8f0" rx="1"/>
+  <rect x="158" y="58" width="20" height="2" fill="#e2e8f0" rx="1"/>
+  <rect x="158" y="63" width="22" height="2" fill="#e2e8f0" rx="1"/>
+  
+  <!-- Theme toggle switch (dark side) -->
+  <rect x="120" y="105" width="40" height="16" fill="#4299e1" rx="8"/>
+  <circle cx="152" cy="113" r="6" fill="#ffffff"/>
+  <text x="150" y="130" text-anchor="middle" font-family="Arial" font-size="7" fill="#e2e8f0">Toggle</text>
+  
+  <!-- Moon and sun icons -->
+  <!-- Sun icon (light side) -->
+  <circle cx="25" cy="113" r="4" fill="#ed8936"/>
+  <path d="M25 104 L25 100 M31 107 L34 104 M34 113 L38 113 M31 119 L34 122 M25 122 L25 126 M19 119 L16 122 M16 113 L12 113 M19 107 L16 104" stroke="#ed8936" stroke-width="1"/>
+  
+  <!-- Moon icon (dark side) -->
+  <path d="M175 108 Q180 108 180 113 Q180 118 175 118 Q172 116 172 113 Q172 110 175 108 Z" fill="#4299e1"/>
 </svg>

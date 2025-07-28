@@ -2,7 +2,7 @@
 Explorer Context Menu Development
 =================================
 
-This document provides technical details for developers working with the Explorer Context Menu system in POEditor.
+This document provides technical details for developers working with the Explorer Context Menu system in POEditor, including the Phase 4 accessibility and advanced navigation features.
 
 .. contents:: Table of Contents
    :depth: 2
@@ -21,11 +21,30 @@ The Explorer Context Menu system consists of several interconnected components:
   The core class responsible for:
   
   * Creating appropriate menu items based on selection state
-  * Handling menu actions
+  * Handling menu actions with accessibility support
   * Emitting signals for parent components
   * Integrating with file operation services
+  * Managing keyboard shortcuts and navigation
 
-* **EnhancedFileView**
+* **MenuAccessibilityManager**
+  
+  Provides accessibility features including:
+  
+  * Screen reader integration with ARIA attributes
+  * Focus tracking and restoration
+  * Operation announcements
+  * Keyboard navigation enhancements
+
+* **MenuKeyboardNavigator**
+  
+  Handles advanced keyboard navigation:
+  
+  * First-letter navigation
+  * Enhanced arrow key navigation
+  * Event filtering for keyboard shortcuts
+  * Menu item activation via keyboard
+
+* **SimpleFileView**
   
   A view component that:
   
@@ -33,6 +52,7 @@ The Explorer Context Menu system consists of several interconnected components:
   * Handles context menu requests
   * Responds to selection changes
   * Manages drag-and-drop operations
+  * Integrates with ExplorerContextMenu
 
 * **FileOperationsService**
   
@@ -65,6 +85,97 @@ The system uses a signal-based architecture for communication between components
   * **refresh_requested**: Indicates view refresh is needed
   * **file_activated**: Emitted when a file is opened
   * **directory_changed**: Emitted when navigation occurs
+
+Phase 4 Features
+===============
+
+Accessibility Implementation
+--------------------------
+
+The Phase 4 accessibility system provides comprehensive support for users with disabilities:
+
+* **MenuAccessibilityManager**
+  
+  * Manages ARIA attributes for screen readers
+  * Tracks focus state before menu opens
+  * Announces operation results to screen readers
+  * Provides keyboard navigation enhancements
+
+* **Screen Reader Integration**
+  
+  * All menu items have descriptive ARIA labels
+  * Operation results are announced (e.g., "Cut 3 items")
+  * Menu structure is properly exposed to assistive technologies
+
+* **Focus Management**
+  
+  * Remembers which widget had focus before menu opened
+  * Restores focus when menu closes
+  * Provides clear visual focus indicators
+
+Advanced Keyboard Navigation
+--------------------------
+
+The Phase 4 keyboard navigation system includes:
+
+* **MenuKeyboardNavigator**
+  
+  * Handles first-letter navigation
+  * Manages enhanced arrow key navigation
+  * Filters keyboard events for menu-specific shortcuts
+  * Provides smooth navigation experience
+
+* **First-Letter Navigation**
+  
+  * Type any letter to jump to menu items starting with that letter
+  * Repeated typing cycles through matching items
+  * Works seamlessly with screen readers
+
+* **Enhanced Arrow Navigation**
+  
+  * Up/Down arrows with proper wraparound
+  * Enter/Space activation
+  * Escape to close menu
+
+Theme Integration
+---------------
+
+Phase 4 includes comprehensive theme support:
+
+* **CSS-Based Styling**
+  
+  * Menu appearance adapts to application themes
+  * Consistent visual styling across all components
+  * Support for custom themes through CSS selectors
+
+* **Icon Management**
+  
+  * Graceful fallback for missing icon files
+  * Theme-aware icon loading
+  * Performance optimizations for icon caching
+
+Performance Optimizations
+------------------------
+
+Phase 4 includes several performance improvements:
+
+* **Lazy Menu Creation**
+  
+  * Menu items only created when needed
+  * Reduced memory usage for large file lists
+  * Faster menu display times
+
+* **Optimized Icon Loading**
+  
+  * Cached empty icons for missing SVG files
+  * Reduced file system access for icon operations
+  * Improved startup performance
+
+* **Enhanced Signal Handling**
+  
+  * More efficient signal connections
+  * Reduced overhead for menu operations
+  * Better resource cleanup
 
 Implementation Guide
 ==================

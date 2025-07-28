@@ -142,7 +142,7 @@ The context menu behavior can be customized through the application settings:
 * **Custom Commands**: Add your own menu items
 * **Keyboard Shortcuts**: Customize shortcut keys
 
-See the :ref:`application_settings` section for details on configuring these options.
+See the :doc:`../core/explorer_settings` documentation for details on configuring these options.
 
 Keyboard Shortcuts
 ================

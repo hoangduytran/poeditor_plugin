@@ -2,23 +2,25 @@
 
 **Date:** July 28, 2025  
 **Component:** Enhanced Explorer Panel  
-**Version:** 2.0.0  
+**Version:** 3.0.0 (Phase 4)  
 **Status:** Production
 
 ## Architecture Overview
 
-The Enhanced Explorer is built on a modular, service-oriented architecture that separates UI components from business logic and file system operations. This document outlines the technical design decisions, component relationships, and implementation details.
+The Enhanced Explorer is built on a modular, service-oriented architecture that separates UI components from business logic and file system operations. Phase 4 introduces comprehensive accessibility support, advanced keyboard navigation, and theme integration. This document outlines the technical design decisions, component relationships, and implementation details.
 
 ## Design Principles
 
 The implementation follows these key principles:
 
-1. **Separation of Concerns**: UI components are decoupled from business logic and services
-2. **Service Orientation**: Core functionality is encapsulated in services
-3. **Composition Over Inheritance**: Components are composed with services rather than through deep inheritance hierarchies
-4. **Signal-Slot Communication**: Components communicate via Qt's signal-slot mechanism
-5. **Progressive Enhancement**: Basic functionality works without advanced features
-6. **Testability**: Components are designed to be testable in isolation
+1. **Accessibility First**: Full screen reader support and keyboard navigation
+2. **Separation of Concerns**: UI components are decoupled from business logic and services
+3. **Service Orientation**: Core functionality is encapsulated in services
+4. **Composition Over Inheritance**: Components are composed with services rather than through deep inheritance hierarchies
+5. **Signal-Slot Communication**: Components communicate via Qt's signal-slot mechanism
+6. **Progressive Enhancement**: Basic functionality works without advanced features
+7. **Theme Integration**: Consistent visual styling across all themes
+8. **Testability**: Components are designed to be testable in isolation
 
 ## Component Architecture
 
@@ -40,13 +42,18 @@ The implementation follows these key principles:
 └─────────────┴───────────┴───────────┘
                     │
 ┌─────────────────────────────────────┐
+│         Context Menu (Phase 4)      │
+├─────────────┬───────────┬───────────┤
+│Accessibility│ Keyboard  │  Theme    │
+│  Manager    │Navigator  │Integration│
+└─────────────┴───────────┴───────────┘
+                    │
+┌─────────────────────────────────────┐
 │             Services                │
 ├─────────────┬───────────┬───────────┤
 │FileOperations│ UndoRedo  │ DragDrop │
 └─────────────┴───────────┴───────────┘
 ```
-
-## Service Layer Design
 
 The service layer implements the core business logic and provides a clean API for UI components:
 

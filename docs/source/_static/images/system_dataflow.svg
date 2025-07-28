@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="700" viewBox="0 0 800 700">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .layer-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #34495e; }
+      .component { font-family: Arial, sans-serif; font-size: 11px; fill: white; font-weight: bold; }
+      .description { font-family: Arial, sans-serif; font-size: 9px; fill: #666; }
+      .data-label { font-family: Arial, sans-serif; font-size: 8px; fill: #555; font-style: italic; }
+      .arrow { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .data-arrow { stroke: #e74c3c; stroke-width: 2; fill: none; marker-end: url(#data-arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="data-arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="700" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Complete System Data Flow</text>
+  
+  <!-- User Interface Layer -->
+  <text x="50" y="70" class="layer-title">User Interface Layer</text>
+  <rect x="50" y="80" width="700" height="60" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="8"/>
+  
+  <!-- UI Components -->
+  <rect x="70" y="95" width="90" height="30" fill="#2196f3" rx="4"/>
+  <text x="115" y="112" text-anchor="middle" class="component">Activity Bar</text>
+  
+  <rect x="180" y="95" width="90" height="30" fill="#2196f3" rx="4"/>
+  <text x="225" y="112" text-anchor="middle" class="component">Explorer Panel</text>
+  
+  <rect x="290" y="95" width="90" height="30" fill="#2196f3" rx="4"/>
+  <text x="335" y="112" text-anchor="middle" class="component">Context Menu</text>
+  
+  <rect x="400" y="95" width="90" height="30" fill="#2196f3" rx="4"/>
+  <text x="445" y="112" text-anchor="middle" class="component">File View</text>
+  
+  <rect x="510" y="95" width="90" height="30" fill="#2196f3" rx="4"/>
+  <text x="555" y="112" text-anchor="middle" class="component">Search Panel</text>
+  
+  <rect x="620" y="95" width="100" height="30" fill="#2196f3" rx="4"/>
+  <text x="670" y="112" text-anchor="middle" class="component">Settings Panel</text>
+  
+  <!-- Application Core Layer -->
+  <text x="50" y="180" class="layer-title">Application Core</text>
+  <rect x="320" y="190" width="160" height="40" fill="#3498db" rx="6"/>
+  <text x="400" y="212" text-anchor="middle" class="component">MainAppWindow</text>
+  
+  <!-- Plugin Management Layer -->
+  <text x="50" y="270" class="layer-title">Plugin Management</text>
+  
+  <rect x="100" y="280" width="120" height="35" fill="#e74c3c" rx="5"/>
+  <text x="160" y="300" text-anchor="middle" class="component">Plugin Manager</text>
+  
+  <rect x="240" y="280" width="120" height="35" fill="#e74c3c" rx="5"/>
+  <text x="300" y="300" text-anchor="middle" class="component">Activity Manager</text>
+  
+  <rect x="380" y="280" width="120" height="35" fill="#e74c3c" rx="5"/>
+  <text x="440" y="300" text-anchor="middle" class="component">Sidebar Manager</text>
+  
+  <rect x="520" y="280" width="120" height="35" fill="#e74c3c" rx="5"/>
+  <text x="580" y="300" text-anchor="middle" class="component">Tab Manager</text>
+  
+  <!-- Service Layer -->
+  <text x="50" y="360" class="layer-title">Service Layer</text>
+  
+  <rect x="80" y="370" width="130" height="35" fill="#f39c12" rx="5"/>
+  <text x="145" y="390" text-anchor="middle" class="component">File Operations</text>
+  
+  <rect x="230" y="370" width="130" height="35" fill="#f39c12" rx="5"/>
+  <text x="295" y="390" text-anchor="middle" class="component">Theme Manager</text>
+  
+  <rect x="380" y="370" width="130" height="35" fill="#f39c12" rx="5"/>
+  <text x="445" y="390" text-anchor="middle" class="component">Undo/Redo</text>
+  
+  <rect x="530" y="370" width="130" height="35" fill="#f39c12" rx="5"/>
+  <text x="595" y="390" text-anchor="middle" class="component">File Numbering</text>
+  
+  <!-- Data Models Layer -->
+  <text x="50" y="450" class="layer-title">Data Models</text>
+  
+  <rect x="120" y="460" width="120" height="35" fill="#27ae60" rx="5"/>
+  <text x="180" y="480" text-anchor="middle" class="component">Directory Model</text>
+  
+  <rect x="260" y="460" width="120" height="35" fill="#27ae60" rx="5"/>
+  <text x="320" y="480" text-anchor="middle" class="component">Activity Models</text>
+  
+  <rect x="400" y="460" width="120" height="35" fill="#27ae60" rx="5"/>
+  <text x="460" y="480" text-anchor="middle" class="component">File System</text>
+  
+  <rect x="540" y="460" width="120" height="35" fill="#27ae60" rx="5"/>
+  <text x="600" y="480" text-anchor="middle" class="component">Core Activities</text>
+  
+  <!-- External Systems -->
+  <text x="50" y="540" class="layer-title">External Systems</text>
+  
+  <rect x="150" y="550" width="100" height="35" fill="#9b59b6" rx="5"/>
+  <text x="200" y="570" text-anchor="middle" class="component">File System</text>
+  
+  <rect x="300" y="550" width="100" height="35" fill="#9b59b6" rx="5"/>
+  <text x="350" y="570" text-anchor="middle" class="component">OS Services</text>
+  
+  <rect x="450" y="550" width="100" height="35" fill="#9b59b6" rx="5"/>
+  <text x="500" y="570" text-anchor="middle" class="component">Applications</text>
+  
+  <!-- Data Flow Arrows -->
+  <!-- User interactions to Application Core -->
+  <line x1="225" y1="140" x2="400" y2="185" class="data-arrow"/>
+  <line x1="335" y1="140" x2="400" y2="185" class="data-arrow"/>
+  <line x1="445" y1="140" x2="400" y2="185" class="data-arrow"/>
+  
+  <!-- Application Core to Plugin Management -->
+  <line x1="400" y1="230" x2="160" y2="275" class="arrow"/>
+  <line x1="400" y1="230" x2="300" y2="275" class="arrow"/>
+  <line x1="400" y1="230" x2="440" y2="275" class="arrow"/>
+  <line x1="400" y1="230" x2="580" y2="275" class="arrow"/>
+  
+  <!-- Plugin Management to Services -->
+  <line x1="160" y1="315" x2="145" y2="365" class="arrow"/>
+  <line x1="300" y1="315" x2="295" y2="365" class="arrow"/>
+  <line x1="440" y1="315" x2="445" y2="365" class="arrow"/>
+  <line x1="580" y1="315" x2="595" y2="365" class="arrow"/>
+  
+  <!-- Services to Data Models -->
+  <line x1="145" y1="405" x2="180" y2="455" class="data-arrow"/>
+  <line x1="295" y1="405" x2="320" y2="455" class="data-arrow"/>
+  <line x1="445" y1="405" x2="460" y2="455" class="data-arrow"/>
+  <line x1="595" y1="405" x2="600" y2="455" class="data-arrow"/>
+  
+  <!-- Data Models to External Systems -->
+  <line x1="180" y1="495" x2="200" y2="545" class="data-arrow"/>
+  <line x1="320" y1="495" x2="350" y2="545" class="data-arrow"/>
+  <line x1="460" y1="495" x2="500" y2="545" class="data-arrow"/>
+  
+  <!-- Data Flow Labels -->
+  <text x="300" y="165" class="data-label">User Events</text>
+  <text x="250" y="255" class="data-label">Component Coordination</text>
+  <text x="350" y="345" class="data-label">Service Requests</text>
+  <text x="400" y="435" class="data-label">Data Operations</text>
+  <text x="300" y="525" class="data-label">System Calls</text>
+  
+  <!-- Legend -->
+  <text x="50" y="630" class="layer-title">Data Flow Legend</text>
+  <line x1="60" y1="645" x2="90" y2="645" class="arrow"/>
+  <text x="100" y="650" class="description">Control Flow</text>
+  <line x1="60" y1="665" x2="90" y2="665" class="data-arrow"/>
+  <text x="100" y="670" class="description">Data Flow</text>
+</svg>

@@ -1,448 +1,410 @@
 #!/usr/bin/env python3
 """
-Script to generate HTML API documentation for the POEditor plugin project.
+Secure documentation builder and server for POEditor Plugin.
 
-This script sets up and runs Sphinx to automatically generate API documentation
-from the docstrings in the code. It can be run in watch mode to automatically
-rebuild documentation when source files change.
+This script safely builds and serves Sphinx documentation with proper security measures.
+It reads configuration from the existing conf.py file and provides clean build options.
 """
 
 import os
 import sys
 import shutil
 import subprocess
-import importlib.util
-import time
 import argparse
-import socket
+import time
 import signal
+import socket
+import threading
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Optional, Dict, Any
+import importlib.util
+import http.server
+import socketserver
+from contextlib import contextmanager
 
-def check_port_available(port: int) -> bool:
-    """Check if the specified port is available.
+
+class DocumentationBuilder:
+    """Secure documentation builder and server."""
     
-    Args:
-        port: The port number to check
+    def __init__(self, project_root: str):
+        self.project_root = Path(project_root).resolve()
+        self.docs_dir = self.project_root / "docs"
+        self.source_dir = self.docs_dir / "source"
+        self.build_dir = self.docs_dir / "build"
+        self.html_dir = self.build_dir / "html"
         
-    Returns:
-        bool: True if the port is available, False otherwise
-    """
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        # Validate paths
+        if not self.project_root.exists():
+            raise ValueError(f"Project root does not exist: {self.project_root}")
+        if not self.docs_dir.exists():
+            raise ValueError(f"Docs directory does not exist: {self.docs_dir}")
+    
+    def load_sphinx_config(self) -> Dict[str, Any]:
+        """Safely load configuration from conf.py."""
+        conf_path = self.source_dir / "conf.py"
+        if not conf_path.exists():
+            raise FileNotFoundError(f"Sphinx config not found: {conf_path}")
+        
+        # Load the config module safely
+        spec = importlib.util.spec_from_file_location("conf", conf_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Could not load config from {conf_path}")
+        
+        conf_module = importlib.util.module_from_spec(spec)
+        
+        # Set up environment for config loading - but don't change working directory
+        original_path = sys.path.copy()
+        
         try:
-            # Try to bind to the port
-            s.bind(('localhost', port))
-            return True
-        except socket.error:
-            return False
-
-def find_available_port(start_port: int, max_attempts: int = 10) -> Optional[int]:
-    """Find an available port starting from the specified port.
+            # Add source directory to path for imports
+            sys.path.insert(0, str(self.source_dir))
+            
+            spec.loader.exec_module(conf_module)
+            
+            # Extract configuration
+            config = {}
+            for attr in dir(conf_module):
+                if not attr.startswith('_'):
+                    config[attr] = getattr(conf_module, attr)
+            
+            return config
+            
+        finally:
+            # Restore environment
+            sys.path[:] = original_path
     
-    Args:
-        start_port: The port number to start checking from
-        max_attempts: Maximum number of ports to check
+    def check_dependencies(self) -> bool:
+        """Check if required dependencies are available."""
+        required = ['sphinx', 'sphinx_rtd_theme']
+        missing = []
         
-    Returns:
-        Optional[int]: An available port number, or None if no port is available
-    """
-    current_port = start_port
-    for _ in range(max_attempts):
-        if check_port_available(current_port):
-            return current_port
-        current_port += 1
-    return None
-
-def kill_process_on_port(port: int) -> bool:
-    """Attempt to kill the process using the specified port.
-    
-    Args:
-        port: The port number used by the process to kill
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    try:
-        if sys.platform == 'win32':
-            # Windows
-            result = subprocess.run(
-                ['netstat', '-ano', '|', 'findstr', f':{port}'], 
-                shell=True, 
-                capture_output=True, 
-                text=True
-            )
-            if result.returncode == 0:
-                lines = result.stdout.strip().split('\n')
-                for line in lines:
-                    if f':{port}' in line:
-                        parts = line.strip().split()
-                        if len(parts) > 4:
-                            pid = parts[-1]
-                            subprocess.run(['taskkill', '/F', '/PID', pid])
-                            print(f"Killed process {pid} using port {port}")
-                            return True
-        else:
-            # For macOS and Linux
-            cmd = f"lsof -i tcp:{port} -t"
-            result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-            
-            if result.returncode != 0 or not result.stdout.strip():
-                return False
-            
-            # Get PID from the output
-            pid = result.stdout.strip().split('\n')[0]
-            
-            # Kill the process
+        for package in required:
             try:
-                os.kill(int(pid), signal.SIGTERM)
-                # Give it a moment to terminate
-                time.sleep(0.5)
-                
-                # Check if it's still running
-                if check_port_available(port):
-                    return True
-                
-                # If still not available, try SIGKILL
-                os.kill(int(pid), signal.SIGKILL)
-                time.sleep(0.5)
-                
-                return check_port_available(port)
-            except ProcessLookupError:
-                # Process might have terminated already
-                return check_port_available(port)
-            except Exception as e:
-                print(f"Error killing process: {str(e)}")
-                return False
-    except Exception as e:
-        print(f"Error finding process on port {port}: {str(e)}")
-        return False
-
-def check_dependencies():
-    """Check if Sphinx and needed extensions are installed."""
-    try:
-        import sphinx
-        import sphinx_rtd_theme
-    except ImportError as e:
-        print(f"Error: Missing dependency - {str(e)}")
-        print("Please install the required packages:")
-        print("pip install -U sphinx sphinx_rtd_theme")
-        return False
-    return True
-
-def create_sphinx_config():
-    """Create the Sphinx configuration directory and files."""
-    docs_dir = os.path.join(os.getcwd(), 'docs')
-    source_dir = os.path.join(docs_dir, 'source')
-    
-    # Create directories if they don't exist
-    os.makedirs(source_dir, exist_ok=True)
-    
-    # Create conf.py
-    conf_py = os.path.join(source_dir, 'conf.py')
-    with open(conf_py, 'w') as f:
-        f.write('''# Configuration file for the Sphinx documentation builder.
-
-import os
-import sys
-sys.path.insert(0, os.path.abspath('../..'))
-
-# -- Project information -----------------------------------------------------
-project = 'POEditor Plugin'
-copyright = '2025, POEditor Development Team'
-author = 'POEditor Development Team'
-
-# -- General configuration ---------------------------------------------------
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-]
-
-templates_path = ['_templates']
-exclude_patterns = []
-
-# -- Options for HTML output -------------------------------------------------
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
-
-# -- Extension configuration -------------------------------------------------
-autodoc_member_order = 'bysource'
-autodoc_typehints = 'description'
-''')
-    
-    # Skip creating index.rst - using existing file in docs directory
-
-def create_module_docs():
-    """Create .rst files for each module to document."""
-    docs_dir = os.path.join(os.getcwd(), 'docs')
-    source_dir = os.path.join(docs_dir, 'source')
-    
-    # Create services directory
-    services_dir = os.path.join(source_dir, 'services')
-    os.makedirs(services_dir, exist_ok=True)
-    
-    # Create services/index.rst
-    services_index = os.path.join(services_dir, 'index.rst')
-    with open(services_index, 'w') as f:
-        f.write('''Services
-========
-
-.. toctree::
-   :maxdepth: 2
-   
-   file_numbering_service
-   undo_redo_service
-   file_operations_service
-''')
-    
-    # Create individual service documentation files
-    service_files = {
-        'file_numbering_service': 'services/file_numbering_service.py',
-        'undo_redo_service': 'services/undo_redo_service.py',
-        'file_operations_service': 'services/file_operations_service.py',
-        'drag_drop_service': 'services/drag_drop_service.py'
-    }
-    
-    for service_name, service_path in service_files.items():
-        service_rst = os.path.join(services_dir, f'{service_name}.rst')
-        with open(service_rst, 'w') as f:
-            module_path = service_path.replace('/', '.').replace('.py', '')
-            title = ' '.join(word.capitalize() for word in service_name.split('_'))
-            f.write(f'''{title}
-{'=' * len(title)}
-
-.. automodule:: {module_path}
-   :members:
-   :undoc-members:
-   :show-inheritance:
-''')
-    
-    # Create models directory
-    models_dir = os.path.join(source_dir, 'models')
-    os.makedirs(models_dir, exist_ok=True)
-    
-    # Create models/index.rst
-    models_index = os.path.join(models_dir, 'index.rst')
-    with open(models_index, 'w') as f:
-        f.write('''Models
-======
-
-.. toctree::
-   :maxdepth: 2
-   
-   file_system_models
-''')
-    
-    # Create models/file_system_models.rst
-    models_rst = os.path.join(models_dir, 'file_system_models.rst')
-    with open(models_rst, 'w') as f:
-        f.write('''File System Models
-================
-
-.. automodule:: models.file_system_models
-   :members:
-   :undoc-members:
-   :show-inheritance:
-''')
-
-def build_documentation():
-    """Build the HTML documentation using Sphinx."""
-    docs_dir = os.path.join(os.getcwd(), 'docs')
-    source_dir = os.path.join(docs_dir, 'source')
-    build_dir = os.path.join(docs_dir, 'build/html')
-    
-    # Create build directory if it doesn't exist
-    os.makedirs(os.path.join(docs_dir, 'build'), exist_ok=True)
-    
-    # Build documentation
-    subprocess.check_call(["sphinx-build", "-b", "html", source_dir, build_dir])
-    
-    print(f"Documentation built successfully at {build_dir}")
-    print(f"Open {os.path.join(build_dir, 'index.html')} in your browser to view it")
-
-def get_watched_paths() -> List[Path]:
-    """Get a list of paths to watch for changes."""
-    root_dir = Path(os.getcwd())
-    
-    # Watch these directories for changes
-    watch_dirs = [
-        root_dir / "services",
-        root_dir / "models",
-        root_dir / "docs" / "source",
-    ]
-    
-    # Add specific extensions to watch
-    extensions = [".py", ".rst", ".md", ".css"]
-    
-    # Build a list of files to watch
-    watched_paths = []
-    for directory in watch_dirs:
-        if directory.exists():
-            for ext in extensions:
-                watched_paths.extend(directory.glob(f"**/*{ext}"))
-    
-    return watched_paths
-
-def get_file_modification_times(paths: List[Path]) -> dict:
-    """Get the modification times for a list of paths."""
-    return {path: path.stat().st_mtime for path in paths if path.exists()}
-
-def watch_for_changes(interval: int = 1):
-    """
-    Watch for changes in source files and rebuild documentation when changes are detected.
-    
-    Args:
-        interval: The interval in seconds to check for changes
-    """
-    paths = get_watched_paths()
-    mod_times = get_file_modification_times(paths)
-    
-    print(f"Watching {len(paths)} files for changes (Ctrl+C to stop)...")
-    
-    try:
-        while True:
-            time.sleep(interval)
-            
-            # Check if any files have been modified
-            new_mod_times = get_file_modification_times(paths)
-            changed_files = []
-            
-            for path in paths:
-                if path.exists() and path in new_mod_times:
-                    if path not in mod_times or new_mod_times[path] > mod_times[path]:
-                        changed_files.append(path)
-            
-            # If files have changed, rebuild the docs
-            if changed_files:
-                print(f"\n{len(changed_files)} files changed. Rebuilding documentation...")
-                for file in changed_files[:5]:  # Show up to 5 changed files
-                    print(f"  - {file.relative_to(os.getcwd())}")
-                if len(changed_files) > 5:
-                    print(f"  - and {len(changed_files) - 5} more...")
-                
-                # Rebuild documentation
-                build_documentation()
-                
-                # Update modification times
-                mod_times = new_mod_times
-            
-            # Check if any new files have been added
-            new_paths = get_watched_paths()
-            if set(new_paths) != set(paths):
-                new_files = set(new_paths) - set(paths)
-                removed_files = set(paths) - set(new_paths)
-                
-                if new_files:
-                    print(f"\n{len(new_files)} new files detected. Updating watch list...")
-                
-                if removed_files:
-                    print(f"\n{len(removed_files)} files removed. Updating watch list...")
-                
-                paths = new_paths
-                mod_times = get_file_modification_times(paths)
-    
-    except KeyboardInterrupt:
-        print("\nStopping documentation watch mode.")
-
-# Functions already defined at the top of the file
-
-def main():
-    """Main function to generate API documentation."""
-    parser = argparse.ArgumentParser(description="Generate API documentation for POEditor Plugin")
-    parser.add_argument("--watch", "-w", action="store_true", help="Watch for changes and rebuild automatically")
-    parser.add_argument("--serve", "-s", action="store_true", help="Start a simple HTTP server to view documentation")
-    parser.add_argument("--port", "-p", type=int, default=8080, help="Port for the HTTP server (default: 8080)")
-    parser.add_argument("--update-only", "-u", action="store_true", help="Only update API docs, don't build HTML")
-    parser.add_argument("--force", "-f", action="store_true", help="Force kill any process using the specified port")
-    args = parser.parse_args()
-    
-    print("Generating API documentation for POEditor Plugin...")
-    
-    # Check and install dependencies
-    check_dependencies()
-    
-    # Create Sphinx configuration
-    # create_sphinx_config()
-    
-    # Create module documentation
-    create_module_docs()
-    
-    # Exit early if only updating API docs
-    if args.update_only:
-        print("API documentation updated successfully.")
-        return
-    
-    # Build documentation
-    build_documentation()
-    
-    print("Documentation generation complete!")
-    
-    # Start HTTP server if requested
-    if args.serve:
-        build_dir = os.path.join(os.getcwd(), 'docs', 'build', 'html')
+                __import__(package)
+            except ImportError:
+                missing.append(package)
         
-        # Check if port is available
-        port_to_use = args.port
-        if not check_port_available(port_to_use):
-            print(f"Port {port_to_use} is already in use.")
-            
-            if args.force:
-                # Try to kill the process using the port
-                print(f"Attempting to kill process using port {port_to_use}...")
-                if kill_process_on_port(port_to_use):
-                    print(f"Successfully freed port {port_to_use}.")
-                    # Wait a moment for the port to be fully released
-                    time.sleep(1)
-                else:
-                    print(f"Failed to free port {port_to_use}.")
-                    # Try to find an alternative port
-                    alternative_port = find_available_port(port_to_use + 1)
-                    if alternative_port:
-                        print(f"Using alternative port {alternative_port} instead.")
-                        port_to_use = alternative_port
-                    else:
-                        print("No available ports found. Please free up a port and try again.")
-                        return
-            else:
-                # Try to find an alternative port
-                alternative_port = find_available_port(port_to_use + 1)
-                if alternative_port:
-                    print(f"Using alternative port {alternative_port} instead.")
-                    port_to_use = alternative_port
-                else:
-                    print("No available ports found. Please free up a port and try again.")
-                    print("Or use --force to attempt to kill the process using the port.")
-                    return
+        if missing:
+            print(f"Error: Missing dependencies: {', '.join(missing)}")
+            print("Install with: pip install sphinx sphinx_rtd_theme")
+            return False
         
-        print(f"\nStarting HTTP server at http://localhost:{port_to_use}/")
-        print("Press Ctrl+C to stop the server.")
+        return True
+    
+    def clean_build(self) -> None:
+        """Safely clean the build directory."""
+        if self.build_dir.exists():
+            print(f"Cleaning build directory: {self.build_dir}")
+            shutil.rmtree(self.build_dir)
         
-        # Start server in a subprocess
+        # Recreate build directory
+        self.build_dir.mkdir(parents=True, exist_ok=True)
+    
+    def build_docs(self, clean: bool = False) -> bool:
+        """Build the documentation using Sphinx."""
+        if clean:
+            self.clean_build()
+        
+        # Ensure build directory exists
+        self.build_dir.mkdir(parents=True, exist_ok=True)
+        
+        print("Building documentation...")
+        
         try:
-            server_process = subprocess.Popen(
-                [sys.executable, "-m", "http.server", str(port_to_use)],
-                cwd=build_dir
+            # Use subprocess with explicit arguments (no shell injection)
+            cmd = [
+                sys.executable, "-m", "sphinx",
+                "-b", "html",
+                str(self.source_dir),
+                str(self.html_dir)
+            ]
+            
+            result = subprocess.run(
+                cmd,
+                cwd=str(self.docs_dir),  # Run from docs directory, not project root
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
             )
+            
+            if result.returncode != 0:
+                print("Build failed with errors:")
+                print(result.stderr)
+                return False
+            
+            # Show warnings if any
+            if result.stderr.strip():
+                print("Build completed with warnings:")
+                print(result.stderr)
+            
+            print(f"Documentation built successfully: {self.html_dir}")
+            return True
+            
+        except subprocess.TimeoutExpired:
+            print("Error: Build timed out after 5 minutes")
+            return False
         except Exception as e:
-            print(f"Error starting server: {str(e)}")
+            print(f"Error building documentation: {e}")
+            return False
+    
+    def find_available_port(self, start_port: int, max_attempts: int = 10) -> Optional[int]:
+        """Find an available port starting from the specified port."""
+        for port in range(start_port, start_port + max_attempts):
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind(('localhost', port))
+                    return port
+            except OSError:
+                continue
+        return None
+    
+    def serve_docs(self, port: int = 8000, open_browser: bool = False) -> None:
+        """Serve the documentation using Python's built-in HTTP server."""
+        if not self.html_dir.exists():
+            print("Error: Documentation not built. Run with --build first.")
             return
         
+        # Find available port
+        available_port = self.find_available_port(port)
+        if available_port is None:
+            print(f"Error: No available ports found starting from {port}")
+            return
+        
+        if available_port != port:
+            print(f"Port {port} unavailable, using {available_port} instead")
+        
+        print(f"Serving documentation at http://localhost:{available_port}/")
+        print("Press Ctrl+C to stop the server")
+        
+        # Change to html directory for serving
+        original_cwd = os.getcwd()
         try:
-            if args.watch:
-                # Watch for changes while server is running
-                watch_for_changes()
-            else:
-                # Just keep the server running
-                server_process.wait()
-        except KeyboardInterrupt:
-            print("\nStopping HTTP server.")
-            server_process.terminate()
+            os.chdir(self.html_dir)
+            
+            # Create custom handler to suppress logs
+            class QuietHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+                def log_message(self, format, *args):
+                    # Only log errors
+                    if args and len(args) > 1 and args[1].startswith('4'):
+                        super().log_message(format, *args)
+            
+            with socketserver.TCPServer(("", available_port), QuietHTTPRequestHandler) as httpd:
+                # Open browser if requested
+                if open_browser:
+                    import webbrowser
+                    webbrowser.open(f'http://localhost:{available_port}/')
+                
+                try:
+                    httpd.serve_forever()
+                except KeyboardInterrupt:
+                    print("\nStopping server...")
+                    
+        finally:
+            os.chdir(original_cwd)
     
-    # Watch for changes if requested (without server)
-    elif args.watch:
-        watch_for_changes()
+    def watch_and_rebuild(self, interval: int = 1) -> None:
+        """Watch for file changes and rebuild documentation."""
+        print(f"Watching for changes (checking every {interval}s)...")
+        print("Press Ctrl+C to stop watching")
+        
+        # Get initial file states
+        watched_paths = self._get_watched_files()
+        file_times = self._get_file_times(watched_paths)
+        
+        try:
+            while True:
+                time.sleep(interval)
+                
+                # Check for changes
+                current_paths = self._get_watched_files()
+                current_times = self._get_file_times(current_paths)
+                
+                # Check for new, removed, or modified files
+                changed = False
+                
+                # New files
+                new_files = set(current_paths) - set(watched_paths)
+                if new_files:
+                    print(f"New files detected: {len(new_files)}")
+                    changed = True
+                
+                # Removed files
+                removed_files = set(watched_paths) - set(current_paths)
+                if removed_files:
+                    print(f"Files removed: {len(removed_files)}")
+                    changed = True
+                
+                # Modified files
+                for path in current_paths:
+                    if path in file_times and path in current_times:
+                        if current_times[path] > file_times[path]:
+                            print(f"File changed: {path.relative_to(self.project_root)}")
+                            changed = True
+                            break
+                
+                if changed:
+                    print("Rebuilding documentation...")
+                    if self.build_docs():
+                        print("Rebuild complete!")
+                    else:
+                        print("Rebuild failed!")
+                    
+                    # Update tracking
+                    watched_paths = current_paths
+                    file_times = current_times
+                
+        except KeyboardInterrupt:
+            print("\nStopping watch mode")
+    
+    def _get_watched_files(self) -> List[Path]:
+        """Get list of files to watch for changes."""
+        patterns = [
+            "**/*.py",
+            "**/*.rst", 
+            "**/*.md",
+            "**/*.css",
+            "**/*.js"
+        ]
+        
+        watched = []
+        
+        # Watch source directory
+        for pattern in patterns:
+            watched.extend(self.source_dir.glob(pattern))
+        
+        # Watch key project files
+        project_patterns = ["**/*.py"]
+        for pattern in project_patterns:
+            watched.extend(self.project_root.glob(pattern))
+        
+        return [p for p in watched if p.is_file()]
+    
+    def _get_file_times(self, paths: List[Path]) -> Dict[Path, float]:
+        """Get modification times for files."""
+        times = {}
+        for path in paths:
+            try:
+                if path.exists():
+                    times[path] = path.stat().st_mtime
+            except OSError:
+                # Skip files we can't access
+                pass
+        return times
+
+
+def main():
+    """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description="Build and serve Sphinx documentation for POEditor Plugin",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s --build --clean          # Clean build documentation
+  %(prog)s --serve --port 8080      # Serve on port 8080
+  %(prog)s --build --serve          # Build and serve
+  %(prog)s --watch                  # Watch for changes and rebuild
+  %(prog)s --build --serve --watch  # Build, serve, and watch
+        """
+    )
+    
+    parser.add_argument(
+        "--build", "-b", 
+        action="store_true", 
+        help="Build the documentation"
+    )
+    
+    parser.add_argument(
+        "--clean", "-c", 
+        action="store_true", 
+        help="Clean build directory before building"
+    )
+    
+    parser.add_argument(
+        "--serve", "-s", 
+        action="store_true", 
+        help="Serve the documentation with HTTP server"
+    )
+    
+    parser.add_argument(
+        "--port", "-p", 
+        type=int, 
+        default=8000, 
+        help="Port for HTTP server (default: 8000)"
+    )
+    
+    parser.add_argument(
+        "--watch", "-w", 
+        action="store_true", 
+        help="Watch for file changes and rebuild automatically"
+    )
+    
+    parser.add_argument(
+        "--open", "-o", 
+        action="store_true", 
+        help="Open browser when serving"
+    )
+    
+    parser.add_argument(
+        "--project-root", 
+        type=str, 
+        default=".", 
+        help="Project root directory (default: current directory)"
+    )
+    
+    args = parser.parse_args()
+    
+    # Validate arguments
+    if not (args.build or args.serve or args.watch):
+        parser.error("Must specify at least one of --build, --serve, or --watch")
+    
+    try:
+        # Initialize builder
+        builder = DocumentationBuilder(args.project_root)
+        
+        # Check dependencies
+        if not builder.check_dependencies():
+            sys.exit(1)
+        
+        # Load config to validate
+        try:
+            config = builder.load_sphinx_config()
+            print(f"Loaded configuration for project: {config.get('project', 'Unknown')}")
+        except Exception as e:
+            print(f"Warning: Could not load Sphinx config: {e}")
+        
+        # Build documentation
+        if args.build:
+            if not builder.build_docs(clean=args.clean):
+                print("Build failed!")
+                sys.exit(1)
+        
+        # Set up serving and/or watching
+        if args.serve and args.watch:
+            # Run server in background thread
+            server_thread = threading.Thread(
+                target=builder.serve_docs,
+                args=(args.port, args.open),
+                daemon=True
+            )
+            server_thread.start()
+            
+            # Watch in main thread
+            time.sleep(1)  # Give server time to start
+            builder.watch_and_rebuild()
+            
+        elif args.serve:
+            builder.serve_docs(args.port, args.open)
+            
+        elif args.watch:
+            builder.watch_and_rebuild()
+    
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

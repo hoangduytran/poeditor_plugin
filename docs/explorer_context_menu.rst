@@ -5,7 +5,7 @@ Explorer Context Menu Reference
 Overview
 ========
 
-The Explorer Context Menu provides a convenient way to perform common operations on files and folders directly in the POEditor interface.
+The Explorer Context Menu provides a convenient way to perform common operations on files and folders directly in the POEditor interface. With Phase 4 enhancements, it now includes full accessibility support, advanced keyboard navigation, and theme integration.
 
 .. contents:: Table of Contents
    :depth: 2
@@ -25,12 +25,12 @@ Selection-Based Menus
   
   * **Open** - Opens the file with its default application
   * **Open With...** - Choose which application to use to open the file
-  * **Cut** - Mark files for moving to another location
-  * **Copy** - Copy files to clipboard
-  * **Paste** - Only available when pasting into a folder
-  * **Duplicate** - Create a copy in the same location
-  * **Rename** - Only for single file selection
-  * **Delete** - Move to trash with confirmation
+  * **Cut** - Mark files for moving to another location (Ctrl+X)
+  * **Copy** - Copy files to clipboard (Ctrl+C)
+  * **Paste** - Only available when pasting into a folder (Ctrl+V)
+  * **Duplicate** - Create a copy in the same location (Ctrl+D)
+  * **Rename** - Only for single file selection (F2)
+  * **Delete** - Move to trash with confirmation (Delete key)
   
 * **Folder Selection**
   
@@ -46,8 +46,8 @@ Selection-Based Menus
   
   When clicking on empty space in the explorer, these options appear:
   
-  * **New File** - Create a new empty file
-  * **New Folder** - Create a new directory
+  * **New File** - Create a new empty file (Ctrl+N)
+  * **New Folder** - Create a new directory (Ctrl+Shift+N)
   * **Paste** - Available when clipboard has files/folders
   * **Open Terminal Here** - Open terminal in current directory
   * **Refresh** - Update the directory listing
@@ -147,23 +147,78 @@ See the :ref:`application_settings` section for details on configuring these opt
 Keyboard Shortcuts
 ================
 
-+-------------+-----------------+---------------------------+
-| Shortcut    | Menu Equivalent | Description               |
-+=============+=================+===========================+
-| Ctrl+X      | Cut             | Cut selected files        |
-+-------------+-----------------+---------------------------+
-| Ctrl+C      | Copy            | Copy selected files       |
-+-------------+-----------------+---------------------------+
-| Ctrl+V      | Paste           | Paste from clipboard      |
-+-------------+-----------------+---------------------------+
-| Ctrl+D      | Duplicate       | Duplicate selected files  |
-+-------------+-----------------+---------------------------+
-| F2          | Rename          | Rename selected item      |
-+-------------+-----------------+---------------------------+
-| Delete      | Delete          | Move to trash             |
-+-------------+-----------------+---------------------------+
-| F5          | Refresh         | Update directory listing  |
-+-------------+-----------------+---------------------------+
+The context menu fully supports keyboard navigation and shortcuts:
+
++-------------------+-----------------+---------------------------+
+| Shortcut          | Menu Equivalent | Description               |
++===================+=================+===========================+
+| Ctrl+X            | Cut             | Cut selected files        |
++-------------------+-----------------+---------------------------+
+| Ctrl+C            | Copy            | Copy selected files       |
++-------------------+-----------------+---------------------------+
+| Ctrl+V            | Paste           | Paste from clipboard      |
++-------------------+-----------------+---------------------------+
+| Ctrl+D            | Duplicate       | Duplicate selected files  |
++-------------------+-----------------+---------------------------+
+| F2                | Rename          | Rename selected item      |
++-------------------+-----------------+---------------------------+
+| Delete            | Delete          | Move to trash             |
++-------------------+-----------------+---------------------------+
+| Ctrl+N            | New File        | Create new file           |
++-------------------+-----------------+---------------------------+
+| Ctrl+Shift+N      | New Folder      | Create new folder         |
++-------------------+-----------------+---------------------------+
+| F5                | Refresh         | Update directory listing  |
++-------------------+-----------------+---------------------------+
+
+Advanced Keyboard Navigation
+==========================
+
+The context menu supports advanced keyboard navigation features:
+
+Arrow Key Navigation
+------------------
+
+* **Up/Down Arrows**: Navigate between menu items
+* **Enter/Space**: Activate the selected menu item
+* **Escape**: Close the menu
+
+First-Letter Navigation
+---------------------
+
+Type the first letter of a menu item to quickly jump to it:
+
+* Type **"c"** to jump to "Copy"
+* Type **"n"** to jump to "New File" or "New Folder"
+* Type **"d"** to jump to "Delete" or "Duplicate"
+
+This feature works even when multiple items start with the same letter - continued typing will cycle through them.
+
+Accessibility Features
+====================
+
+The Explorer Context Menu is fully accessible with screen reader support:
+
+Screen Reader Support
+--------------------
+
+* **ARIA Labels**: All menu items have descriptive labels for screen readers
+* **Operation Announcements**: Screen readers announce the results of operations like "Cut 3 items" or "Copied 1 file"
+* **Status Updates**: Users are informed when operations complete or fail
+
+Focus Management
+--------------
+
+* **Focus Tracking**: The menu remembers which widget had focus before opening
+* **Focus Restoration**: When the menu closes, focus returns to the original widget
+* **Keyboard Focus**: Clear visual indicators show which menu item is selected
+
+Visual Accessibility
+------------------
+
+* **High Contrast**: Menu items maintain proper color contrast
+* **Clear Visual Focus**: Selected items are clearly highlighted
+* **Theme Integration**: Menu appearance adapts to application themes
 
 Troubleshooting
 =============

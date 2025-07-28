@@ -94,6 +94,56 @@ Main Features
       
       :doc:`/services/theme_manager`
 
+Architecture Overview
+====================
+
+.. container:: toc-cards
+
+   .. container:: card
+
+      .. figure:: /_static/images/architecture_diagram.svg
+         :alt: Plugin Architecture
+         :width: 100%
+         :figclass: align-center
+         
+         Plugin Architecture
+
+      **Plugin System**
+      
+      Comprehensive plugin architecture with activity management.
+      
+      :doc:`/architecture/plugin_system`
+
+   .. container:: card
+
+      .. figure:: /_static/images/services_architecture.svg
+         :alt: Services Architecture
+         :width: 100%
+         :figclass: align-center
+         
+         Services Architecture
+
+      **Services Layer**
+      
+      Service-oriented architecture for core functionality.
+      
+      :doc:`/architecture/services`
+
+   .. container:: card
+
+      .. figure:: /_static/images/system_dataflow.svg
+         :alt: System Data Flow
+         :width: 100%
+         :figclass: align-center
+         
+         System Data Flow
+
+      **Data Flow**
+      
+      Complete system data flow and component interaction.
+      
+      :doc:`/architecture/plugin_system`
+
 API References
 =============
 

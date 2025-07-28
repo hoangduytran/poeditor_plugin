@@ -2,7 +2,10 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+
+# Add project root to Python path for imports
+project_root = os.path.abspath('../..')
+sys.path.insert(0, project_root)
 
 # -- Project information -----------------------------------------------------
 project = 'POEditor Plugin'
@@ -28,3 +31,6 @@ html_static_path = ['_static']
 # -- Extension configuration -------------------------------------------------
 autodoc_member_order = 'bysource'
 autodoc_typehints = 'description'
+
+# Mock imports for unavailable dependencies
+autodoc_mock_imports = ['PySide6', 'Qt']
