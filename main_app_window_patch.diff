@@ -1,0 +1,20 @@
+--- main_app_window.py.original
++++ main_app_window.py
+@@ -793,7 +793,7 @@
+     def setup_sidebar_buttons(self) -> None:
+         """Setup the sidebar activity buttons."""
+         try:
+-            # Import the panel classes
++            # Import the panel classes - use enhanced explorer panel
+             from panels.explorer_panel import ExplorerPanel
+             from panels.search_panel import SearchPanel
+             from panels.preferences_panel import PreferencesPanel
+@@ -801,6 +801,8 @@
+             from panels.account_panel import AccountPanel
+             
+             # Create panel instances
++            # Uncomment to use enhanced explorer panel with context menu
++            # from panels.enhanced_explorer_panel import EnhancedExplorerPanel
+             explorer_panel = ExplorerPanel()
+             # Set the API for enhanced features if available
+             if self.plugin_api:
