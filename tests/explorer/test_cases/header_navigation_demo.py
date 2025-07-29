@@ -11,8 +11,10 @@ from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PySide6.QtCore import Qt
 
-# Add project root to Python path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path
+# tests/explorer/test_cases/header_navigation_demo.py -> project root is 3 levels up
+project_root = Path(__file__).parents[3]
+sys.path.insert(0, str(project_root))
 
 from lg import logger
 from services.navigation_service import NavigationService

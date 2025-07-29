@@ -11,7 +11,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, Q
 from PySide6.QtCore import Qt
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# tests/explorer/test_cases/test_header_navigation.py -> project root is 3 levels up
+sys.path.insert(0, str(Path(__file__).parents[3]))
 
 from widgets.explorer.explorer_header_bar import HeaderNavigationWidget
 from services.navigation_service import NavigationService

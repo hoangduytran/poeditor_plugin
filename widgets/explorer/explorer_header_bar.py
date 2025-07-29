@@ -1,9 +1,24 @@
 """
-Header Navigation Widget
+Explorer Header Bar Widget
 
-Enhances the existing table header (QHeaderView) with navigation functionality.
-Provides a context menu with navigation features when right-clicking the header.
+This module provides the HeaderNavigationWidget that enhances QHeaderView
+with navigation context menu functionality for the Explorer panel.
 """
+
+import logging
+from typing import Optional
+from PySide6.QtWidgets import QHeaderView, QMenu, QMessageBox
+from PySide6.QtCore import Qt, Signal, QPoint
+from PySide6.QtGui import QAction
+
+from services.navigation_service import NavigationService
+from services.navigation_history_service import NavigationHistoryService
+from services.location_manager import LocationManager
+from services.path_completion_service import PathCompletionService
+from widgets.explorer.goto_path_dialog import show_goto_path_dialog
+from widgets.explorer.bookmark_manager_dialog import show_bookmark_manager
+
+logger = logging.getLogger(__name__)
 
 from typing import Optional, List
 from PySide6.QtWidgets import QHeaderView, QMenu, QWidget, QWidgetAction, QHBoxLayout
@@ -189,6 +204,51 @@ class HeaderNavigationWidget(QHeaderView):
                 menu.addSeparator()
                 self._add_bookmarks(menu, bookmarks)
                 
+        # Phase 3: Enhanced Navigation Actions
+        menu.addSeparator()
+        
+        # Navigation Actions Section
+        actions_section = menu.addMenu("🎯 Navigation Actions")
+        
+        # Go to Path action
+        goto_action = QAction("📍 Go to Path... (Ctrl+G)", menu)
+        goto_action.setToolTip("Navigate to a specific path")
+        goto_action.triggered.connect(lambda: self._show_goto_path_dialog())
+        actions_section.addAction(goto_action)
+        
+        # Manage Bookmarks action  
+        bookmarks_action = QAction("⭐ Manage Bookmarks...", menu)
+        bookmarks_action.setToolTip("Add, edit, or delete bookmarks")
+        bookmarks_action.triggered.connect(lambda: self._show_bookmark_manager())
+        actions_section.addAction(bookmarks_action)
+        
+        # Refresh action
+        refresh_action = QAction("🔄 Refresh", menu)
+        refresh_action.setToolTip("Refresh current location")
+        refresh_action.triggered.connect(lambda: self._refresh_current_location())
+        actions_section.addAction(refresh_action)
+        
+        # Phase 3: Column Management Section (Preview)
+        column_section = menu.addMenu("📋 Column Management")
+        
+        # Add/Remove Columns action
+        columns_action = QAction("📝 Add/Remove Columns...", menu)
+        columns_action.setToolTip("Configure visible columns")
+        columns_action.triggered.connect(lambda: self._show_column_manager())
+        column_section.addAction(columns_action)
+        
+        # Column Settings action
+        settings_action = QAction("⚙️ Column Settings...", menu)
+        settings_action.setToolTip("Advanced column configuration")
+        settings_action.triggered.connect(lambda: self._show_column_settings())
+        column_section.addAction(settings_action)
+        
+        # Reset to Defaults action
+        reset_action = QAction("🔄 Reset to Defaults", menu)
+        reset_action.setToolTip("Reset columns to default configuration")
+        reset_action.triggered.connect(lambda: self._reset_columns())
+        column_section.addAction(reset_action)
+                
         logger.info(f"Menu populated with {menu.actions().__len__()} actions")
                 
     def _add_navigation_actions(self, menu: QMenu) -> None:
@@ -330,3 +390,78 @@ class HeaderNavigationWidget(QHeaderView):
             return path_obj.name or str(path_obj)
         except Exception:
             return path
+            
+    # Phase 3: Enhanced Navigation Methods
+    
+    def _show_goto_path_dialog(self) -> None:
+        """Show the Go to Path dialog."""
+        current_path = self._get_current_path()
+        
+        selected_path = show_goto_path_dialog(
+            parent=self,
+            current_path=current_path,
+            completion_service=self._completion_service,
+            history_service=self._history_service
+        )
+        
+        if selected_path:
+            self._navigate_to(selected_path)
+            
+    def _show_bookmark_manager(self) -> None:
+        """Show the bookmark manager dialog."""        
+        bookmarks_changed = show_bookmark_manager(
+            parent=self,
+            location_manager=self._location_manager
+        )
+        
+        # Note: The bookmark manager dialog handles navigation internally
+        # when bookmarks are selected. If bookmarks were changed, we could
+        # refresh our quick locations here in a future enhancement.
+        
+    def _refresh_current_location(self) -> None:
+        """Refresh the current location."""
+        current_path = self._get_current_path()
+        if current_path and self._navigation_service:
+            # Force a refresh by re-navigating to the same path
+            self._navigation_service.navigate_to(current_path)
+            self.navigation_requested.emit(current_path)
+            
+    # Phase 3: Column Management Methods (Placeholders for Phase 4)
+    
+    def _show_column_manager(self) -> None:
+        """Show the column manager dialog (Phase 4 feature)."""
+        QMessageBox.information(
+            self, "Coming Soon",
+            "Column Manager will be available in Phase 4.\n\n"
+            "This feature will allow you to:\n"
+            "• Add/remove columns\n"
+            "• Reorder columns\n"
+            "• Configure column properties"
+        )
+        
+    def _show_column_settings(self) -> None:
+        """Show the column settings dialog (Phase 4 feature)."""
+        QMessageBox.information(
+            self, "Coming Soon", 
+            "Column Settings will be available in Phase 4.\n\n"
+            "This feature will allow you to:\n"
+            "• Customize column widths\n"
+            "• Set default sort orders\n"
+            "• Configure column formats"
+        )
+        
+    def _reset_columns(self) -> None:
+        """Reset columns to default configuration (Phase 4 feature)."""
+        reply = QMessageBox.question(
+            self, "Reset Columns",
+            "Reset all columns to default configuration?\n\n"
+            "Note: This feature will be fully implemented in Phase 4.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            QMessageBox.information(
+                self, "Reset Complete",
+                "Column reset will be implemented in Phase 4."
+            )
