@@ -32,7 +32,7 @@ The best software engineering practices include:
 5. **Documentation**  
    - Maintain up-to-date user and developer documentation.
    - Include examples for plugin authors.
-   - Design and documentations are put into project_files/<component> directories (prefix by date/time using format 'YYYYMMDD_HHmm_') so we can observe the sequence of designs. In order to get the current system time, in the tests dir, use 'date' function to get the local time correctly.
+   - Design and documentations are put into project_files/<component> directories (prefix by date/time using format 'YYYYMMDD_HHMMSSzz_', ie. "%Y%m%d_%H%M%S") so we can observe the sequence of designs. In order to get the current system time, in the tests dir, use 'date' function to get the local time correctly.
    - Add API documentations and perform generations of API <PROJECT_DIR/docs> if required in the docs directory with proper directory structure for the components.
    - **Documentation Timing**:
      * Create API documentation progressively during development, not at the end of the project.

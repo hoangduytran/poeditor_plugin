@@ -7,9 +7,13 @@ overall navigation state.
 """
 
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from PySide6.QtCore import QObject, Signal, QThread, QTimer
 from lg import logger
+
+if TYPE_CHECKING:
+    from .navigation_history_service import NavigationHistoryService
+    from .location_manager import LocationManager
 
 
 class NavigationService(QObject):
@@ -47,8 +51,8 @@ class NavigationService(QObject):
         # Current navigation state
         self._current_path: Optional[str] = None
         self._is_navigating: bool = False
-        self._navigation_history = None  # Will be set by dependency injection
-        self._location_manager = None   # Will be set by dependency injection
+        self._navigation_history: Optional['NavigationHistoryService'] = None  # Will be set by dependency injection
+        self._location_manager: Optional['LocationManager'] = None   # Will be set by dependency injection
         
         # Navigation configuration
         self._auto_refresh_enabled: bool = True
@@ -60,7 +64,7 @@ class NavigationService(QObject):
         
         logger.info("NavigationService initialized")
     
-    def set_dependencies(self, history_service, location_manager):
+    def set_dependencies(self, history_service: 'NavigationHistoryService', location_manager: 'LocationManager'):
         """
         Set service dependencies.
         
@@ -197,6 +201,10 @@ class NavigationService(QObject):
             logger.warning("Cannot navigate back - no history available")
             return False
         
+        if not self._navigation_history:
+            logger.error("Navigation history service not available")
+            return False
+        
         previous_path = self._navigation_history.go_back()
         if previous_path:
             return self.navigate_to(previous_path, add_to_history=False)
@@ -212,6 +220,10 @@ class NavigationService(QObject):
         """
         if not self.can_navigate_forward():
             logger.warning("Cannot navigate forward - no history available")
+            return False
+        
+        if not self._navigation_history:
+            logger.error("Navigation history service not available")
             return False
         
         next_path = self._navigation_history.go_forward()
