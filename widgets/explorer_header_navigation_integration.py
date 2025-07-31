@@ -323,8 +323,73 @@ class HeaderNavigationWidgetIntegration(QHeaderView):
     
     def _show_goto_path_dialog(self) -> None:
         """Show a dialog to enter a custom path for navigation."""
-        # In a more complete implementation, this would show a dialog
-        # For now, just log that this feature would be shown
-        logger.info("Go to Path dialog would be shown here")
-        # Placeholder for future enhancement
+        from widgets.goto_path_dialog import GotoPathDialog
+        from core.explorer_settings import ExplorerSettings
+        
+        # Get recent paths from settings
+        settings = ExplorerSettings()
+        recent_paths = settings.get("explorer_path_history", [])
+        
+        # Create and configure the dialog
+        dialog = GotoPathDialog(parent=self, recent_paths=recent_paths)
+        
+        # Get current path from the parent view if possible
+        tree_view = self.parent()
+        current_path = None
+        
+        # Try to get the current path from the file view or its model
+        from PySide6.QtWidgets import QTreeView
+        
+        # Check if we have a tree view
+        if isinstance(tree_view, QTreeView):
+            model = tree_view.model()
+            # Check if model has rootPath method (common in file system models)
+            if hasattr(model, "rootPath") and callable(getattr(model, "rootPath", None)):
+                try:
+                    # Use getattr to avoid lint errors when accessing dynamically
+                    rootPath = getattr(model, "rootPath")
+                    current_path = rootPath()
+                    logger.debug(f"Got current path from model: {current_path}")
+                except Exception as e:
+                    logger.error(f"Error getting root path from model: {e}")
+            else:
+                logger.debug("Tree view model does not have rootPath method")
+        else:
+            logger.debug("Parent is not a QTreeView")
+            
+        if current_path:
+            dialog.set_path(current_path)
+            
+        # Connect the path_accepted signal
+        dialog.path_accepted.connect(self._navigate_to_location)
+        
+        # Show the dialog (modal)
+        dialog.setModal(True)
+        dialog.show()
+        
+        # Save updated history when dialog closes
+        dialog.finished.connect(lambda result: self._save_path_history(dialog.get_recent_paths()))
+        
+    def _save_path_history(self, paths: list) -> None:
+        """
+        Save path history to settings.
+        
+        Args:
+            paths: List of paths to save
+        """
+        try:
+            from core.explorer_settings import ExplorerSettings
+            settings = ExplorerSettings()
+            
+            # Limit number of paths to reasonable amount (e.g., 20)
+            max_history = settings.get("explorer_max_path_history", 20)
+            if len(paths) > max_history:
+                paths = paths[:max_history]
+                
+            # Save the paths
+            settings.set("explorer_path_history", paths)
+            settings.save()
+            logger.debug(f"Saved {len(paths)} paths to history")
+        except Exception as e:
+            logger.error(f"Failed to save path history: {e}")
         
