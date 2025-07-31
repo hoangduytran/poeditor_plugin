@@ -28,6 +28,8 @@ Basic Navigation
    In the Explorer activity:
    
    * Navigate directories in the file tree
+   * Filter files using the search bar at the top
+   * Clear filters with the clear button (✕) to restore all files
    * Right-click files for a context menu with operations:
      - Copy
      - Cut
@@ -49,6 +51,35 @@ Basic Navigation
    * Ctrl+V: Paste files
    * Delete: Delete selected files
    * F2: Rename selected file
+
+File Filtering and Search
+-----------------------
+
+The Explorer provides powerful filtering capabilities to help you find files quickly:
+
+1. **Filter Bar**:
+   
+   * Type in the filter box at the top of the Explorer to filter files by name
+   * Filtering is case-insensitive and uses partial matching
+   * Directories are always shown first, even when filtering
+
+2. **Clear Button**:
+   
+   * A clear button (✕) appears when you have entered filter text
+   * Click the clear button to instantly remove the filter and show all files
+   * The button is automatically enabled/disabled based on filter text
+
+3. **Filter Modes**:
+   
+   * Right-click the filter bar to access different filter modes:
+     - **Filter Files**: Show/hide files based on name patterns (default)
+     - **Search Text In Files**: Search file contents (future feature)
+
+4. **Filter Examples**:
+   
+   * Type "test" to show files containing "test" in their name
+   * Type ".py" to show Python files
+   * Type "README" to find readme files
 
 Working with Translations
 -----------------------

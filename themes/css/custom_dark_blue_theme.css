@@ -2,7 +2,7 @@
 /* Custom Dark Blue Theme - A blue-tinted dark theme */
 
 QWidget {
-    font-family: "Segoe UI", "Ubuntu", "Droid Sans", sans-serif;
+    font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
     font-size: 13px;
     background-color: #1a1d29;
     color: #e1e5e9;

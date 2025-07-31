@@ -17,7 +17,7 @@ Primary Colors:
 
 /* === MAIN APPLICATION === */
 QWidget {
-    font-family: "Segoe UI", "Ubuntu", "Droid Sans", sans-serif;
+    font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
     font-size: 13px;
     background-color: #1e1e1e;
     color: #cccccc;

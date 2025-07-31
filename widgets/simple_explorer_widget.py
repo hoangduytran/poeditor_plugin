@@ -432,6 +432,7 @@ class SimpleExplorerWidget(QWidget):
 
         # Initialize UI components first
         self.search_bar = SimpleSearchBar()
+        self.clear_button = QPushButton("✕")
         self.file_view = SimpleFileView()
         self.path_label = QLabel("Initializing...")
         self.up_button = QPushButton("↑ Up")
@@ -458,18 +459,31 @@ class SimpleExplorerWidget(QWidget):
         nav_layout.addWidget(self.up_button)
         nav_layout.addWidget(self.path_label, 1) # Stretch the label
 
+        # Search/filter layout with clear button
+        search_layout = QHBoxLayout()
+        search_layout.setContentsMargins(0, 0, 0, 0)
+        search_layout.setSpacing(2)
+        search_layout.addWidget(self.search_bar, 1)  # Stretch the search bar
+        search_layout.addWidget(self.clear_button)
+        
+        # Configure clear button
+        self.clear_button.setToolTip("Clear filter and restore all files")
+        self.clear_button.setFixedSize(24, 24)
+        self.clear_button.setEnabled(False)  # Initially disabled
+        
         # Main layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         main_layout.addLayout(nav_layout)
-        main_layout.addWidget(self.search_bar)
+        main_layout.addLayout(search_layout)
         main_layout.addWidget(self.file_view, 1) # Stretch the file view
 
     def _connect_signals(self):
         """Connect signals to slots."""
         self.up_button.clicked.connect(self._on_up_button_clicked)
         self.search_bar.textChanged.connect(self._on_search_text_changed)
+        self.clear_button.clicked.connect(self._on_clear_button_clicked)
         self.file_view.file_activated.connect(self.file_opened)
         self.file_view.directory_changed.connect(self._on_directory_changed)
         
@@ -488,6 +502,14 @@ class SimpleExplorerWidget(QWidget):
     def _on_search_text_changed(self, text: str):
         """Handle search/filter text changes."""
         self.file_view.apply_filter(text)
+        # Enable/disable clear button based on whether there's text
+        self.clear_button.setEnabled(bool(text.strip()))
+
+    def _on_clear_button_clicked(self):
+        """Handle clear button click to restore unfiltered state."""
+        self.search_bar.clear()
+        # apply_filter will be called via textChanged signal with empty text
+        # which will clear the filter in the file view
 
     def _on_directory_changed(self, path: str):
         """Handle directory navigation."""

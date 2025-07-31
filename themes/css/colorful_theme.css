@@ -3,7 +3,7 @@
 
 /* === MAIN APPLICATION === */
 QWidget {
-    font-family: "Segoe UI", "Ubuntu", "Droid Sans", sans-serif;
+    font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
     font-size: 13px;
     background-color: #fdf6e3;
     color: #586e75;

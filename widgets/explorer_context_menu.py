@@ -63,35 +63,31 @@ class ExplorerContextMenu(QObject):
         self._register_shortcuts()
     
     def _load_icons(self):
-        """Load icons for menu actions."""
-        # Check if icons directory exists, if not use empty icons
-        icons_dir = "icons"
-        if not os.path.exists(icons_dir):
-            logger.debug(f"Icons directory {icons_dir} not found, using empty icons")
-            self.icons = {key: QIcon() for key in [
-                "open", "open_with", "open_new_window", "cut", "copy", "paste",
-                "duplicate", "rename", "delete", "new_file", "new_folder",
-                "properties", "terminal", "find", "favorites"
-            ]}
-            return
-            
+        """Load icons for menu actions using QStyle standard icons."""
+        from PySide6.QtWidgets import QStyle, QApplication
+        
+        style = QApplication.style()
+        
+        # Map our icon names to QStyle standard icons
         self.icons = {
-            "open": QIcon("icons/open.svg"),
-            "open_with": QIcon("icons/open_with.svg"),
-            "open_new_window": QIcon("icons/open_new_window.svg"),
-            "cut": QIcon("icons/cut.svg"),
-            "copy": QIcon("icons/copy.svg"),
-            "paste": QIcon("icons/paste.svg"),
-            "duplicate": QIcon("icons/duplicate.svg"),
-            "rename": QIcon("icons/rename.svg"),
-            "delete": QIcon("icons/delete.svg"),
-            "new_file": QIcon("icons/new_file.svg"),
-            "new_folder": QIcon("icons/new_folder.svg"),
-            "properties": QIcon("icons/properties.svg"),
-            "terminal": QIcon("icons/terminal.svg"),
-            "find": QIcon("icons/search.svg"),
-            "favorites": QIcon("icons/star.svg"),
+            "open": style.standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon),
+            "open_with": style.standardIcon(QStyle.StandardPixmap.SP_DialogOpenButton),
+            "open_new_window": style.standardIcon(QStyle.StandardPixmap.SP_DialogHelpButton),
+            "cut": style.standardIcon(QStyle.StandardPixmap.SP_DialogCancelButton),
+            "copy": style.standardIcon(QStyle.StandardPixmap.SP_DialogSaveButton),
+            "paste": style.standardIcon(QStyle.StandardPixmap.SP_DialogApplyButton),
+            "duplicate": style.standardIcon(QStyle.StandardPixmap.SP_FileLinkIcon),
+            "rename": style.standardIcon(QStyle.StandardPixmap.SP_FileDialogDetailedView),
+            "delete": style.standardIcon(QStyle.StandardPixmap.SP_TrashIcon),
+            "new_file": style.standardIcon(QStyle.StandardPixmap.SP_FileIcon),
+            "new_folder": style.standardIcon(QStyle.StandardPixmap.SP_DirIcon),
+            "properties": style.standardIcon(QStyle.StandardPixmap.SP_FileDialogInfoView),
+            "terminal": style.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon),
+            "find": style.standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView),
+            "favorites": style.standardIcon(QStyle.StandardPixmap.SP_DialogYesButton),
         }
+        
+        logger.debug("Loaded standard icons for context menu")
         
     def _register_shortcuts(self):
         """Register keyboard shortcuts for common file operations."""
