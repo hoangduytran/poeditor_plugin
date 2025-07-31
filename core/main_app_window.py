@@ -794,13 +794,14 @@ class MainAppWindow(QMainWindow):
         try:
             # Import the panel classes
             from panels.explorer_panel import ExplorerPanel
+            from panels.explorer_panel_with_column_menu import ExplorerPanelWithColumnMenu
             from panels.search_panel import SearchPanel
             from panels.preferences_panel import PreferencesPanel
             from panels.extensions_panel import ExtensionsPanel
             from panels.account_panel import AccountPanel
             
             # Create panel instances
-            explorer_panel = ExplorerPanel()
+            explorer_panel = ExplorerPanelWithColumnMenu()  # Use our enhanced panel with column menu
             # Set the API for enhanced features if available
             if self.plugin_api:
                 explorer_panel.set_api(self.plugin_api)

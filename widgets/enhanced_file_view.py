@@ -5,16 +5,23 @@ This extends the SimpleFileView class to add context menu support and integratio
 with the FileOperationsService.
 """
 
+from typing import Optional, Dict, List, Any, TYPE_CHECKING
 from PySide6.QtCore import Qt, Signal, QModelIndex, QItemSelectionModel, QMimeData
-from PySide6.QtWidgets import QApplication, QTreeView, QMenu
+from PySide6.QtWidgets import QApplication, QTreeView, QMenu, QHeaderView
 from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QMouseEvent
 
 from lg import logger
 from widgets.simple_explorer_widget import SimpleFileView
 from widgets.explorer_context_menu import ExplorerContextMenu
+from widgets.explorer.explorer_header_bar import HeaderNavigationWidget
 from services.file_operations_service import FileOperationsService
 from services.undo_redo_service import UndoRedoManager
 from services.drag_drop_service import DragDropService
+from services.column_manager_service import ColumnManagerService
+from services.navigation_service import NavigationService
+from services.navigation_history_service import NavigationHistoryService
+from services.location_manager import LocationManager
+from services.path_completion_service import PathCompletionService
 
 
 class EnhancedFileView(SimpleFileView):
@@ -36,6 +43,7 @@ class EnhancedFileView(SimpleFileView):
         self.file_operations_service = None
         self.undo_redo_manager = None
         self.drag_drop_service = None
+        self.column_manager = None
         
         # Set up drag and drop support
         self.setDragEnabled(True)
@@ -46,17 +54,35 @@ class EnhancedFileView(SimpleFileView):
         # Track drag start position
         self.drag_start_position = None
         
+        # Create and set header navigation widget
+        self._setup_header_navigation()
+        
     def setup_context_menu(self, file_operations_service: FileOperationsService, 
-                         undo_redo_manager: UndoRedoManager):
+                         undo_redo_manager: UndoRedoManager,
+                         column_manager: Optional[ColumnManagerService] = None,
+                         navigation_service: Optional[Any] = None,
+                         history_service: Optional[Any] = None,
+                         location_manager: Optional[Any] = None,
+                         completion_service: Optional[Any] = None):
         """
-        Set up the context menu manager.
+        Set up the context menu manager and services.
         
         Args:
             file_operations_service: Service for file operations
             undo_redo_manager: Manager for undo/redo operations
+            column_manager: Column management service
+            navigation_service: Service for navigation
+            history_service: Service for navigation history
+            location_manager: Service for location management
+            completion_service: Service for path completion
         """
         self.file_operations_service = file_operations_service
         self.undo_redo_manager = undo_redo_manager
+        self.column_manager = column_manager
+        self.navigation_service = navigation_service
+        self.history_service = history_service
+        self.location_manager = location_manager
+        self.completion_service = completion_service
         
         # Create context menu manager
         self.context_menu_manager = ExplorerContextMenu(
@@ -74,6 +100,36 @@ class EnhancedFileView(SimpleFileView):
         self.context_menu_manager.show_properties.connect(self._show_properties)
         self.context_menu_manager.show_open_with.connect(self._show_open_with)
         self.context_menu_manager.refresh_requested.connect(self._refresh_view)
+        
+        # Set up header with services if available
+        if hasattr(self, 'header_nav'):
+            # Inject navigation services if available
+            if all([self.navigation_service, self.history_service, 
+                    self.location_manager, self.completion_service]):
+                logger.debug("Injecting navigation services into header navigation widget")
+                self.header_nav.inject_services(
+                    navigation_service=self.navigation_service,
+                    history_service=self.history_service,
+                    location_manager=self.location_manager,
+                    completion_service=self.completion_service,
+                    column_manager=self.column_manager
+                )
+                
+                # Connect navigation service signals to update the file view
+                self.navigation_service.current_path_changed.connect(self._on_navigation_path_changed)
+                self.header_nav.navigation_requested.connect(lambda path: logger.debug(f"Navigation requested to: {path}"))
+                
+            # Otherwise just inject column manager if available
+            elif self.column_manager:
+                logger.debug(f"Injecting column manager into header navigation widget: {self.column_manager}")
+                self.header_nav.inject_column_manager(self.column_manager)
+            
+            # Apply initial column settings if column manager is available
+            if self.column_manager:
+                self._apply_initial_column_settings()
+                
+                # Connect to column visibility changes
+                self.header_nav.column_visibility_changed.connect(self._on_column_visibility_changed)
         
     def _show_context_menu(self, position):
         """
@@ -144,6 +200,93 @@ class EnhancedFileView(SimpleFileView):
         """
         # This would be implemented with an 'Open With' dialog
         logger.debug(f"Show 'Open With' for: {paths}")
+    
+    # ============== HEADER NAVIGATION IMPLEMENTATION ==============
+    
+    def _setup_header_navigation(self) -> None:
+        """Set up the header navigation widget."""
+        # Create header navigation widget
+        self.header_nav = HeaderNavigationWidget(Qt.Orientation.Horizontal, self)
+        
+        # Set it as the header for this view
+        self.setHeader(self.header_nav)
+        
+        # Enable custom context menu for the header
+        self.header_nav.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        
+        # Connect a debug handler to track context menu requests
+        self.header_nav.customContextMenuRequested.connect(
+            lambda pos: logger.debug(f"Header context menu requested at position: {pos}")
+        )
+        
+        logger.debug("Header navigation widget set up")
+        
+    def _on_navigation_path_changed(self, new_path: str) -> None:
+        """
+        Handle path change from navigation service.
+        
+        Args:
+            new_path: The new path to navigate to
+        """
+        logger.debug(f"Navigation path changed to: {new_path}")
+        # Update the file view to show the new directory
+        self.set_current_path(new_path)
+    
+# ============== COLUMN MANAGEMENT IMPLEMENTATION ==============
+    
+    def _apply_initial_column_settings(self) -> None:
+        """Apply initial column settings from the column manager."""
+        if not self.column_manager:
+            return
+            
+        # Get visible columns
+        visible_columns = self.column_manager.get_visible_columns()
+        
+        # Show/hide columns based on settings
+        for col_id, col_info in self.column_manager.get_available_columns().items():
+            model_column = col_info.get("model_column", 0)
+            visible = col_id in visible_columns
+            
+            if visible:
+                self.showColumn(model_column)
+            else:
+                self.hideColumn(model_column)
+                
+        # Apply column widths
+        if self.column_manager.get_fit_content_enabled():
+            # If fit content is enabled, resize columns to fit content
+            for section in range(self.header().count()):
+                self.resizeColumnToContents(section)
+        else:
+            # Otherwise apply saved/default widths
+            for col_id, col_info in self.column_manager.get_available_columns().items():
+                model_column = col_info.get("model_column", 0)
+                width = self.column_manager.get_column_width(col_id)
+                self.setColumnWidth(model_column, width)
+                
+        logger.debug("Applied initial column settings")
+        
+    def _on_column_visibility_changed(self, visible_columns: List[str]) -> None:
+        """
+        Handle column visibility changes from the header.
+        
+        Args:
+            visible_columns: List of column IDs that should be visible
+        """
+        if not self.column_manager:
+            return
+            
+        # Update column visibility
+        for col_id, col_info in self.column_manager.get_available_columns().items():
+            model_column = col_info.get("model_column", 0)
+            visible = col_id in visible_columns
+            
+            if visible:
+                self.showColumn(model_column)
+            else:
+                self.hideColumn(model_column)
+                
+        logger.debug(f"Updated column visibility from header: {visible_columns}")
     
     # ============== DRAG AND DROP IMPLEMENTATION ==============
     

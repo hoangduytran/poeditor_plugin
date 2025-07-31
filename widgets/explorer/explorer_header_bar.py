@@ -1,13 +1,24 @@
 """
-Explorer Header Bar Widget
+Explorer Header Barfrom typing import Optional, List, Dict, Any
+from PySide6.QtWidgets import QHeaderView, QMenu, QWidget, QWidgetAction, QHBoxLayout, QTreeView
+from PySide6.QtCore import Signal, Qt, QPoint
+from PySide6.QtGui import QAction
 
-This module provides the HeaderNavigationWidget that enhances QHeaderView
+from lg import logger
+from services.navigation_service import NavigationService
+from services.navigation_history_service import NavigationHistoryService
+from services.location_manager import LocationManager
+from services.path_completion_service import PathCompletionService
+from services.column_manager_service import ColumnManagerService
+
+
+class HeaderNavigationWidget(QHeaderView): module provides the HeaderNavigationWidget that enhances QHeaderView
 with navigation context menu functionality for the Explorer panel.
 """
 
 import logging
-from typing import Optional
-from PySide6.QtWidgets import QHeaderView, QMenu, QMessageBox
+from typing import Optional, List, Dict, Any
+from PySide6.QtWidgets import QHeaderView, QMenu, QMessageBox, QTreeView
 from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QAction
 
@@ -15,6 +26,7 @@ from services.navigation_service import NavigationService
 from services.navigation_history_service import NavigationHistoryService
 from services.location_manager import LocationManager
 from services.path_completion_service import PathCompletionService
+from services.column_manager_service import ColumnManagerService
 from widgets.explorer.goto_path_dialog import show_goto_path_dialog
 from widgets.explorer.bookmark_manager_dialog import show_bookmark_manager
 
@@ -40,15 +52,18 @@ class HeaderNavigationWidget(QHeaderView):
     - Navigation actions (Back, Forward, Up, Home)
     - Quick locations and bookmarks
     - Current path display and navigation
+    - Column management options (visibility, fit content)
     
     Signals:
         navigation_requested: Emitted when navigation to a path is requested
         path_changed: Emitted when current path changes
+        column_visibility_changed: Emitted when column visibility changes
     """
     
     # Signals
     navigation_requested = Signal(str)
     path_changed = Signal(str)
+    column_visibility_changed = Signal(list)  # List of visible column IDs
     
     def __init__(self, orientation: Qt.Orientation, parent: Optional[QWidget] = None):
         """
@@ -65,6 +80,7 @@ class HeaderNavigationWidget(QHeaderView):
         self._history_service: Optional[NavigationHistoryService] = None
         self._location_manager: Optional[LocationManager] = None
         self._completion_service: Optional[PathCompletionService] = None
+        self._column_manager: Optional[ColumnManagerService] = None
         
         # Setup navigation context menu
         self._setup_navigation_context_menu()
@@ -80,7 +96,8 @@ class HeaderNavigationWidget(QHeaderView):
         navigation_service: NavigationService,
         history_service: NavigationHistoryService,
         location_manager: LocationManager,
-        completion_service: PathCompletionService
+        completion_service: PathCompletionService,
+        column_manager: Optional[ColumnManagerService] = None
     ) -> None:
         """
         Inject navigation services into the header.
@@ -90,11 +107,17 @@ class HeaderNavigationWidget(QHeaderView):
             history_service: Navigation history service
             location_manager: Location and bookmark manager
             completion_service: Path completion service
+            column_manager: Column management service
         """
         self._navigation_service = navigation_service
         self._history_service = history_service
         self._location_manager = location_manager
         self._completion_service = completion_service
+        self._column_manager = column_manager
+        
+        # Connect to section resize signal if column manager is available
+        if self._column_manager:
+            self._connect_section_resize_signal()
         
         # Connect to navigation service signals
         if self._navigation_service:
@@ -170,6 +193,12 @@ class HeaderNavigationWidget(QHeaderView):
         """
         logger.info("Populating navigation menu")
         
+        # Column Management Section (Phase 4 implementation)
+        if self._column_manager:
+            logger.info("Adding column management section")
+            self._add_column_management_section(menu)
+            menu.addSeparator()
+            
         # Current path section
         current_path = self._get_current_path()
         logger.info(f"Current path: {current_path}")
@@ -228,26 +257,18 @@ class HeaderNavigationWidget(QHeaderView):
         refresh_action.triggered.connect(lambda: self._refresh_current_location())
         actions_section.addAction(refresh_action)
         
-        # Phase 3: Column Management Section (Preview)
-        column_section = menu.addMenu("📋 Column Management")
-        
-        # Add/Remove Columns action
-        columns_action = QAction("📝 Add/Remove Columns...", menu)
-        columns_action.setToolTip("Configure visible columns")
-        columns_action.triggered.connect(lambda: self._show_column_manager())
-        column_section.addAction(columns_action)
-        
-        # Column Settings action
-        settings_action = QAction("⚙️ Column Settings...", menu)
-        settings_action.setToolTip("Advanced column configuration")
-        settings_action.triggered.connect(lambda: self._show_column_settings())
-        column_section.addAction(settings_action)
-        
-        # Reset to Defaults action
-        reset_action = QAction("🔄 Reset to Defaults", menu)
-        reset_action.setToolTip("Reset columns to default configuration")
-        reset_action.triggered.connect(lambda: self._reset_columns())
-        column_section.addAction(reset_action)
+        # Phase 4: Column Management Section (Real implementation now)
+        if self._column_manager:
+            # We now have a real implementation of column management
+            self._add_column_management_section(menu)
+        else:
+            # Fallback to preview if column manager not available
+            column_section = menu.addMenu("📋 Column Management")
+            
+            # Placeholder message
+            placeholder_action = QAction("Column Management (Requires Phase 4)", menu)
+            placeholder_action.setEnabled(False)
+            column_section.addAction(placeholder_action)
                 
         logger.info(f"Menu populated with {menu.actions().__len__()} actions")
                 
@@ -428,40 +449,214 @@ class HeaderNavigationWidget(QHeaderView):
             
     # Phase 3: Column Management Methods (Placeholders for Phase 4)
     
-    def _show_column_manager(self) -> None:
-        """Show the column manager dialog (Phase 4 feature)."""
-        QMessageBox.information(
-            self, "Coming Soon",
-            "Column Manager will be available in Phase 4.\n\n"
-            "This feature will allow you to:\n"
-            "• Add/remove columns\n"
-            "• Reorder columns\n"
-            "• Configure column properties"
-        )
+    def _add_column_management_section(self, menu: QMenu) -> None:
+        """
+        Add column management section to the context menu.
         
-    def _show_column_settings(self) -> None:
-        """Show the column settings dialog (Phase 4 feature)."""
-        QMessageBox.information(
-            self, "Coming Soon", 
-            "Column Settings will be available in Phase 4.\n\n"
-            "This feature will allow you to:\n"
-            "• Customize column widths\n"
-            "• Set default sort orders\n"
-            "• Configure column formats"
-        )
+        Args:
+            menu: The menu to add the section to
+        """
+        if not self._column_manager:
+            return
+            
+        # Create submenu for column management
+        columns_menu = menu.addMenu("📊 Column Management")
         
-    def _reset_columns(self) -> None:
-        """Reset columns to default configuration (Phase 4 feature)."""
-        reply = QMessageBox.question(
-            self, "Reset Columns",
-            "Reset all columns to default configuration?\n\n"
-            "Note: This feature will be fully implemented in Phase 4.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-        
-        if reply == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(
-                self, "Reset Complete",
-                "Column reset will be implemented in Phase 4."
+        # Add column visibility options
+        available_columns = self._column_manager.get_available_columns()
+        for col_id, col_info in available_columns.items():
+            action = QAction(col_info["display"], self)
+            action.setCheckable(True)
+            action.setChecked(self._column_manager.is_column_visible(col_id))
+            
+            # Disable toggling for required columns
+            if col_info.get("required", False):
+                action.setToolTip("This column cannot be hidden")
+            
+            # Connect action
+            action.triggered.connect(
+                lambda checked, c_id=col_id: self._toggle_column_visibility(c_id, checked)
             )
+            
+            columns_menu.addAction(action)
+            
+        # Add separator
+        columns_menu.addSeparator()
+        
+        # Add fit content option
+        fit_action = QAction("Fit Content to Values", self)
+        fit_action.setCheckable(True)
+        fit_action.setChecked(self._column_manager.get_fit_content_enabled())
+        fit_action.triggered.connect(self._toggle_fit_content)
+        fit_action.setToolTip("Automatically resize columns to fit their content")
+        columns_menu.addAction(fit_action)
+        
+        # Add reset widths option
+        reset_action = QAction("Reset Column Widths", self)
+        reset_action.setToolTip("Reset all columns to their default widths")
+        reset_action.triggered.connect(self._reset_column_widths)
+        columns_menu.addAction(reset_action)
+        
+        logger.debug("Column management section added to context menu")
+
+    def _toggle_column_visibility(self, column_id: str, visible: bool) -> None:
+        """
+        Toggle column visibility.
+        
+        Args:
+            column_id: Column identifier
+            visible: New visibility state
+        """
+        if not self._column_manager:
+            return
+            
+        # Try to update visibility (this may fail for required columns)
+        changed = self._column_manager.set_column_visibility(column_id, visible)
+        
+        if changed:
+            # Update column visibility in the view
+            self._update_column_visibility()
+            logger.debug(f"Column '{column_id}' visibility changed to: {visible}")
+            
+            # Emit signal with updated visible columns
+            self.column_visibility_changed.emit(self._column_manager.get_visible_columns())
+            
+    def _update_column_visibility(self) -> None:
+        """Update column visibility in the view based on settings."""
+        if not self._column_manager:
+            return
+            
+        # Get the tree view (parent of the header)
+        tree_view = self.parent()
+        if not isinstance(tree_view, QTreeView):
+            logger.warning("Header parent is not a QTreeView, cannot update column visibility")
+            return
+            
+        # Get visible column IDs
+        visible_columns = self._column_manager.get_visible_columns()
+        
+        # Update column visibility in the header
+        for col_id, col_info in self._column_manager.get_available_columns().items():
+            model_column = col_info.get("model_column", 0)
+            visible = col_id in visible_columns
+            
+            if visible:
+                tree_view.showColumn(model_column)
+            else:
+                tree_view.hideColumn(model_column)
+                
+        logger.debug(f"Updated column visibility: {visible_columns}")
+        
+    def _toggle_fit_content(self, enabled: bool) -> None:
+        """
+        Toggle fit content setting.
+        
+        Args:
+            enabled: Whether content fitting should be enabled
+        """
+        if not self._column_manager:
+            return
+            
+        self._column_manager.set_fit_content_enabled(enabled)
+        
+        if enabled:
+            # Resize columns to fit content
+            self._resize_columns_to_fit_content()
+        else:
+            # Restore saved column widths
+            self._restore_saved_column_widths()
+            
+        logger.debug(f"Fit content setting changed to: {enabled}")
+        
+    def _resize_columns_to_fit_content(self) -> None:
+        """Resize all columns to fit their content."""
+        # Get the tree view (parent of the header)
+        tree_view = self.parent()
+        if not isinstance(tree_view, QTreeView):
+            logger.warning("Header parent is not a QTreeView, cannot resize columns")
+            return
+            
+        # Resize each column individually
+        for section in range(self.count()):
+            tree_view.resizeColumnToContents(section)
+            
+        logger.debug("Resized columns to fit content")
+            
+    def _restore_saved_column_widths(self) -> None:
+        """Restore saved column widths."""
+        if not self._column_manager:
+            return
+            
+        # Get the tree view (parent of the header)
+        tree_view = self.parent()
+        if not isinstance(tree_view, QTreeView):
+            logger.warning("Header parent is not a QTreeView, cannot restore column widths")
+            return
+            
+        # Apply saved widths for each column
+        for col_id, col_info in self._column_manager.get_available_columns().items():
+            model_column = col_info.get("model_column", 0)
+            width = self._column_manager.get_column_width(col_id)
+            tree_view.setColumnWidth(model_column, width)
+            
+        logger.debug("Restored saved column widths")
+        
+    def _reset_column_widths(self) -> None:
+        """Reset all column widths to defaults."""
+        if not self._column_manager:
+            return
+            
+        # Reset widths in the manager
+        self._column_manager.reset_column_widths()
+        
+        # Get the tree view (parent of the header)
+        tree_view = self.parent()
+        if not isinstance(tree_view, QTreeView):
+            logger.warning("Header parent is not a QTreeView, cannot reset column widths")
+            return
+            
+        # Apply default widths
+        for col_id, col_info in self._column_manager.get_available_columns().items():
+            model_column = col_info.get("model_column", 0)
+            default_width = col_info.get("default_width", 100)
+            tree_view.setColumnWidth(model_column, default_width)
+                
+        logger.debug("Reset column widths to defaults")
+        
+    def _connect_section_resize_signal(self) -> None:
+        """Connect to sectionResized signal to track column width changes."""
+        self.sectionResized.connect(self._handle_section_resize)
+        logger.debug("Connected to section resize signal")
+        
+    def _handle_section_resize(self, logical_index: int, old_size: int, new_size: int) -> None:
+        """
+        Handle column resizing to save custom widths.
+        
+        Args:
+            logical_index: Index of the resized section
+            old_size: Old section size
+            new_size: New section size
+        """
+        if not self._column_manager:
+            return
+            
+        # Find column ID for the logical index
+        col_id = self._column_manager.get_column_id_by_model_index(logical_index)
+        if col_id:
+            # Save the new width
+            self._column_manager.set_column_width(col_id, new_size)
+            logger.debug(f"Saved custom width for column '{col_id}': {new_size}px")
+            
+    def inject_column_manager(self, column_manager: ColumnManagerService) -> None:
+        """
+        Inject column manager service.
+        
+        Args:
+            column_manager: Column management service
+        """
+        self._column_manager = column_manager
+        
+        # Connect section resize signal
+        self._connect_section_resize_signal()
+        
+        logger.debug("Column manager injected into header navigation widget")

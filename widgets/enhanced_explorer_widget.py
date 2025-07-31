@@ -15,6 +15,11 @@ from services.file_operations_service import FileOperationsService
 from services.undo_redo_service import UndoRedoManager
 from services.file_numbering_service import FileNumberingService
 from services.drag_drop_service import DragDropService
+from services.column_manager_service import ColumnManagerService
+from services.navigation_service import NavigationService
+from services.navigation_history_service import NavigationHistoryService
+from services.location_manager import LocationManager
+from services.path_completion_service import PathCompletionService
 
 
 class EnhancedExplorerWidget(QWidget):
@@ -58,6 +63,21 @@ class EnhancedExplorerWidget(QWidget):
         # Create drag and drop service
         self.drag_drop_service = DragDropService(self.file_operations_service)
         
+        # Create column manager service
+        self.column_manager_service = ColumnManagerService()
+        
+        # Create navigation services
+        self.navigation_service = NavigationService()
+        self.history_service = NavigationHistoryService()
+        self.location_manager = LocationManager()
+        self.completion_service = PathCompletionService()
+        
+        # Set up navigation service dependencies
+        self.navigation_service.set_dependencies(
+            history_service=self.history_service,
+            location_manager=self.location_manager
+        )
+        
         logger.debug("Explorer services initialized")
         
     def _setup_ui(self):
@@ -77,10 +97,15 @@ class EnhancedExplorerWidget(QWidget):
         main_layout.addWidget(self.search_bar)
         main_layout.addWidget(self.file_view, 1)  # Stretch the file view
         
-        # Set up context menu
+        # Set up context menu with services
         self.file_view.setup_context_menu(
             self.file_operations_service,
-            self.undo_redo_manager
+            self.undo_redo_manager,
+            self.column_manager_service,
+            self.navigation_service,
+            self.history_service,
+            self.location_manager,
+            self.completion_service
         )
         
     def _connect_signals(self):
