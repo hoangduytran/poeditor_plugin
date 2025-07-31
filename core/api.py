@@ -89,7 +89,7 @@ class PluginAPI(QObject):
         """Show a specific sidebar panel."""
         try:
             if self._main_window.sidebar_manager:
-                self._main_window.sidebar_manager.show_panel(panel_id)
+                self._main_window.sidebar_manager.set_active_panel(panel_id)
                 logger.info(f"Showed sidebar panel: {panel_id}")
         except Exception as e:
             logger.error(f"Failed to show sidebar panel {panel_id}: {e}")
@@ -389,3 +389,17 @@ class PluginAPI(QObject):
     def get_event_subscribers(self) -> Dict[str, int]:
         """Get count of subscribers for each event."""
         return {event: len(callbacks) for event, callbacks in self._event_subscribers.items()}
+    
+    def get_icon_manager(self):
+        """
+        Get the application's icon manager.
+        
+        Returns:
+            IconManager instance for accessing application icons
+        """
+        try:
+            from services.icon_manager import icon_manager
+            return icon_manager
+        except Exception as e:
+            logger.error(f"Failed to get icon manager: {e}")
+            return None

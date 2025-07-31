@@ -385,6 +385,31 @@ class IconManager:
         # Clear cache to force regeneration with new colors
         self.clear_cache()
         logger.info("Sidebar icon colors updated")
+        
+    def get_icon(self, icon_name: str) -> QIcon:
+        """
+        Get a QIcon by name, ensuring compatibility with plugin API.
+        
+        Args:
+            icon_name: Name of the icon (e.g., 'explorer_active', 'search_inactive')
+            
+        Returns:
+            QIcon object for the specified icon name
+        """
+        try:
+            # Handle different naming patterns
+            if icon_name.endswith('_active'):
+                base_name = icon_name.replace('_active', '')
+                return self.create_svg_icon(base_name, active=True)
+            elif icon_name.endswith('_inactive'):
+                base_name = icon_name.replace('_inactive', '')
+                return self.create_svg_icon(base_name, active=False)
+            else:
+                # Default to active icon if state not specified
+                return self.create_svg_icon(icon_name, active=True)
+        except Exception as e:
+            logger.error(f"Failed to get icon {icon_name}: {e}")
+            return self._create_fallback_icon(self._default_size, '#ffffff')
 
 
 # Global icon manager instance
