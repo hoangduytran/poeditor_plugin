@@ -84,7 +84,7 @@ class GotoPathTest(unittest.TestCase):
         self.settings.save()
         
         # Create navigation integration object
-        with patch('widgets.explorer_header_navigation_integration.ExplorerSettings', 
+        with patch('core.explorer_settings.ExplorerSettings', 
                   return_value=self.settings):
             self.header_navigation = HeaderNavigationWidgetIntegration(self.header_view)
             
@@ -135,7 +135,7 @@ class GotoPathTest(unittest.TestCase):
         """Test that _save_path_history updates settings."""
         test_paths = ["/path1", "/path2", "/path3"]
         
-        with patch('widgets.explorer_header_navigation_integration.ExplorerSettings', 
+        with patch('core.explorer_settings.ExplorerSettings', 
                   return_value=self.settings):
             self.header_navigation._save_path_history(test_paths)
             
