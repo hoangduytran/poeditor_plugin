@@ -570,7 +570,7 @@ QScrollBar::corner {
 }
 
 /* === LABELS === */
-QLabel {
+QLabel:not([objectName^="status"]):not([objectName="statusBranch"]):not([objectName="statusPosition"]) {
     color: #586e75;
     background-color: transparent;
 }
@@ -751,30 +751,7 @@ QMenu::item:selected {
 }
 
 /* === STATUS BAR === */
-QStatusBar {
-    background-color: #268bd2;
-    color: #fdf6e3;
-    border: none;
-    font-size: 12px;
-    font-weight: normal;
-    padding: 0;
-    margin: 0;
-}
-
-QStatusBar::item {
-    border: none;
-    background-color: transparent;
-    padding: 4px 12px;
-    margin: 0;
-}
-
-QStatusBar QLabel {
-    background-color: transparent;
-    color: #fdf6e3;
-    font-size: 12px;
-    font-weight: normal;
-    padding: 4px 0;
-}
+/* Status bar styling moved to common.css with object name */
 
 /* === TOOLTIPS === */
 QToolTip {
@@ -1101,19 +1078,20 @@ QLabel[class="info-label"] {
 }
 
 /* === ADDITIONAL FIXES === */
-* {
+/* Avoid universal selectors that can override specific component styling */
+QWidget:not(QStatusBar) {
     border-color: #e9d9b7;
 }
 
-*:focus {
+QWidget:not(QStatusBar):focus {
     border-color: #268bd2;
 }
 
 /* Ensure all container widgets have proper background */
 QWidget[class*="Container"],
-QWidget[class*="Panel"],
-QWidget[class*="View"],
-QWidget[class*="Layout"] {
+QWidget[class*="Panel"]:not(QStatusBar),
+QWidget[class*="View"]:not(QStatusBar),
+QWidget[class*="Layout"]:not(QStatusBar) {
     background-color: #fdf6e3;
     color: #586e75;
 }

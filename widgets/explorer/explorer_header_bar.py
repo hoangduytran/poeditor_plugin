@@ -1,5 +1,10 @@
 """
-Explorer Header Barfrom typing import Optional, List, Dict, Any
+Explorer Header Bar module provides the HeaderNavigationWidget that enhances QHeaderView
+with navigation context menu functionality for the Explorer panel.
+"""
+
+import logging
+from typing import Optional, List, Dict, Any
 from PySide6.QtWidgets import QHeaderView, QMenu, QWidget, QWidgetAction, QHBoxLayout, QTreeView
 from PySide6.QtCore import Signal, Qt, QPoint
 from PySide6.QtGui import QAction
@@ -10,14 +15,6 @@ from services.navigation_history_service import NavigationHistoryService
 from services.location_manager import LocationManager
 from services.path_completion_service import PathCompletionService
 from services.column_manager_service import ColumnManagerService
-
-
-class HeaderNavigationWidget(QHeaderView): module provides the HeaderNavigationWidget that enhances QHeaderView
-with navigation context menu functionality for the Explorer panel.
-"""
-
-import logging
-from typing import Optional, List, Dict, Any
 from PySide6.QtWidgets import QHeaderView, QMenu, QMessageBox, QTreeView
 from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QAction

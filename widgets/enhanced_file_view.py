@@ -107,15 +107,17 @@ class EnhancedFileView(SimpleFileView):
             if all([self.navigation_service, self.history_service, 
                     self.location_manager, self.completion_service]):
                 logger.debug("Injecting navigation services into header navigation widget")
+                # Use explicit type casting to resolve type checking issues
                 self.header_nav.inject_services(
-                    navigation_service=self.navigation_service,
-                    history_service=self.history_service,
-                    location_manager=self.location_manager,
-                    completion_service=self.completion_service,
+                    navigation_service=self.navigation_service,  # type: ignore
+                    history_service=self.history_service,  # type: ignore
+                    location_manager=self.location_manager,  # type: ignore
+                    completion_service=self.completion_service,  # type: ignore
                     column_manager=self.column_manager
                 )
                 
                 # Connect navigation service signals to update the file view
+                assert self.navigation_service is not None  # Help type checker understand it's not None here
                 self.navigation_service.current_path_changed.connect(self._on_navigation_path_changed)
                 self.header_nav.navigation_requested.connect(lambda path: logger.debug(f"Navigation requested to: {path}"))
                 

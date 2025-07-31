@@ -151,20 +151,30 @@ class CSSFileBasedThemeManager(QObject):
             logger.info(f"CSS content length: {len(css_content)} chars")
             logger.info(f"CSS preview (first 200 chars): {css_content[:200]}")
             
-            # Get current palette before applying
-            current_palette = app.palette()
-            bg_color = current_palette.color(current_palette.ColorRole.Window)
-            text_color = current_palette.color(current_palette.ColorRole.WindowText)
-            logger.info(f"BEFORE - Background: {bg_color.name()}, Text: {text_color.name()}")
-                
-            app.setStyleSheet(css_content)
-                        
-            # Get palette after applying
-            new_palette = app.palette()
-            new_bg_color = new_palette.color(new_palette.ColorRole.Window)
-            new_text_color = new_palette.color(new_palette.ColorRole.WindowText)
-            logger.info(f"AFTER - Background: {new_bg_color.name()}, Text: {new_text_color.name()}")
+            # Try to extract background color from CSS
+            import re
+            bg_color_match = re.search(r'background(-color)?\s*:\s*(#[0-9a-fA-F]{6})', css_content)
+            if bg_color_match:
+                css_bg_color = bg_color_match.group(2)
+                logger.info(f"Found CSS background color: {css_bg_color}")
             
+            # Get current widget colors before applying (for debugging only)
+            from PySide6.QtGui import QPalette, QColor
+            window_color = app.palette().color(QPalette.ColorRole.Window)
+            text_color = app.palette().color(QPalette.ColorRole.WindowText)
+            logger.info(f"BEFORE - Background: {window_color.name()}, Text: {text_color.name()}")
+            
+            # Reset palette to system defaults to ensure CSS has full control
+            app.setPalette(QPalette())
+            logger.info("Reset palette to system defaults to let CSS control all styling")
+            
+            # Apply stylesheet directly - let CSS control all colors
+            logger.info(f"Applying theme CSS directly without palette manipulation")
+            app.setStyleSheet(css_content)
+            
+            # Log for debugging that CSS has been applied
+            logger.info(f"CSS has been applied for theme: {self.current_theme}")
+                
             self.theme_applied.emit(self.current_theme or "")
             logger.info(f"Applied theme CSS: {self.current_theme}")
         except Exception as e:
@@ -261,7 +271,7 @@ class CSSFileBasedThemeManager(QObject):
             # Use CSS manager's dynamic theme discovery
             return self.css_manager.get_available_themes()
         else:
-            # Fallback to hardcoded themes for resource-based CSS
+            # Fallback to only the 3 main themes for resource-based CSS
             return ["Dark", "Light", "Colorful"]
     
     def _get_theme_filename(self, theme_name: str) -> str:
@@ -370,6 +380,23 @@ class CSSFileBasedThemeManager(QObject):
         # Reapply the theme
         self.set_theme(self.current_theme)
         return True
+        
+    def _apply_dark_palette(self, app: QApplication) -> None:
+        """
+        Previously applied a dark palette, now a no-op to let CSS control all styling.
+        """
+        # No-op function - letting CSS control all styling
+        logger.debug("Dark palette application skipped - using CSS only")
+        pass
+        
+    def _apply_light_palette(self, app: QApplication) -> None:
+        """
+        Previously applied a light palette, now a no-op to let CSS control all styling.
+        """
+        # No-op function - letting CSS control all styling
+        logger.debug("Light palette application skipped - using CSS only")
+        pass
+
 
     @classmethod
     def get_instance(cls):
@@ -476,6 +503,7 @@ class CSSFileBasedThemeManager(QObject):
             if context_menu_css:
                 component_css.append(context_menu_css)
                 
+            # Common CSS should come LAST for highest priority (especially status bar styles)
             common_css = self.css_manager.get_css("common") or ""
             if common_css:
                 component_css.append(common_css)
@@ -491,37 +519,10 @@ class CSSFileBasedThemeManager(QObject):
             except Exception as e:
                 logger.error(f"Error loading resource-based CSS for {theme_file_name}: {e}")
         
-        # Combine base CSS and component CSS
+        # Combine CSS: theme first, then components (including common.css last)
         full_css = base_css_content
         for css in component_css:
             full_css += "\n\n" + css
             
         return full_css
     
-    # REMOVED: _apply_dark_palette method - was never called and contained hardcoded #094771 color
-    # This method was defining palette colors but was not being used by the CSS-based theme system
-    
-    def _apply_light_palette(self, app):
-        """Apply light palette colors to complement the CSS."""
-        from PySide6.QtGui import QPalette, QColor
-        
-        palette = app.palette()
-        
-        # Light theme colors
-        light_bg = QColor("#ffffff")     # Main background
-        light_text = QColor("#000000")   # Main text
-        light_base = QColor("#f8f8f8")   # Input backgrounds
-        light_button = QColor("#e1e1e1") # Button backgrounds
-        light_highlight = QColor("#0078d4") # Selection
-        
-        palette.setColor(QPalette.ColorRole.Window, light_bg)
-        palette.setColor(QPalette.ColorRole.WindowText, light_text)
-        palette.setColor(QPalette.ColorRole.Base, light_base)
-        palette.setColor(QPalette.ColorRole.Text, light_text)
-        palette.setColor(QPalette.ColorRole.Button, light_button)
-        palette.setColor(QPalette.ColorRole.ButtonText, light_text)
-        palette.setColor(QPalette.ColorRole.Highlight, light_highlight)
-        palette.setColor(QPalette.ColorRole.HighlightedText, light_bg)
-        
-        app.setPalette(palette)
-        logger.info("Applied light palette to complement CSS")

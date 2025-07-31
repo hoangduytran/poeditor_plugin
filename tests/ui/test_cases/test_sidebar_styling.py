@@ -7,8 +7,8 @@ import sys
 import os
 from pathlib import Path
 
-# Add project root to Python path - fixing the path to point to current directory
-project_root = Path(__file__).parent
+# Fix the path to point to the actual project root
+project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from PySide6.QtWidgets import (
@@ -126,13 +126,25 @@ class TestWindow(QMainWindow):
                 if any(key in line for key in ['QDockWidget', 'title', 'background']):
                     logger.info(f"Style rule: {line.strip()}")
         
-        # Log title bar specific information
+        # Try to find title bar widget more comprehensively
         title_bar = None
+
+        # Method 1: Look for qt_dockwidget_titlebar
         for child in self.sidebar.children():
             if isinstance(child, QWidget) and child.objectName() == "qt_dockwidget_titlebar":
                 title_bar = child
                 break
-        
+
+        # Method 2: If not found, look for any child that might be the title bar
+        if not title_bar:
+            for child in self.sidebar.children():
+                if isinstance(child, QWidget):
+                    # Check if this widget looks like a title bar
+                    if hasattr(child, 'height') and child.height() > 0 and child.height() < 50:
+                        logger.info(f"Potential title bar found: {type(child).__name__} with objectName: '{child.objectName()}'")
+                        title_bar = child
+                        break
+
         if title_bar:
             logger.info("\n=== Title Bar Widget State ===")
             logger.info(f"Title bar widget found: {type(title_bar).__name__}")
@@ -141,6 +153,20 @@ class TestWindow(QMainWindow):
             logger.info(f"Auto fill background: {title_bar.autoFillBackground()}")
             logger.info(f"WA_StyledBackground: {title_bar.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)}")
             
+            # Force apply dark styling directly to the title bar
+            logger.info("Attempting to force dark styling on title bar...")
+            title_bar.setAutoFillBackground(True)
+            title_bar.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            title_bar.setStyleSheet("""
+                background-color: #252526;
+                color: #cccccc;
+                padding: 4px;
+                padding-left: 8px;
+                border: none;
+                font-weight: bold;
+                font-size: 11px;
+            """)
+
             # Log complete widget hierarchy from title bar
             logger.info("\nTitle bar widget hierarchy:")
             self._log_widget_hierarchy(title_bar)
@@ -170,19 +196,65 @@ class TestWindow(QMainWindow):
                         logger.info(f"STYLE: {line.strip()}")
                 else:
                     logger.info("No QDockWidget styling found in application stylesheet")
-        
+        else:
+            logger.info("Could not find the title bar widget!")
+
+            # Force apply styling directly to the dock widget itself
+            logger.info("Attempting to style through the dock widget...")
+            self.sidebar.setAutoFillBackground(True)
+            self.sidebar.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+            # Apply more specific styling with !important equivalent (higher specificity)
+            self.sidebar.setStyleSheet("""
+                QDockWidget#SidebarDockWidget {
+                    background-color: #252526;
+                    color: #cccccc;
+                    border: 1px solid #464647;
+                }
+                QDockWidget#SidebarDockWidget::title {
+                    background-color: #252526;
+                    color: #cccccc;
+                    padding: 4px;
+                    padding-left: 8px;
+                    text-align: left;
+                    border: none;
+                    font-weight: bold;
+                    font-size: 11px;
+                    letter-spacing: 1px;
+                }
+            """)
+
+            # Try to force a style update
+            self.sidebar.style().unpolish(self.sidebar)
+            self.sidebar.style().polish(self.sidebar)
+            self.sidebar.update()
+
         logger.info("=== END DEBUGGING ===\n")
 
 
 def load_dark_theme():
-    """Load the dark theme CSS"""
-    css_path = project_root / "themes" / "css" / "dark_theme.css"
-    if css_path.exists():
-        with open(css_path, 'r') as f:
-            return f.read()
+    """Load the dark theme CSS and dock widget CSS"""
+    css_content = ""
+
+    # Load main dark theme CSS
+    dark_theme_path = project_root / "themes" / "css" / "dark_theme.css"
+    if dark_theme_path.exists():
+        with open(dark_theme_path, 'r') as f:
+            css_content = f.read()
+        logger.info("Dark theme CSS loaded successfully")
     else:
-        logger.error(f"Dark theme CSS not found at {css_path}")
-        return ""
+        logger.error(f"Dark theme CSS not found at {dark_theme_path}")
+
+    # Load dock widget specific CSS
+    dock_widget_path = project_root / "themes" / "css" / "dock_widget.css"
+    if dock_widget_path.exists():
+        with open(dock_widget_path, 'r') as f:
+            css_content += "\n" + f.read()
+        logger.info("Dock widget CSS loaded successfully")
+    else:
+        logger.error(f"Dock widget CSS not found at {dock_widget_path}")
+
+    return css_content
 
 
 def run_test():
@@ -207,5 +279,3 @@ def run_test():
 
 if __name__ == "__main__":
     sys.exit(run_test())
-
-

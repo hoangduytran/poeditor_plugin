@@ -50,8 +50,18 @@ class ColumnFitContentTest:
         if not self.setup():
             logger.error("Test setup failed")
             return False
+        
+        # Add a small delay to ensure the UI is fully initialized
+        QApplication.processEvents()
+        time.sleep(0.5)
+        
+        # Verify explorer was initialized
+        assert self.explorer is not None, "Explorer was not initialized"
             
         logger.info("Starting column fit content test sequence")
+        
+        # Verify column manager was initialized
+        assert self.column_manager is not None, "Column manager was not initialized"
         
         # Test 1: Check initial fit content setting
         initial_fit = self.column_manager.get_fit_content_enabled()

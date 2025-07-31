@@ -2,7 +2,7 @@
 /* Based on official VS Code Light color palette */
 
 /* === MAIN APPLICATION === */
-QWidget {
+QWidget:not(QStatusBar):not([objectName="poeditorStatusBar"]) {
     font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
     font-size: 13px;
     background-color: #ffffff;
@@ -570,7 +570,7 @@ QScrollBar::corner {
 }
 
 /* === LABELS === */
-QLabel {
+QLabel:not([objectName^="status"]):not([objectName="statusBranch"]):not([objectName="statusPosition"]) {
     color: #333333;
     background-color: transparent;
 }
@@ -737,45 +737,33 @@ QMenuBar::item:pressed {
 
 /* === CONTEXT MENUS === */
 QMenu {
-    background-color: #ececec;
-    border: 1px solid #e5e5e5;
+    background-color: #f3f3f3;
+    border: 1px solid #d4d4d4;
+    border-radius: 3px;
+    padding: 2px;
+    margin: 1px;
     color: #333333;
 }
 
 QMenu::item {
-    padding: 6px 16px;
+    background-color: transparent;
+    padding: 5px 20px 5px 20px;
+    border-radius: 2px;
+    color: #333333;
 }
 
 QMenu::item:selected {
-    background-color: #e8e8e8;
+    background-color: #007ACC;  /* VS Code blue for selection */
+    color: #ffffff;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #d4d4d4;
+    margin: 4px 8px;
 }
 
 /* === STATUS BAR === */
-QStatusBar {
-    background-color: #007ACC;
-    color: #ffffff;
-    border: none;
-    font-size: 12px;
-    font-weight: normal;
-    padding: 0;
-    margin: 0;
-}
-
-QStatusBar::item {
-    border: none;
-    background-color: transparent;
-    padding: 4px 12px;
-    margin: 0;
-}
-
-QStatusBar QLabel {
-    background-color: transparent;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: normal;
-    padding: 4px 0;
-}
-
 /* === TOOLTIPS === */
 QToolTip {
     background-color: #ececec;
@@ -1100,19 +1088,20 @@ QLabel[class="info-label"] {
 }
 
 /* === ADDITIONAL FIXES === */
-* {
+/* Avoid universal selectors that can override specific component styling */
+QWidget:not(QStatusBar) {
     border-color: #e5e5e5;
 }
 
-*:focus {
+QWidget:not(QStatusBar):focus {
     border-color: #0078d4;
 }
 
 /* Ensure all container widgets have proper background */
 QWidget[class*="Container"],
-QWidget[class*="Panel"],
-QWidget[class*="View"],
-QWidget[class*="Layout"] {
+QWidget[class*="Panel"]:not(QStatusBar),
+QWidget[class*="View"]:not(QStatusBar),
+QWidget[class*="Layout"]:not(QStatusBar) {
     background-color: #ffffff;
     color: #333333;
 }

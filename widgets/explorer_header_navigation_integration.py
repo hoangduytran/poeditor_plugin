@@ -14,6 +14,7 @@ from PySide6.QtGui import QAction
 
 from lg import logger
 from services.column_manager_service_integration import ColumnManagerService
+from services.theme_manager import theme_manager
 
 
 class HeaderNavigationWidgetIntegration(QHeaderView):
@@ -87,6 +88,9 @@ class HeaderNavigationWidgetIntegration(QHeaderView):
         logger.info(f"Creating column context menu at position: {position}")
         menu = QMenu(self)
         
+        # Apply theme to the menu
+        self._apply_theme_to_menu(menu)
+        
         # Add navigation section first
         self._add_navigation_section(menu)
         
@@ -100,31 +104,8 @@ class HeaderNavigationWidgetIntegration(QHeaderView):
         global_position = self.mapToGlobal(position)
         logger.info(f"Showing menu at global position: {global_position}")
         
-        # Make menu more visible with styling
-        menu.setStyleSheet("""
-            QMenu {
-                background-color: #2b2b2b;
-                border: 2px solid #555;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 14px;
-            }
-            QMenu::item {
-                background-color: transparent;
-                padding: 8px 20px;
-                margin: 2px;
-                color: white;
-            }
-            QMenu::item:selected {
-                background-color: #0078d4;
-                border-radius: 3px;
-            }
-            QMenu::separator {
-                height: 2px;
-                background-color: #555;
-                margin: 5px;
-            }
-        """)
+        # Apply the application's theme to the menu
+        self._apply_theme_to_menu(menu)
         
         result = menu.exec(global_position)
         logger.info(f"Menu exec result: {result}")
@@ -242,6 +223,29 @@ class HeaderNavigationWidgetIntegration(QHeaderView):
             
         self._column_manager.reset_column_widths()
         logger.debug("Column widths reset to defaults")
+    
+    def _apply_theme_to_menu(self, menu: QMenu) -> None:
+        """
+        Apply the current application theme to the menu.
+        
+        Args:
+            menu: The menu to apply the theme to
+        """
+        try:
+            # Get current theme name
+            current_theme = theme_manager.get_current_theme()
+            
+            if current_theme:
+                # Log theme application
+                theme_name = current_theme.name if hasattr(current_theme, "name") else str(current_theme)
+                logger.debug(f"Applied {theme_name} theme styling to menu")
+                
+                # QMenu will automatically use the application's theme
+                # No need for setStyleSheet as it's already defined in the theme's CSS files
+                
+        except Exception as e:
+            # If theme application fails, continue with default styling
+            logger.error(f"Failed to apply theme to menu: {e}")
     
     def _handle_section_resize(self, logical_index: int, old_size: int, new_size: int) -> None:
         """

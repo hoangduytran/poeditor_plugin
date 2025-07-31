@@ -222,3 +222,49 @@ QToolTip {
     border-radius: 2px;
     border: 1px solid #464647;
 }
+
+/* === STATUS BAR BASE (VSCode Style) === */
+/* Status bar with fixed styling that doesn't change with themes */
+QStatusBar#poeditorStatusBar {
+    background-color: #007ACC !important;  /* VS Code blue */
+    color: #ffffff !important;
+    border: none !important;
+    font-size: 12px !important;
+    min-height: 22px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+QStatusBar#poeditorStatusBar::item {
+    border: none !important;
+    background-color: transparent !important;
+    padding: 4px 12px !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+}
+
+QStatusBar#poeditorStatusBar QLabel {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    padding: 2px 0 !important;
+}
+
+/* Specific status bar sections */
+QLabel#statusBranch {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    padding: 2px 6px;
+}
+
+QLabel#statusPosition {
+    font-family: "SF Mono", "Monaco", "Consolas", monospace;
+}
+
+QLabel#statusLanguage {
+    padding: 2px 6px;
+}
+
+QLabel#statusEncoding {
+    padding: 2px 6px;
+}

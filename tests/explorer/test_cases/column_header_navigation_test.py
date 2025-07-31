@@ -40,9 +40,17 @@ class ColumnHeaderNavigationTest:
         
     def run_test(self):
         """Run the test sequence."""
+        # Setup must be called before the test to initialize explorer
         if not self.setup():
             logger.error("Test setup failed")
             return False
+        
+        # Add a small delay to ensure the UI is fully initialized
+        QApplication.processEvents()
+        time.sleep(0.5)
+        
+        # Verify explorer was initialized
+        assert self.explorer is not None, "Explorer was not initialized"
             
         logger.info("Starting column header navigation test sequence")
         
@@ -53,7 +61,8 @@ class ColumnHeaderNavigationTest:
         # Test 2: Navigate to Home
         home_path = os.path.expanduser("~")
         logger.info(f"Simulating navigation to Home: {home_path}")
-        self.explorer.file_view._on_navigation_requested(home_path)
+        # Direct navigation without using internal method
+        self.explorer.file_view.set_current_path(home_path)
         
         # Wait for UI to update
         QApplication.processEvents()
@@ -70,7 +79,8 @@ class ColumnHeaderNavigationTest:
         documents_path = os.path.join(home_path, "Documents")
         if os.path.exists(documents_path):
             logger.info(f"Simulating navigation to Documents: {documents_path}")
-            self.explorer.file_view._on_navigation_requested(documents_path)
+            # Direct navigation without using internal method
+            self.explorer.file_view.set_current_path(documents_path)
             
             # Wait for UI to update
             QApplication.processEvents()
@@ -88,7 +98,8 @@ class ColumnHeaderNavigationTest:
         # Test 4: Navigate to root directory
         root_path = "/"
         logger.info(f"Simulating navigation to Root: {root_path}")
-        self.explorer.file_view._on_navigation_requested(root_path)
+        # Direct navigation without using internal method
+        self.explorer.file_view.set_current_path(root_path)
         
         # Wait for UI to update
         QApplication.processEvents()

@@ -725,9 +725,9 @@ QSlider::handle:horizontal:hover {
 
 /* === MENU BAR (TITLE BAR) === */
 QMenuBar {
-    background-color: #f0ead6;
-    color: #586e75;
-    border-bottom: 1px solid #e9d9b7;
+    background-color: #707070ff;
+    color: #4f7c89ff;
+    border-bottom: 1px solid #6d6d6dff;
     padding: 4px 0;
     font-size: 13px;
 }
@@ -740,19 +740,19 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    background-color: #f5efdc;
+    background-color: #6a6a6aff;
     color: #002b36;
 }
 
 QMenuBar::item:pressed {
-    background-color: #eee8d5;
-    color: #002b36;
+    background-color: #555555ff;
+    color: #fdfdfdff;
 }
 
 /* === CONTEXT MENUS === */
 QMenu {
-    background-color: #2d2d30;
-    border: 1px solid #3f3f46;
+    background-color: #484848ff;
+    border: 1px solid #373737ff;
     border-radius: 3px;
     padding: 2px;
     margin: 1px;
@@ -766,7 +766,7 @@ QMenu::item {
 }
 
 QMenu::item:selected {
-    background-color: #3a3a3d;
+    background-color: #5f5f7dff;
     color: #ffffff;
 }
 

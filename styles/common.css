@@ -97,16 +97,16 @@ QStatusBar QLabel[objectName="statusMessage"] {
 
 /* Progress bar in status bar */
 QStatusBar QProgressBar {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(128, 128, 128, 0.3);
+    border: 1px solid rgba(128, 128, 128, 0.4);
     border-radius: 2px;
     text-align: center;
-    color: #ffffff;
     max-height: 14px;
     margin: 2px;
 }
 
 QStatusBar QProgressBar::chunk {
-    background-color: #ffffff;
+    background-color: #007ACC;
+    /* VS Code blue - theme neutral */
     border-radius: 1px;
 }

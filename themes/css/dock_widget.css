@@ -1,0 +1,74 @@
+/* === DOCK WIDGETS - DARK THEME OVERRIDE === */
+/* Use higher specificity to override light theme rules */
+QDockWidget#SidebarDockWidget {
+    background-color: #1e1e1e !important;
+    color: #cccccc !important;
+    border: 1px solid #464647 !important;
+}
+
+QDockWidget#SidebarDockWidget::title {
+    background-color: #252526 !important;
+    color: #cccccc !important;
+    padding: 4px !important;
+    padding-left: 8px !important;
+    text-align: left !important;
+    border: none !important;
+    font-weight: bold !important;
+    font-size: 11px !important;
+    letter-spacing: 1px !important;
+}
+
+QDockWidget#SidebarDockWidget::close-button,
+QDockWidget#SidebarDockWidget::float-button {
+    border: none !important;
+    background: transparent !important;
+    padding: 2px !important;
+    color: #cccccc !important;
+}
+
+QDockWidget#SidebarDockWidget::close-button:hover,
+QDockWidget#SidebarDockWidget::float-button:hover {
+    background: #464647 !important;
+    border-radius: 2px !important;
+}
+
+QDockWidget#SidebarDockWidget::close-button:pressed,
+QDockWidget#SidebarDockWidget::float-button:pressed {
+    background: #2b5278 !important;
+    border-radius: 2px !important;
+}
+
+/* === DOCK WIDGETS - GENERAL RULES === */
+QDockWidget {
+    background-color: #1e1e1e;
+    color: #cccccc;
+    border: 1px solid #464647;
+}
+
+QDockWidget::title {
+    background-color: #252526;
+    color: #cccccc;
+    padding: 4px;
+    padding-left: 8px;
+    text-align: left;
+    border: none;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+QDockWidget::close-button, QDockWidget::float-button {
+    border: none;
+    background: transparent;
+    padding: 2px;
+}
+
+QDockWidget::close-button:hover, QDockWidget::float-button:hover {
+    background: #464647;
+    border-radius: 2px;
+}
+
+QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
+    background: #2b5278;
+    border-radius: 2px;
+}

@@ -106,16 +106,16 @@ class MainAppWindow(QMainWindow):
             
             # Create menu bar
             self.setup_menu_bar()
-            
-            # Create status bar
-            self.setup_status_bar()
-            
+                                    
             # Create main layout
             self.setup_main_layout()
             
             # Apply styles
             self.apply_styles()
             
+            # Create status bar
+            self.setup_status_bar()
+
             logger.info("Main UI setup completed")
             
         except Exception as e:
@@ -212,10 +212,91 @@ class MainAppWindow(QMainWindow):
         """Setup the application status bar."""
         try:
             status_bar = self.statusBar()
+            # Set object name to apply fixed styling from common.css
+            status_bar.setObjectName("poeditorStatusBar")
+            
+            # Apply hardcoded VS Code blue styling - immune to theme changes
+            status_bar_style = """
+            QStatusBar#poeditorStatusBar {
+                background-color: #007ACC !important;
+                color: white !important;
+                border: none !important;
+                font-size: 12px !important;
+                font-weight: normal !important;
+                padding: 4px 8px !important;
+            }
+            
+            QStatusBar#poeditorStatusBar QLabel {
+                background-color: transparent !important;
+                color: white !important;
+                border: none !important;
+                margin: 0px 4px !important;
+                padding: 2px 4px !important;
+            }
+            
+            QStatusBar#poeditorStatusBar QLabel:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                border-radius: 3px !important;
+            }
+            """
+            status_bar.setStyleSheet(status_bar_style)
+            
+            # Create VS Code-like status bar sections
+            from PySide6.QtWidgets import QLabel
+            
+            # Left side - Git branch and file info
+            self.branch_label = QLabel("main")
+            self.branch_label.setObjectName("statusBranch")
+            self.branch_label.setToolTip("Git branch")
+            status_bar.addWidget(self.branch_label)
+            
+            # Center - Main message (permanent widget)
             status_bar.showMessage("Ready")
+            
+            # Right side - File position and language info
+            self.position_label = QLabel("Ln 1, Col 1")
+            self.position_label.setObjectName("statusPosition")
+            self.position_label.setToolTip("Line and column position")
+            status_bar.addPermanentWidget(self.position_label)
+            
+            self.spaces_label = QLabel("Spaces: 4")
+            self.spaces_label.setToolTip("Indentation")
+            status_bar.addPermanentWidget(self.spaces_label)
+            
+            self.encoding_label = QLabel("UTF-8")
+            self.encoding_label.setObjectName("statusEncoding")
+            self.encoding_label.setToolTip("File encoding")
+            status_bar.addPermanentWidget(self.encoding_label)
+            
+            self.language_label = QLabel("Python")
+            self.language_label.setObjectName("statusLanguage")
+            self.language_label.setToolTip("Language mode")
+            status_bar.addPermanentWidget(self.language_label)
             
         except Exception as e:
             logger.error(f"Failed to setup status bar: {e}")
+    
+    def update_status_bar(self, file_path: Optional[str] = None, line: int = 1, column: int = 1, language: str = "Plain Text"):
+        """Update status bar with current file information."""
+        try:
+            # Update position
+            if hasattr(self, 'position_label'):
+                self.position_label.setText(f"Ln {line}, Col {column}")
+            
+            # Update language
+            if hasattr(self, 'language_label'):
+                self.language_label.setText(language)
+            
+            # Update main message with file info
+            if file_path:
+                import os
+                filename = os.path.basename(file_path)
+                self.statusBar().showMessage(f"Editing: {filename}")
+            else:
+                self.statusBar().showMessage("Ready")
+                
+        except Exception as e:
+            logger.error(f"Failed to update status bar: {e}")
     
     def _setup_development_menu(self, menu_bar):
         """Setup development menu with CSS debugging features."""
@@ -231,6 +312,12 @@ class MainAppWindow(QMainWindow):
             reload_action.setShortcut("Ctrl+Shift+R")
             reload_action.triggered.connect(self._reload_current_theme)
             dev_menu.addAction(reload_action)
+
+            # Clear cache and reload action
+            clear_cache_action = QAction("Clear Cache and Reload", self)
+            clear_cache_action.setShortcut("Ctrl+Shift+C")
+            clear_cache_action.triggered.connect(self._clear_cache_and_reload)
+            dev_menu.addAction(clear_cache_action)
 
             # CSS info action
             css_info_action = QAction("CSS Manager Info", self)
@@ -260,6 +347,29 @@ class MainAppWindow(QMainWindow):
                 logger.warning("Theme reload failed or not available")
         except Exception as e:
             logger.error(f"Error during theme reload: {e}")
+
+    def _clear_cache_and_reload(self):
+        """Clear all CSS cache and reload from disk."""
+        try:
+            theme_manager = ThemeManager.get_instance()
+            if hasattr(theme_manager, 'clear_cache_and_reload'):
+                if theme_manager.reload_current_theme():
+                    logger.info("Cache cleared and themes reloaded successfully")
+                    # Show status message
+                    if hasattr(self, 'statusBar'):
+                        self.statusBar().showMessage("Cache cleared and reloaded", 2000)
+                else:
+                    logger.warning("Cache clear and reload failed or not available")
+                    if hasattr(self, 'statusBar'):
+                        self.statusBar().showMessage("Cache clear failed", 2000)
+            else:
+                logger.warning("Clear cache and reload not available in current theme manager")
+                if hasattr(self, 'statusBar'):
+                    self.statusBar().showMessage("Clear cache not available", 2000)
+        except Exception as e:
+            logger.error(f"Error during cache clear and reload: {e}")
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage(f"Error: {e}", 3000)
 
     def _show_css_info(self):
         """Show CSS manager information."""
@@ -324,6 +434,8 @@ class MainAppWindow(QMainWindow):
                 logger.error("Failed to inject test CSS")
         except Exception as e:
             logger.error(f"Error injecting test CSS: {e}")
+
+    # _force_dark_mode method removed - we'll use proper theme system instead
     
     def setup_main_layout(self) -> None:
         """Setup main window layout with fixed ActivityBar and dockable Sidebar."""
