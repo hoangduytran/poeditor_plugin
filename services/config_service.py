@@ -6,7 +6,7 @@ It provides a centralized way to store and retrieve configuration data
 with plugin-specific namespaces.
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Callable
 from PySide6.QtCore import QSettings, QObject, Signal
 from lg import logger
 
@@ -31,7 +31,7 @@ class ConfigurationService(QObject):
         super().__init__()
         self._settings = QSettings(organization, application)
         self._defaults: Dict[str, Dict[str, Any]] = {}
-        self._watchers: Dict[str, List[callable]] = {}
+        self._watchers: Dict[str, List[Callable]] = {}
         
         logger.info(f"ConfigurationService initialized for {organization}/{application}")
     
@@ -76,7 +76,7 @@ class ConfigurationService(QObject):
             logger.error(f"Failed to set config {namespace}.{key}: {e}")
             raise
     
-    def get_value(self, namespace: str, key: str, default: Any = None, value_type: type = None) -> Any:
+    def get_value(self, namespace: str, key: str, default: Any = None, value_type: Optional[type] = None) -> Any:
         """
         Get a configuration value.
         
@@ -318,7 +318,7 @@ class ConfigurationService(QObject):
             logger.error(f"Failed to reset to defaults for namespace {namespace}: {e}")
             raise
     
-    def watch_setting(self, namespace: str, key: str, callback: callable) -> None:
+    def watch_setting(self, namespace: str, key: str, callback: Callable) -> None:
         """
         Watch for changes to a specific setting.
         
@@ -342,7 +342,7 @@ class ConfigurationService(QObject):
             logger.error(f"Failed to add watcher for {namespace}.{key}: {e}")
             raise
     
-    def unwatch_setting(self, namespace: str, key: str, callback: callable) -> bool:
+    def unwatch_setting(self, namespace: str, key: str, callback: Callable) -> bool:
         """
         Stop watching a setting.
         

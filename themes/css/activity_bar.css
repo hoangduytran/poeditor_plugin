@@ -1,67 +1,65 @@
-/* Activity Bar Styles - IMMUTABLE */
-/* This file should NEVER be changed to maintain consistent activity bar appearance */
-/* Activity bar always uses dark theme regardless of selected theme */
+/* Activity Bar Styles */
+/* Using centralized CSS variables for consistent theming */
 
 /* === ACTIVITY BAR CONTAINER === */
-/* Using !important to prevent theme CSS from overriding */
 QWidget[objectName="activity_bar"] {
-    background-color: #2c2c2c !important;
-    border-right: 1px solid #3e3e42 !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
-    color: #cccccc !important;
+    background-color: var(--color-activity-bar-bg, #2c2c2c);
+    border-right: var(--border-width-thin) solid var(--color-activity-bar-border, #3e3e42);
+    min-width: var(--activity-bar-width);
+    max-width: var(--activity-bar-width);
+    color: var(--color-activity-bar-text, #cccccc);
 }
 
-/* Ensure any child widgets in activity bar also maintain dark theme */
+/* Ensure any child widgets in activity bar also maintain theme */
 QWidget[objectName="activity_bar"] QWidget {
-    background-color: #2c2c2c !important;
-    color: #cccccc !important;
+    background-color: var(--color-activity-bar-bg, #2c2c2c);
+    color: var(--color-activity-bar-text, #cccccc);
 }
 
 /* === ACTIVITY BUTTONS === */
 QPushButton[objectName^="activity_button"] {
-    background-color: transparent !important;
-    border: none !important;
-    border-left: 2px solid transparent !important;
-    color: #858585 !important;
-    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    border-left: var(--border-width-medium) solid transparent;
+    color: var(--color-activity-button-inactive, #858585);
+    font-size: var(--font-size-xl);
     padding: 0px;
     margin: 0px;
-    min-height: 48px;
-    max-height: 48px;
-    min-width: 48px;
-    max-width: 48px;
+    min-height: var(--activity-bar-width);
+    max-height: var(--activity-bar-width);
+    min-width: var(--activity-bar-width);
+    max-width: var(--activity-bar-width);
     text-align: center;
 }
 
 QPushButton[objectName^="activity_button"]:hover {
-    background-color: #37373d !important;
-    border-left: 2px solid transparent !important;
-    color: #cccccc !important;
+    background-color: var(--color-activity-button-hover-bg, #37373d);
+    border-left: var(--border-width-medium) solid transparent;
+    color: var(--color-activity-button-hover, #cccccc);
 }
 
 QPushButton[objectName^="activity_button"]:pressed {
-    background-color: #37373d !important;
-    color: #ffffff !important;
+    background-color: var(--color-activity-button-hover-bg, #37373d);
+    color: var(--color-activity-button-active, #ffffff);
 }
 
 /* Active state styling */
 QPushButton[objectName^="activity_button"][active="true"] {
-    color: #ffffff !important;
-    background-color: #37373d !important;
-    border-left: 2px solid #0078d4 !important;
+    color: var(--color-activity-button-active, #ffffff);
+    background-color: var(--color-activity-button-hover-bg, #37373d);
+    border-left: var(--border-width-medium) solid var(--color-primary, #0078d4);
 }
 
 QPushButton[objectName^="activity_button"][active="true"]:hover {
-    background-color: #414145 !important;
-    border-left: 2px solid #0078d4 !important;
-    color: #ffffff !important;
+    background-color: var(--color-activity-button-active-hover-bg, #414145);
+    border-left: var(--border-width-medium) solid var(--color-primary, #0078d4);
+    color: var(--color-activity-button-active, #ffffff);
 }
 
 /* === ACTIVITY BAR LAYOUT === */
 QVBoxLayout {
-    margin: 0px;
-    padding: 0px;
+    margin: var(--spacing-none, 0px);
+    padding: var(--spacing-none, 0px);
 }
 
 /* === ACTIVITY BAR ICONS === */
