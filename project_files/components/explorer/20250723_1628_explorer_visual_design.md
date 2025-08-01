@@ -1,0 +1,1 @@
+Moved from project_files/20250723_1628_explorer_visual_design.md

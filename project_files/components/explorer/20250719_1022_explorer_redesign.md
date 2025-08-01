@@ -1,0 +1,1 @@
+Moved from project_files/20250719_1022_explorer_redesign.md
