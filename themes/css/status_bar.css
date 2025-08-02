@@ -5,7 +5,7 @@
 /* === STATUS BAR VARIABLES === */
 :root {
     --status-bar-bg: #007ACC;
-    --status-bar-fg: #ffffff;
+    --status-bar-fg: var(--color-white);
     --status-bar-font-size: 12px;
     --status-bar-min-height: 22px;
     --status-bar-branch-bg: rgba(255, 255, 255, 0.15);

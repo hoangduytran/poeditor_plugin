@@ -35,6 +35,10 @@
     --status-bar-height: 22px;
     
     /* === COLORS - THESE WILL BE OVERRIDDEN BY THEMES === */
+    /* Global Color Constants */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    
     /* Primary Colors */
     --bg-main: #ffffff;
     --bg-secondary: #f3f3f3;
@@ -62,7 +66,7 @@
     
     /* Status Bar Colors */
     --status-bar-bg: #007ACC;
-    --status-bar-fg: #ffffff;
+    --status-bar-fg: var(--color-white);
     --status-bar-font-size: 12px;
     --status-bar-min-height: 22px;
     --status-bar-branch-bg: rgba(255, 255, 255, 0.15);
@@ -78,7 +82,7 @@
     --color-activity-button-inactive: #858585;
     --color-activity-button-hover-bg: #37373d;
     --color-activity-button-hover: #cccccc;
-    --color-activity-button-active: #ffffff;
+    --color-activity-button-active: var(--color-white);
     --color-activity-button-active-hover-bg: #414145;
     --color-primary: #0078d4;
     
@@ -96,10 +100,10 @@
     --menu-background: #f3f3f3;
     --menu-border: #e5e5e5;
     --menu-text: #333333;
-    --menu-text-selected: #ffffff;
+    --menu-text-selected: var(--color-white);
     --menu-text-disabled: #cccccc;
     --menu-highlight: #0078d4;
     --menu-separator: #e5e5e5;
     --menu-shortcut-text: #666666;
-    --menu-shortcut-text-selected: #ffffff;
+    --menu-shortcut-text-selected: var(--color-white);
 }

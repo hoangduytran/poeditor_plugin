@@ -200,7 +200,7 @@ QLabel[class="status-label"] {
 QScrollArea[class="breadcrumb-scroll"] {
     border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 /* Breadcrumb buttons (navigation links) */
@@ -255,7 +255,7 @@ QToolTip {
 /* Status bar with fixed styling that doesn't change with themes */
 QStatusBar#poeditorStatusBar {
     background-color: #007ACC !important;  /* VS Code blue */
-    color: #ffffff !important;
+    color: var(--color-white) !important;
     border: none !important;
     font-size: 12px !important;
     min-height: 22px !important;
@@ -268,12 +268,12 @@ QStatusBar#poeditorStatusBar::item {
     background-color: transparent !important;
     padding: 4px 12px !important;
     margin: 0 !important;
-    color: #ffffff !important;
+    color: var(--color-white) !important;
 }
 
 QStatusBar#poeditorStatusBar QLabel {
     background-color: transparent !important;
-    color: #ffffff !important;
+    color: var(--color-white) !important;
     font-size: 12px !important;
     padding: 2px 0 !important;
 }

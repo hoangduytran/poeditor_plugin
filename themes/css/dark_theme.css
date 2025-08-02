@@ -109,7 +109,7 @@ QLabel[objectName="panel_title"] {
 QPushButton {
     background-color: var(--btn-primary-bg);
     border: 1px solid var(--btn-primary-border);
-    color: #ffffff;
+    color: var(--color-white);
     padding: 6px 12px;
     border-radius: 2px;
     font-size: var(--font-size);
@@ -156,7 +156,7 @@ QListWidget::item:hover {
 
 QListWidget::item:selected {
     background-color: var(--selection-bg);
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 QListWidget::item:selected:active {
@@ -185,7 +185,7 @@ QListWidget[objectName="explorer_file_list"]::item:hover {
 
 QListWidget[objectName="explorer_file_list"]::item:selected {
     background-color: var(--selection-bg);
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 QListWidget[objectName="explorer_file_list"]::item:selected:active {
@@ -247,7 +247,7 @@ QTreeView[objectName="search_results_table"]::item:hover {
 
 QTreeView[objectName="search_results_table"]::item:selected {
     background-color: var(--selection-bg);
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 QTreeView[objectName="search_results_table"]::item:selected:active {
@@ -294,7 +294,7 @@ QMenu::item {
 
 QMenu::item:selected {
     background-color: var(--accent-main);
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 QMenu::separator {
@@ -325,7 +325,7 @@ QMenuBar::item:selected {
 
 QMenuBar::item:pressed {
     background-color: var(--accent-main);
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 /* === TOOLTIPS === */
@@ -452,7 +452,7 @@ QLineEdit {
     color: var(--fg-main);
     font-size: var(--font-size);
     selection-background-color: var(--selection-bg);
-    selection-color: #ffffff;
+    selection-color: var(--color-white);
 }
 
 QLineEdit:focus {
@@ -564,7 +564,7 @@ QComboBox QAbstractItemView {
     border-radius: 3px;
     color: var(--fg-main);
     selection-background-color: var(--selection-bg);
-    selection-color: #ffffff;
+    selection-color: var(--color-white);
 }
 
 QComboBox:disabled {
@@ -650,7 +650,7 @@ QTextEdit {
     color: var(--fg-main);
     font-size: var(--font-size);
     selection-background-color: var(--selection-bg);
-    selection-color: #ffffff;
+    selection-color: var(--color-white);
 }
 
 QTextEdit:focus {
@@ -676,7 +676,7 @@ QPlainTextEdit {
     color: var(--fg-main);
     font-size: var(--font-size);
     selection-background-color: var(--selection-bg);
-    selection-color: #ffffff;
+    selection-color: var(--color-white);
 }
 
 QPlainTextEdit:focus {
