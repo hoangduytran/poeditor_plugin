@@ -3,17 +3,17 @@
 
 /* === ACTIVITY BAR CONTAINER === */
 QWidget[objectName="activity_bar"] {
-    background-color: var(--color-activity-bar-bg, #2c2c2c);
-    border-right: var(--border-width-thin) solid var(--color-activity-bar-border, #3e3e42);
+    background-color: var(--color-activity-bar-bg);
+    border-right: var(--border-width-thin) solid var(--color-activity-bar-border);
     min-width: var(--activity-bar-width);
     max-width: var(--activity-bar-width);
-    color: var(--color-activity-bar-text, #cccccc);
+    color: var(--color-activity-bar-text);
 }
 
 /* Ensure any child widgets in activity bar also maintain theme */
 QWidget[objectName="activity_bar"] QWidget {
-    background-color: var(--color-activity-bar-bg, #2c2c2c);
-    color: var(--color-activity-bar-text, #cccccc);
+    background-color: var(--color-activity-bar-bg);
+    color: var(--color-activity-bar-text);
 }
 
 /* === ACTIVITY BUTTONS === */
@@ -21,7 +21,7 @@ QPushButton[objectName^="activity_button"] {
     background-color: transparent;
     border: none;
     border-left: var(--border-width-medium) solid transparent;
-    color: var(--color-activity-button-inactive, #858585);
+    color: var(--color-activity-button-inactive);
     font-size: var(--font-size-xl);
     padding: 0px;
     margin: 0px;
@@ -33,33 +33,33 @@ QPushButton[objectName^="activity_button"] {
 }
 
 QPushButton[objectName^="activity_button"]:hover {
-    background-color: var(--color-activity-button-hover-bg, #37373d);
+    background-color: var(--color-activity-button-hover-bg);
     border-left: var(--border-width-medium) solid transparent;
-    color: var(--color-activity-button-hover, #cccccc);
+    color: var(--color-activity-button-hover);
 }
 
 QPushButton[objectName^="activity_button"]:pressed {
-    background-color: var(--color-activity-button-hover-bg, #37373d);
-    color: var(--color-activity-button-active, #ffffff);
+    background-color: var(--color-activity-button-hover-bg);
+    color: var(--color-activity-button-active);
 }
 
 /* Active state styling */
 QPushButton[objectName^="activity_button"][active="true"] {
-    color: var(--color-activity-button-active, #ffffff);
-    background-color: var(--color-activity-button-hover-bg, #37373d);
-    border-left: var(--border-width-medium) solid var(--color-primary, #0078d4);
+    color: var(--color-activity-button-active);
+    background-color: var(--color-activity-button-hover-bg);
+    border-left: var(--border-width-medium) solid var(--color-primary);
 }
 
 QPushButton[objectName^="activity_button"][active="true"]:hover {
-    background-color: var(--color-activity-button-active-hover-bg, #414145);
-    border-left: var(--border-width-medium) solid var(--color-primary, #0078d4);
-    color: var(--color-activity-button-active, #ffffff);
+    background-color: var(--color-activity-button-active-hover-bg);
+    border-left: var(--border-width-medium) solid var(--color-primary);
+    color: var(--color-activity-button-active);
 }
 
 /* === ACTIVITY BAR LAYOUT === */
 QVBoxLayout {
-    margin: var(--spacing-none, 0px);
-    padding: var(--spacing-none, 0px);
+    margin: var(--spacing-none);
+    padding: var(--spacing-none);
 }
 
 /* === ACTIVITY BAR ICONS === */
