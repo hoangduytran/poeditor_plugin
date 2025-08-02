@@ -2,13 +2,26 @@
 /* This file provides completely isolated status bar styling that doesn't interfere with theme CSS */
 /* Applied separately to ensure consistent appearance across all themes */
 
+/* === STATUS BAR VARIABLES === */
+:root {
+    --status-bar-bg: #007ACC;
+    --status-bar-fg: #ffffff;
+    --status-bar-font-size: 12px;
+    --status-bar-min-height: 22px;
+    --status-bar-branch-bg: rgba(255, 255, 255, 0.15);
+    --status-bar-branch-hover-bg: rgba(255, 255, 255, 0.25);
+    --status-bar-item-hover-bg: rgba(255, 255, 255, 0.1);
+    --status-bar-modified-color: #ffcc02;
+    --status-bar-mono-font: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+}
+
 /* Main status bar container with VS Code blue background */
 QStatusBar#poeditorStatusBar {
-    background-color: #007ACC !important;  /* VS Code blue - consistent across all themes */
-    color: #ffffff !important;
+    background-color: var(--status-bar-bg) !important;
+    color: var(--status-bar-fg) !important;
     border: none !important;
-    font-size: 12px !important;
-    min-height: 22px !important;
+    font-size: var(--status-bar-font-size) !important;
+    min-height: var(--status-bar-min-height) !important;
     padding: 0 !important;
     margin: 0 !important;
 }
@@ -19,61 +32,61 @@ QStatusBar#poeditorStatusBar::item {
     background-color: transparent !important;
     padding: 4px 12px !important;
     margin: 0 !important;
-    color: #ffffff !important;
+    color: var(--status-bar-fg) !important;
 }
 
 /* All labels within the status bar */
 QStatusBar#poeditorStatusBar QLabel {
     background-color: transparent !important;
-    color: #ffffff !important;
-    font-size: 12px !important;
+    color: var(--status-bar-fg) !important;
+    font-size: var(--status-bar-font-size) !important;
     padding: 2px 0 !important;
     border: none !important;
 }
 
 /* Specific status bar section styling */
 QLabel#statusBranch {
-    background-color: rgba(255, 255, 255, 0.15) !important;
+    background-color: var(--status-bar-branch-bg) !important;
     border-radius: 3px !important;
     padding: 2px 8px !important;
-    color: #ffffff !important;
+    color: var(--status-bar-fg) !important;
     font-weight: 500;
 }
 
 QLabel#statusPosition {
-    font-family: "SF Mono", "Monaco", "Consolas", "Courier New", monospace !important;
-    color: #ffffff !important;
+    font-family: var(--status-bar-mono-font) !important;
+    color: var(--status-bar-fg) !important;
     padding: 2px 6px !important;
 }
 
 QLabel#statusLanguage {
     padding: 2px 6px !important;
-    color: #ffffff !important;
+    color: var(--status-bar-fg) !important;
 }
 
 QLabel#statusEncoding {
     padding: 2px 6px !important;
-    color: #ffffff !important;
+    color: var(--status-bar-fg) !important;
 }
 
 QLabel#statusSelection {
     padding: 2px 6px !important;
-    color: #ffffff !important;
+    color: var(--status-bar-fg) !important;
 }
 
 QLabel#statusModified {
-    color: #ffcc02 !important;  /* Yellow for modified indicator */
+    color: var(--status-bar-modified-color) !important;
     font-weight: bold !important;
     padding: 2px 6px !important;
 }
 
 /* Hover effects for interactive status bar elements */
 QLabel#statusBranch:hover {
-    background-color: rgba(255, 255, 255, 0.25) !important;
+    background-color: var(--status-bar-branch-hover-bg) !important;
 }
 
 QLabel#statusLanguage:hover,
 QLabel#statusEncoding:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: var(--status-bar-item-hover-bg) !important;
     border-radius: 2px !important;
 }

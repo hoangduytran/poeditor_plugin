@@ -121,6 +121,9 @@ class CSSPreprocessor:
         # Replace all variable references
         processed_css = self.var_usage_pattern.sub(replace_var, css_content)
 
+        # Remove :root blocks and variable declarations for QSS compatibility
+        processed_css = self._remove_css_variable_declarations(processed_css)
+
         # Cache the result
         self.cache[cache_key] = processed_css
 
@@ -302,3 +305,27 @@ class CSSPreprocessor:
         logger.info(f"Generated CSS for theme '{theme_name}' in {process_time:.2f} ms")
 
         return header + final_css
+    
+    def _remove_css_variable_declarations(self, css_content: str) -> str:
+        """Remove CSS variable declarations and :root blocks for QSS compatibility
+        
+        Args:
+            css_content: CSS content with variable declarations
+            
+        Returns:
+            CSS content without variable declarations
+        """
+        # Remove :root blocks and their contents
+        # This regex matches :root { ... } blocks including nested braces
+        root_pattern = re.compile(r':root\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', re.MULTILINE | re.DOTALL)
+        css_without_root = root_pattern.sub('', css_content)
+        
+        # Remove any remaining standalone variable declarations (--variable: value;)
+        var_declaration_cleanup = re.compile(r'^\s*--[\w-]+\s*:[^;]+;\s*$', re.MULTILINE)
+        css_clean = var_declaration_cleanup.sub('', css_without_root)
+        
+        # Clean up extra whitespace and empty lines
+        css_clean = re.sub(r'\n\s*\n\s*\n', '\n\n', css_clean)  # Multiple empty lines to double
+        css_clean = re.sub(r'^\s*\n', '', css_clean, flags=re.MULTILINE)  # Remove leading empty lines
+        
+        return css_clean.strip()

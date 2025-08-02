@@ -19,7 +19,8 @@ from typing import Optional
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTreeView, QLineEdit,
-    QPushButton, QHeaderView, QMenu, QApplication, QFileSystemModel, QLabel
+    QPushButton, QHeaderView, QMenu, QApplication, QFileSystemModel, QLabel,
+    QAbstractItemView
 )
 from PySide6.QtCore import Qt, Signal, QDir, QModelIndex, QItemSelectionModel, QSortFilterProxyModel
 from PySide6.QtGui import QAction
@@ -236,6 +237,10 @@ class SimpleFileView(QTreeView):
         # Explicitly disable alternating row colors for consistent appearance
         self.setAlternatingRowColors(False)
         
+        # Configure selection behavior for proper hover/selection styling
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        
         # # Configure and show appropriate columns
         # for i in range(1, self.model().columnCount()):
         #     self.hideColumn(i)
@@ -436,6 +441,7 @@ class SimpleExplorerWidget(QWidget):
         self.file_view = SimpleFileView()
         self.path_label = QLabel("Initializing...")
         self.up_button = QPushButton("↑ Up")
+        self.up_button.setObjectName("up_button")
 
         self._setup_ui()
         self._connect_signals()

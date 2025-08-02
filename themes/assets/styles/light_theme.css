@@ -1,42 +1,41 @@
-/* Main Window */
+/* Main Window light themes */
+/* === MAIN APPLICATION === LIGHT from themes/css HDT*/
 QMainWindow {
-    background-color: #2b2b2b;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #333333;
 }
 
 /* Central Widget */
 QWidget#centralWidget {
-    background-color: #2b2b2b;
+    background-color: #ffffff;
     border: none;
 }
 
 /* Sidebar */
 QFrame#sidebar {
-    background-color: #1e1e1e;
-    border-right: 1px solid #404040;
+    background-color: #f5f5f5;
+    border-right: 1px solid #d1d1d1;
 }
 
 /* Content Area */
 QFrame#contentArea {
-    background-color: #2b2b2b;
+    background-color: #ffffff;
     border: none;
 }
 
 /* Table Widget */
 QTableWidget {
-    background-color: #2b2b2b;
-    alternate-background-color: #353535;
-    gridline-color: #404040;
+    background-color: #ffffff;
+    alternate-background-color: #f9f9f9;
+    gridline-color: #e0e0e0;
     selection-background-color: #0078d4;
     selection-color: white;
-    border: 1px solid #404040;
-    color: #ffffff;
+    border: 1px solid #d1d1d1;
 }
 
 QTableWidget::item {
     padding: 8px;
-    border-bottom: 1px solid #404040;
-    color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 QTableWidget::item:selected {
@@ -45,11 +44,10 @@ QTableWidget::item:selected {
 }
 
 QHeaderView::section {
-    background-color: #1e1e1e;
+    background-color: #f0f0f0;
     padding: 8px;
-    border: 1px solid #404040;
+    border: 1px solid #d1d1d1;
     font-weight: bold;
-    color: #ffffff;
 }
 
 /* Buttons */
@@ -71,30 +69,32 @@ QPushButton:pressed {
 }
 
 QPushButton:disabled {
-    background-color: #555555;
-    color: #888888;
+    background-color: #cccccc;
+    color: #666666;
 }
 
 /* Text Edits */
-QTextEdit, QPlainTextEdit {
-    background-color: #1e1e1e;
-    border: 1px solid #404040;
+QTextEdit,
+QPlainTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
     border-radius: 4px;
     padding: 8px;
-    color: #ffffff;
+    color: #333333;
 }
 
-QTextEdit:focus, QPlainTextEdit:focus {
+QTextEdit:focus,
+QPlainTextEdit:focus {
     border-color: #0078d4;
 }
 
 /* Line Edits */
 QLineEdit {
-    background-color: #1e1e1e;
-    border: 1px solid #404040;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
     border-radius: 4px;
     padding: 8px;
-    color: #ffffff;
+    color: #333333;
 }
 
 QLineEdit:focus {
@@ -103,16 +103,16 @@ QLineEdit:focus {
 
 /* Labels */
 QLabel {
-    color: #ffffff;
+    color: #333333;
 }
 
 /* Combo Box */
 QComboBox {
-    background-color: #1e1e1e;
-    border: 1px solid #404040;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
     border-radius: 4px;
     padding: 8px;
-    color: #ffffff;
+    color: #333333;
 }
 
 QComboBox:focus {
@@ -131,26 +131,26 @@ QComboBox::down-arrow {
 
 /* Scroll Bars */
 QScrollBar:vertical {
-    background-color: #1e1e1e;
+    background-color: #f0f0f0;
     width: 12px;
     border-radius: 6px;
 }
 
 QScrollBar::handle:vertical {
-    background-color: #555555;
+    background-color: #c0c0c0;
     border-radius: 6px;
     min-height: 20px;
 }
 
 QScrollBar::handle:vertical:hover {
-    background-color: #666666;
+    background-color: #a0a0a0;
 }
 
 /* Menu */
 QMenuBar {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border-bottom: 1px solid #404040;
+    background-color: #f5f5f5;
+    color: #333333;
+    border-bottom: 1px solid #d1d1d1;
 }
 
 QMenuBar::item {
@@ -158,13 +158,13 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    background-color: #404040;
+    background-color: #e0e0e0;
 }
 
 QMenu {
-    background-color: #2b2b2b;
-    border: 1px solid #404040;
-    color: #ffffff;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    color: #333333;
 }
 
 QMenu::item {
@@ -178,24 +178,24 @@ QMenu::item:selected {
 
 /* Group Box */
 QGroupBox {
-    color: #ffffff;
-    border: 1px solid #404040;
+    color: #333333;
+    border: 1px solid #d1d1d1;
     border-radius: 4px;
     margin: 8px 0;
     padding-top: 10px;
-    background-color: #2b2b2b;
+    background-color: #ffffff;
 }
 
 QGroupBox::title {
     subcontrol-origin: margin;
     left: 10px;
     padding: 0 4px 0 4px;
-    background-color: #2b2b2b;
+    background-color: #ffffff;
 }
 
 /* Splitter */
 QSplitter::handle {
-    background-color: #404040;
+    background-color: #d1d1d1;
 }
 
 QSplitter::handle:horizontal {
@@ -205,3 +205,4 @@ QSplitter::handle:horizontal {
 QSplitter::handle:vertical {
     height: 2px;
 }
+/* === MAIN APPLICATION === LIGHT from themes/css HDT*/

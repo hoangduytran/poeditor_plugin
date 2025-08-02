@@ -1,15 +1,26 @@
+/* === COMMON STYLES VARIABLES === */
+:root {
+    /* Status Bar */
+    --status-bg: #007acc;
+    --status-fg: #ffffff;
+    --status-font-size: 12px;
+    --status-height: 22px;
+    --status-hover-bg: rgba(255, 255, 255, 0.1);
+    --status-pressed-bg: rgba(255, 255, 255, 0.2);
+    --status-separator-bg: rgba(255, 255, 255, 0.2);
+}
+
 /* Status Bar - VS Code style - should remain consistent across all themes */
 QStatusBar {
-    background-color: #007acc;
-    /* VS Code blue */
-    color: #ffffff;
+    background-color: var(--status-bg);
+    color: var(--status-fg);
     border: none;
     padding: 0px;
     margin: 0px;
-    font-size: 12px;
+    font-size: var(--status-font-size);
     font-weight: normal;
-    min-height: 22px;
-    max-height: 22px;
+    min-height: var(--status-height);
+    max-height: var(--status-height);
 }
 
 QStatusBar::item {
@@ -17,12 +28,12 @@ QStatusBar::item {
     border: none;
     padding: 2px 8px;
     margin: 0px 1px;
-    color: #ffffff;
+    color: var(--status-fg);
 }
 
 QStatusBar QLabel {
     background-color: transparent;
-    color: #ffffff;
+    color: var(--status-fg);
     border: none;
     padding: 2px 4px;
     margin: 0px;
@@ -31,31 +42,31 @@ QStatusBar QLabel {
 /* Status bar sections with different background for better separation */
 QStatusBar QWidget {
     background-color: transparent;
-    color: #ffffff;
+    color: var(--status-fg);
 }
 
 /* Hover effect for interactive status bar items */
 QStatusBar QPushButton {
     background-color: transparent;
-    color: #ffffff;
+    color: var(--status-fg);
     border: none;
     padding: 2px 8px;
     margin: 0px 1px;
-    font-size: 12px;
+    font-size: var(--status-font-size);
 }
 
 QStatusBar QPushButton:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--status-hover-bg);
     border-radius: 2px;
 }
 
 QStatusBar QPushButton:pressed {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--status-pressed-bg);
 }
 
 /* Status bar separator */
 QStatusBar::separator {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--status-separator-bg);
     width: 1px;
     margin: 4px 2px;
 }

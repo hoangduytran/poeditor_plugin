@@ -1,6 +1,7 @@
 """
 CSS Manager for loading and managing CSS files individually.
 """
+from math import log
 import os
 from typing import Dict, Optional, List
 from pathlib import Path
@@ -40,6 +41,7 @@ class CSSManager:
                 self.css_cache[filename] = content
                 self.current_css_file = str(file_path)  # Keep full path for debugging
             logger.info(f"Loaded CSS file: {self.current_css_file} ({len(content)} chars)")
+            logger.debug(f"=== DEBUG: Loaded CSS content for {filename} ===\n{content}\n=== END CSS content, length: {len(content)} ===")
         except Exception as e:
             logger.error(f"Failed to load CSS file {file_path}: {e}")
     
@@ -60,7 +62,7 @@ class CSSManager:
                 return
             
             # Load specific style files
-            style_files = ["context_menu.css", "common.css"]
+            style_files = ["common.css"]  # Removed context_menu.css - conflicts with theme QMenu styles
             for style_file in style_files:
                 file_path = styles_path / style_file
                 if file_path.exists():

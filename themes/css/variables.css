@@ -1,0 +1,105 @@
+/* Global CSS Variables for PySide POEditor Plugin */
+/* This file contains all shared variables used across themes */
+
+:root {
+    /* === LAYOUT AND SPACING === */
+    --border-radius: 2px;
+    --border-radius-large: 4px;
+    --border-width-thin: 1px;
+    --border-width-medium: 3px;
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 6px;
+    --spacing-lg: 8px;
+    --spacing-xl: 12px;
+    --spacing-none: 0px;
+    
+    /* === TYPOGRAPHY === */
+    --font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
+    --font-family-mono: "SF Mono", "Monaco", "Consolas", "Courier New", monospace;
+    --font-size-xs: 10px;
+    --font-size-sm: 11px;
+    --font-size: 13px;
+    --font-size-md: 12px;
+    --font-size-lg: 14px;
+    --font-size-xl: 16px;
+    
+    /* === DIMENSIONS === */
+    --activity-bar-width: 48px;
+    --item-height: 18px;
+    --item-height-large: 22px;
+    --scrollbar-width: 14px;
+    --scrollbar-handle-radius: 7px;
+    --scrollbar-handle-margin: 2px;
+    --scrollbar-handle-min-size: 20px;
+    --status-bar-height: 22px;
+    
+    /* === COLORS - THESE WILL BE OVERRIDDEN BY THEMES === */
+    /* Primary Colors */
+    --bg-main: #ffffff;
+    --bg-secondary: #f3f3f3;
+    --bg-surface: #f8f8f8;
+    --fg-main: #333333;
+    --fg-secondary: #666666;
+    --border-main: #e5e5e5;
+    --accent-main: #0078d4;
+    --hover-bg: #f0f0f0;
+    --selection-bg: #cce8ff;
+    
+    /* Button Colors */
+    --btn-primary-bg: #0078d4;
+    --btn-primary-border: #005a9e;
+    --btn-primary-hover: #106ebe;
+    --btn-primary-hover-border: #005a9e;
+    --btn-primary-pressed: #005a9e;
+    --btn-disabled-bg: #f3f3f3;
+    --btn-disabled-fg: #cccccc;
+    
+    /* Panel Colors */
+    --panel-bg: #f3f3f3;
+    --panel-border: #e5e5e5;
+    --panel-title-fg: #666666;
+    
+    /* Status Bar Colors */
+    --status-bar-bg: #007ACC;
+    --status-bar-fg: #ffffff;
+    --status-bar-font-size: 12px;
+    --status-bar-min-height: 22px;
+    --status-bar-branch-bg: rgba(255, 255, 255, 0.15);
+    --status-bar-branch-hover-bg: rgba(255, 255, 255, 0.25);
+    --status-bar-item-hover-bg: rgba(255, 255, 255, 0.1);
+    --status-bar-modified-color: #ffcc02;
+    --status-bar-mono-font: var(--font-family-mono);
+    
+    /* Activity Bar Colors */
+    --color-activity-bar-bg: #2c2c2c;
+    --color-activity-bar-border: #3e3e42;
+    --color-activity-bar-text: #cccccc;
+    --color-activity-button-inactive: #858585;
+    --color-activity-button-hover-bg: #37373d;
+    --color-activity-button-hover: #cccccc;
+    --color-activity-button-active: #ffffff;
+    --color-activity-button-active-hover-bg: #414145;
+    --color-primary: #0078d4;
+    
+    /* Dock Widget Colors */
+    --dock-bg: #1e1e1e;
+    --dock-fg: #cccccc;
+    --dock-border: #464647;
+    --dock-title-bg: #252526;
+    --dock-title-fg: #cccccc;
+    --dock-button-hover-bg: #464647;
+    --dock-button-pressed-bg: #2b5278;
+    --dock-title-font-size: 11px;
+    
+    /* Context Menu Colors */
+    --menu-background: #f3f3f3;
+    --menu-border: #e5e5e5;
+    --menu-text: #333333;
+    --menu-text-selected: #ffffff;
+    --menu-text-disabled: #cccccc;
+    --menu-highlight: #0078d4;
+    --menu-separator: #e5e5e5;
+    --menu-shortcut-text: #666666;
+    --menu-shortcut-text-selected: #ffffff;
+}

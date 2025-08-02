@@ -4,10 +4,38 @@
 /* Some properties like alternate-background-color, show-decoration-selected, subcontrol-position, etc. */
 /* are specific to Qt and may show as errors in standard CSS validators */
 
+/* === COMMON VARIABLES === */
+:root {
+    /* Base Layout */
+    --border-radius: 2px;
+    --border-width-thin: 1px;
+    --border-width-medium: 3px;
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 6px;
+    --spacing-lg: 8px;
+    --spacing-none: 0px;
+    
+    /* Typography */
+    --font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
+    --font-size: 13px;
+    --font-size-small: 11px;
+    --font-size-medium: 12px;
+    --font-size-large: 14px;
+    
+    /* Dimensions */
+    --activity-bar-width: 48px;
+    --item-height: 18px;
+    --scrollbar-width: 14px;
+    --scrollbar-handle-radius: 7px;
+    --scrollbar-handle-margin: 2px;
+    --scrollbar-handle-min-size: 20px;
+}
+
 /* === RESET AND BASE === */
 QWidget {
-    font-family: ".AppleSystemUIFont", "Helvetica Neue", "Arial", "Segoe UI", "Droid Sans", sans-serif;
-    font-size: 13px;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
 }
 
 QMainWindow {
@@ -31,10 +59,10 @@ QSplitter::handle:vertical {
 
 /* === FORM ELEMENTS BASE === */
 QLineEdit, QComboBox, QSpinBox {
-    border-radius: 2px;
-    padding: 4px 6px;
-    font-size: 13px;
-    border: 1px solid #464647;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size);
+    border: var(--border-width-thin) solid #464647;
 }
 
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
@@ -42,11 +70,11 @@ QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
 }
 
 QPushButton {
-    border-radius: 2px;
-    padding: 4px 8px;
-    font-size: 12px;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-medium);
     font-weight: normal;
-    border: 1px solid #464647;
+    border: var(--border-width-thin) solid #464647;
 }
 
 QPushButton:disabled {
@@ -57,22 +85,22 @@ QPushButton:disabled {
 QListWidget, QTreeView, QTableWidget {
     border: none;
     outline: none;
-    font-size: 13px;
+    font-size: var(--font-size);
     alternate-background-color: transparent;
     show-decoration-selected: 1;
 }
 
 QListWidget::item, QTreeView::item, QTableWidget::item {
-    padding: 2px 8px;
+    padding: var(--spacing-xs) var(--spacing-lg);
     border: none;
-    height: 18px;
+    height: var(--item-height);
 }
 
 QHeaderView::section {
-    padding: 4px 8px;
+    padding: var(--spacing-sm) var(--spacing-lg);
     border: none;
     font-weight: normal;
-    font-size: 11px;
+    font-size: var(--font-size-small);
     text-transform: uppercase;
 }
 

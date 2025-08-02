@@ -14,10 +14,10 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QTreeWidget, QTreeWidgetItem,
     QApplication, QDialog, QTabWidget, QTextEdit,
-    QCheckBox, QSpinBox, QComboBox, QFileSystemWatcher
+    QCheckBox, QSpinBox, QComboBox, 
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QObject
-from PySide6.QtGui import QColor, QPalette
+from PySide6.QtCore import ( Qt, QTimer, Signal, QObject, QFileSystemWatcher )
+from PySide6.QtGui import QColor, QFont, QPalette
 
 from lg import logger
 from services.css_preprocessor import CSSPreprocessor
@@ -246,7 +246,7 @@ class CSSDebugTool(QDialog):
         if success:
             # Apply to application
             app = QApplication.instance()
-            if app:
+            if isinstance(app, QApplication):
                 self.theme_manager.apply_theme_to_application(app)
 
             # Update UI
@@ -262,7 +262,7 @@ class CSSDebugTool(QDialog):
 
         # Apply to application
         app = QApplication.instance()
-        if app:
+        if isinstance(app, QApplication):
             self.theme_manager.apply_theme_to_application(app)
 
         # Update UI
@@ -357,11 +357,11 @@ class CSSInspector(QWidget):
             return
 
         app = QApplication.instance()
-        if not app:
+        if not isinstance(app, QApplication):
             return
 
-        # Get widget under cursor
-        pos = app.primaryScreen().cursor().pos()
+        from PySide6.QtGui import QCursor
+        pos = QCursor.pos()
         widget = app.widgetAt(pos)
 
         if widget:
@@ -405,10 +405,10 @@ class CSSInspector(QWidget):
 
         # Add color roles
         roles = [
-            ("background", QPalette.Base),
-            ("background-color", QPalette.Window),
-            ("color", QPalette.WindowText),
-            ("border-color", QPalette.Mid)
+            ("background", QPalette.ColorRole.Base),
+            ("background-color", QPalette.ColorRole.Window),
+            ("color", QPalette.ColorRole.WindowText),
+            ("border-color", QPalette.ColorRole.Mid)
         ]
 
         for name, role in roles:

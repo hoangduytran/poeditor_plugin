@@ -1,20 +1,35 @@
+/* === DOCK WIDGET VARIABLES === */
+:root {
+    /* Dock Widget Colors */
+    --dock-bg: #1e1e1e;
+    --dock-fg: #cccccc;
+    --dock-border: #464647;
+    --dock-title-bg: #252526;
+    --dock-title-fg: #cccccc;
+    --dock-button-hover-bg: #464647;
+    --dock-button-pressed-bg: #2b5278;
+    
+    /* Font Properties */
+    --dock-title-font-size: 11px;
+}
+
 /* === DOCK WIDGETS - DARK THEME OVERRIDE === */
 /* Use higher specificity to override light theme rules */
 QDockWidget#SidebarDockWidget {
-    background-color: #1e1e1e !important;
-    color: #cccccc !important;
-    border: 1px solid #464647 !important;
+    background-color: var(--dock-bg) !important;
+    color: var(--dock-fg) !important;
+    border: 1px solid var(--dock-border) !important;
 }
 
 QDockWidget#SidebarDockWidget::title {
-    background-color: #252526 !important;
-    color: #cccccc !important;
+    background-color: var(--dock-title-bg) !important;
+    color: var(--dock-title-fg) !important;
     padding: 4px !important;
     padding-left: 8px !important;
     text-align: left !important;
     border: none !important;
     font-weight: bold !important;
-    font-size: 11px !important;
+    font-size: var(--dock-title-font-size) !important;
     letter-spacing: 1px !important;
 }
 
@@ -23,37 +38,37 @@ QDockWidget#SidebarDockWidget::float-button {
     border: none !important;
     background: transparent !important;
     padding: 2px !important;
-    color: #cccccc !important;
+    color: var(--dock-fg) !important;
 }
 
 QDockWidget#SidebarDockWidget::close-button:hover,
 QDockWidget#SidebarDockWidget::float-button:hover {
-    background: #464647 !important;
+    background: var(--dock-button-hover-bg) !important;
     border-radius: 2px !important;
 }
 
 QDockWidget#SidebarDockWidget::close-button:pressed,
 QDockWidget#SidebarDockWidget::float-button:pressed {
-    background: #2b5278 !important;
+    background: var(--dock-button-pressed-bg) !important;
     border-radius: 2px !important;
 }
 
 /* === DOCK WIDGETS - GENERAL RULES === */
 QDockWidget {
-    background-color: #1e1e1e;
-    color: #cccccc;
-    border: 1px solid #464647;
+    background-color: var(--dock-bg);
+    color: var(--dock-fg);
+    border: 1px solid var(--dock-border);
 }
 
 QDockWidget::title {
-    background-color: #252526;
-    color: #cccccc;
+    background-color: var(--dock-title-bg);
+    color: var(--dock-title-fg);
     padding: 4px;
     padding-left: 8px;
     text-align: left;
     border: none;
     font-weight: bold;
-    font-size: 11px;
+    font-size: var(--dock-title-font-size);
     letter-spacing: 1px;
 }
 
@@ -64,11 +79,11 @@ QDockWidget::close-button, QDockWidget::float-button {
 }
 
 QDockWidget::close-button:hover, QDockWidget::float-button:hover {
-    background: #464647;
+    background: var(--dock-button-hover-bg);
     border-radius: 2px;
 }
 
 QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
-    background: #2b5278;
+    background: var(--dock-button-pressed-bg);
     border-radius: 2px;
 }
