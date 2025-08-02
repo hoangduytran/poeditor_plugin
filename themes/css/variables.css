@@ -39,6 +39,23 @@
     --color-white: #ffffff;
     --color-black: #000000;
     
+    /* System Colors for Common Components */
+    --color-error: #e81123;
+    --color-border-medium: #464647;
+    --color-border-light: #cccccc;
+    --color-accent-vs-code: #007ACC;
+    
+    /* System Colors */
+    --color-error: #e81123;
+    --color-border-dark: #464647;
+    --color-border-light: #cccccc;
+    --color-border-lighter: #ccc;
+    --color-text-muted: #999999;
+    --color-bg-hover-light: #e8e8e8;
+    --color-bg-pressed-light: #d6d6d6;
+    --color-status-bar: #007ACC;
+    --color-overlay-light: rgba(255, 255, 255, 0.1);
+    
     /* Primary Colors */
     --bg-main: #ffffff;
     --bg-secondary: #f3f3f3;

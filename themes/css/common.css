@@ -62,7 +62,7 @@ QLineEdit, QComboBox, QSpinBox {
     border-radius: var(--border-radius);
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size);
-    border: var(--border-width-thin) solid #464647;
+    border: var(--border-width-thin) solid var(--color-border-medium);
 }
 
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
@@ -74,7 +74,7 @@ QPushButton {
     padding: var(--spacing-sm) var(--spacing-lg);
     font-size: var(--font-size-medium);
     font-weight: normal;
-    border: var(--border-width-thin) solid #464647;
+    border: var(--border-width-thin) solid var(--color-border-medium);
 }
 
 QPushButton:disabled {
@@ -164,7 +164,7 @@ QTabBar::close-button {
 }
 
 QTabBar::close-button:hover {
-    background-color: #e81123;
+    background-color: var(--color-error);
     border-radius: 2px;
 }
 
@@ -174,7 +174,7 @@ QGroupBox {
     margin-top: 8px;
     padding-top: 8px;
     font-weight: bold;
-    border: 1px solid #464647;
+    border: 1px solid var(--color-border-medium);
 }
 
 QGroupBox::title {
@@ -198,7 +198,7 @@ QLabel[class="status-label"] {
 
 /* Breadcrumb navigation area */
 QScrollArea[class="breadcrumb-scroll"] {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-light);
     border-radius: 4px;
     background-color: var(--color-white);
 }
@@ -241,20 +241,20 @@ QCheckBox::indicator {
     width: 16px;
     height: 16px;
     border-radius: 2px;
-    border: 1px solid #464647;
+    border: 1px solid var(--color-border-medium);
 }
 
 /* === TOOLTIP BASE === */
 QToolTip {
     padding: 4px;
     border-radius: 2px;
-    border: 1px solid #464647;
+    border: 1px solid var(--color-border-medium);
 }
 
 /* === STATUS BAR BASE (VSCode Style) === */
 /* Status bar with fixed styling that doesn't change with themes */
 QStatusBar#poeditorStatusBar {
-    background-color: #007ACC !important;  /* VS Code blue */
+    background-color: var(--color-accent-vs-code) !important;  /* VS Code blue */
     color: var(--color-white) !important;
     border: none !important;
     font-size: 12px !important;
