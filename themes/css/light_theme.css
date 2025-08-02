@@ -98,7 +98,7 @@ QWidget[objectName="account_panel"] {
 /* === PANEL TITLES === */
 QLabel[objectName="panel_title"] {
     background-color: transparent;
-    color: #999999;
+    color: var(--color-text-muted);
     font-weight: normal;
     font-size: 11px;
     padding: 8px 12px 4px 12px;
@@ -109,7 +109,7 @@ QLabel[objectName="panel_title"] {
 /* === BUTTONS === */
 QPushButton {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px 8px;
     border-radius: 2px;
@@ -119,12 +119,12 @@ QPushButton {
 }
 
 QPushButton:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     border-color: #0078d4;
 }
 
 QPushButton:pressed {
-    background-color: #d6d6d6;
+    background-color: var(--color-bg-pressed-light);
     border-color: #0078d4;
 }
 
@@ -152,16 +152,16 @@ QPushButton[objectName="primary_button"]:pressed {
 QPushButton[objectName="secondary_button"] {
     background-color: var(--color-white);
     color: #333333;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
 }
 
 QPushButton[objectName="secondary_button"]:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     border-color: #0078d4;
 }
 
 QPushButton[objectName="secondary_button"]:pressed {
-    background-color: #d6d6d6;
+    background-color: var(--color-bg-pressed-light);
 }
 
 /* Breadcrumb buttons */
@@ -186,7 +186,7 @@ QPushButton[class="breadcrumb-button"]:pressed {
 /* === INPUT FIELDS === */
 QLineEdit {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px 6px;
     border-radius: 2px;
@@ -206,12 +206,12 @@ QLineEdit:hover {
 QLineEdit:disabled {
     background-color: #f0f0f0;
     border-color: #e5e5e5;
-    color: #999999;
+    color: var(--color-text-muted);
 }
 
 QLineEdit[objectName="search_input"] {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px 6px;
     border-radius: 2px;
@@ -230,7 +230,7 @@ QLineEdit[objectName="search_input"]:hover {
 /* === COMBO BOXES === */
 QComboBox {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px 6px;
     border-radius: 2px;
@@ -285,7 +285,7 @@ QListWidget::item {
 }
 
 QListWidget::item:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 QListWidget::item:selected {
@@ -314,7 +314,7 @@ QListWidget[objectName="explorer_file_list"]::item {
 }
 
 QListWidget[objectName="explorer_file_list"]::item:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 QListWidget[objectName="explorer_file_list"]::item:selected {
@@ -348,7 +348,7 @@ QTreeView::item {
 }
 
 QTreeView::item:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 QTreeView::item:selected {
@@ -382,7 +382,7 @@ QTreeView[objectName="search_results_table"]::item {
 }
 
 QTreeView[objectName="search_results_table"]::item:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 QTreeView[objectName="search_results_table"]::item:selected {
@@ -401,18 +401,18 @@ QTreeView[objectName="search_results_table"]::item:selected:not(active) {
 
 QHeaderView[objectName="search_results_table"] {
     background-color: #f3f3f3;
-    color: #999999;
+    color: var(--color-text-muted);
     border-bottom: 1px solid #e5e5e5;
 }
 
 QHeaderView[objectName="search_results_table"]::section {
     background-color: #f3f3f3;
-    color: #999999;
+    color: var(--color-text-muted);
     border-bottom: 1px solid #e5e5e5;
 }
 
 QHeaderView[objectName="search_results_table"]::section:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 /* === TABLE WIDGETS === */
@@ -432,7 +432,7 @@ QTableWidget::item {
 }
 
 QTableWidget::item:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 QTableWidget::item:selected {
@@ -451,7 +451,7 @@ QTableWidget::item:selected:not(active) {
 
 QHeaderView::section {
     background-color: #f3f3f3;
-    color: #999999;
+    color: var(--color-text-muted);
     border-bottom: 1px solid #e5e5e5;
     padding: 4px 8px;
     border: none;
@@ -461,7 +461,7 @@ QHeaderView::section {
 }
 
 QTableWidget QHeaderView::section:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 /* === TABS === */
@@ -472,7 +472,7 @@ QTabWidget::pane {
 
 QTabBar::tab {
     background-color: #ececec;
-    color: #999999;
+    color: var(--color-text-muted);
     border-right: 1px solid #e5e5e5;
     padding: 8px 16px;
     margin: 0;
@@ -489,7 +489,7 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:hover:not(:selected) {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     color: #333333;
 }
 
@@ -611,43 +611,43 @@ QLabel:not([objectName^="status"]):not([objectName="statusBranch"]):not([objectN
 }
 
 QLabel[objectName="info_label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     background-color: transparent;
 }
 
 QLabel[objectName="description_label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     background-color: transparent;
 }
 
 QLabel[objectName="version_label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     background-color: transparent;
     font-weight: bold;
 }
 
 QLabel[objectName="status_label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     background-color: transparent;
     font-size: 12px;
 }
 
 /* Status labels */
 QLabel[class="status-label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     font-size: 11px;
     padding: 2px;
 }
 
 /* Breadcrumb separators */
 QLabel[class="breadcrumb-separator"] {
-    color: #999999;
+    color: var(--color-text-muted);
     font-weight: bold;
 }
 
 /* Small informational text used throughout the UI */
 QLabel[class="info-label"] {
-    color: #999999;
+    color: var(--color-text-muted);
     font-size: 11px;
     font-style: italic;
     margin-bottom: 10px;
@@ -666,7 +666,7 @@ QCheckBox::indicator {
     width: 16px;
     height: 16px;
     border-radius: 2px;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
 }
 
 QCheckBox::indicator:checked {
@@ -681,7 +681,7 @@ QCheckBox::indicator:hover {
 /* === SPIN BOXES === */
 QSpinBox {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px 6px;
     border-radius: 2px;
@@ -700,7 +700,7 @@ QSpinBox:hover {
 QSpinBox:disabled {
     background-color: #f0f0f0;
     border-color: #e5e5e5;
-    color: #999999;
+    color: var(--color-text-muted);
 }
 
 QSpinBox::up-button {
@@ -761,7 +761,7 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     color: #000000;
 }
 
@@ -803,14 +803,14 @@ QMenu::separator {
 QToolTip {
     background-color: #ececec;
     color: #333333;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     padding: 4px;
     border-radius: 2px;
 }
 
 /* === BREADCRUMB NAVIGATION === */
 QScrollArea#breadcrumb_scroll, QScrollArea[class="breadcrumb-scroll"] {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     border-radius: 4px;
     background-color: white;
 }
@@ -826,7 +826,7 @@ QRadioButton::indicator {
     height: 13px;
     border-radius: 7px;
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
 }
 
 QRadioButton::indicator:checked {
@@ -860,7 +860,7 @@ QFrame[frameShape="0"] {
 /* === TEXT EDIT WIDGETS === */
 QTextEdit {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px;
     border-radius: 2px;
@@ -873,12 +873,12 @@ QTextEdit:focus {
 }
 
 QTextEdit:hover {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
 }
 
 QPlainTextEdit {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 4px;
     border-radius: 2px;
@@ -891,7 +891,7 @@ QPlainTextEdit:focus {
 }
 
 QPlainTextEdit:hover {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
 }
 
 /* === DOCK WIDGETS === */
@@ -915,7 +915,7 @@ QDockWidget::close-button, QDockWidget::float-button {
 }
 
 QDockWidget::close-button:hover, QDockWidget::float-button:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
 }
 
 /* === TOOL BARS === */
@@ -971,7 +971,7 @@ QToolButton {
 }
 
 QToolButton:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     border: 1px solid #0078d4;
 }
 
@@ -1003,7 +1003,7 @@ QPushButton[objectName="sidebar_arrow_button"] {
 
 QDockWidget#SidebarDockWidget QToolBar QPushButton:hover,
 QPushButton[objectName="sidebar_arrow_button"]:hover {
-    background-color: #e8e8e8;
+    background-color: var(--color-bg-hover-light);
     color: #000000;
 }
 
@@ -1033,7 +1033,7 @@ QMessageBox QLabel {
 
 QMessageBox QPushButton {
     background-color: var(--color-white);
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     padding: 6px 12px;
     min-width: 60px;
@@ -1042,7 +1042,7 @@ QMessageBox QPushButton {
 /* === PROGRESS BARS === */
 QProgressBar {
     background-color: #ececec;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     color: #333333;
     text-align: center;
     border-radius: 2px;
@@ -1096,7 +1096,7 @@ QFileDialog QTreeView {
 /* === EXPLORER COMPONENTS === */
 /* Status labels */
 QLabel[class="status-label"] {
-    color: #999999;
+    color: var(--color-text-muted);
 }
 
 /* Breadcrumb buttons (navigation links) */
@@ -1114,12 +1114,12 @@ QPushButton[class="breadcrumb-button"]:pressed {
 
 /* Breadcrumb separators */
 QLabel[class="breadcrumb-separator"] {
-    color: #999999;
+    color: var(--color-text-muted);
 }
 
 /* === INFO AND HELP LABELS === */
 QLabel[class="info-label"] {
-    color: #999999;
+    color: var(--color-text-muted);
 }
 
 /* === ADDITIONAL FIXES === */
