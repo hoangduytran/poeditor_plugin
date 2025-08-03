@@ -330,13 +330,37 @@ class CSSFileBasedThemeManager(QObject):
         return None
         
     def apply_activity_bar_theme(self, widget) -> bool:
-        """Apply activity bar specific theme."""
+        """Apply activity bar specific theme with CSS variable processing."""
         try:
             if self.use_file_css and self.css_manager:
                 activity_css = self.css_manager.get_css('activity_bar')
                 if activity_css:
-                    widget.setStyleSheet(activity_css)
-                    logger.info(f"Applied activity bar theme to widget: {widget.objectName()}")
+                    # Process CSS variables if preprocessor is available
+                    if self.css_preprocessor:
+                        # Get variables from the current theme
+                        variables = {}
+                        
+                        # Get variables from variables.css if available
+                        if self.css_manager and hasattr(self.css_manager, 'css_cache') and "variables" in self.css_manager.css_cache:
+                            variables_css = self.css_manager.css_cache["variables"]
+                            variables.update(self.css_preprocessor.extract_variables(variables_css))
+                        
+                        # Get variables from current theme CSS if we have a current theme
+                        if self.current_theme:
+                            theme_file_name = self._get_theme_filename(self.current_theme)
+                            if theme_file_name in self._css_cache:
+                                theme_css = self._css_cache[theme_file_name]
+                                variables.update(self.css_preprocessor.extract_variables(theme_css))
+                        
+                        # Process ActivityBar CSS with variables
+                        processed_css = self.css_preprocessor.process_css(activity_css, variables)
+                        widget.setStyleSheet(processed_css)
+                        logger.info(f"Applied processed activity bar theme to widget: {widget.objectName()}")
+                        logger.debug(f"ActivityBar CSS processed with {len(variables)} variables")
+                    else:
+                        # Fallback to raw CSS if no preprocessor
+                        widget.setStyleSheet(activity_css)
+                        logger.info(f"Applied raw activity bar theme to widget: {widget.objectName()}")
                     return True
             
             # Fallback to resource-based CSS
@@ -346,8 +370,30 @@ class CSSFileBasedThemeManager(QObject):
                 byte_array = file.readAll()
                 content = bytes(byte_array.data()).decode('utf-8')
                 file.close()
-                widget.setStyleSheet(content)
-                logger.info(f"Applied activity bar theme to widget: {widget.objectName()}")
+                
+                # Process CSS variables if preprocessor is available
+                if self.css_preprocessor:
+                    variables = {}
+                    
+                    # Get variables from variables.css if available
+                    if self.css_manager and hasattr(self.css_manager, 'css_cache') and "variables" in self.css_manager.css_cache:
+                        variables_css = self.css_manager.css_cache["variables"]
+                        variables.update(self.css_preprocessor.extract_variables(variables_css))
+                    
+                    # Get variables from current theme if available
+                    if self.current_theme:
+                        theme_file_name = self._get_theme_filename(self.current_theme)
+                        if theme_file_name in self._css_cache:
+                            theme_css = self._css_cache[theme_file_name]
+                            variables.update(self.css_preprocessor.extract_variables(theme_css))
+                    
+                    processed_css = self.css_preprocessor.process_css(content, variables)
+                    widget.setStyleSheet(processed_css)
+                    logger.info(f"Applied processed activity bar theme from resource to widget: {widget.objectName()}")
+                    logger.debug(f"ActivityBar CSS processed with {len(variables)} variables from resource")
+                else:
+                    widget.setStyleSheet(content)
+                    logger.info(f"Applied raw activity bar theme from resource to widget: {widget.objectName()}")
                 return True
             else:
                 logger.error("Failed to open activity bar CSS resource")

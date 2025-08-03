@@ -49,256 +49,251 @@ class IconManager:
             color: Text color for the emoji
             
         Returns:
-            QIcon object
+            QIcon with the emoji rendered
         """
         if size is None:
             size = self._default_size
-        
+            
         cache_key = f"emoji_{emoji}_{size}_{color}"
         if cache_key in self._icon_cache:
             return self._icon_cache[cache_key]
         
+        # Create pixmap
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        
+        # Paint emoji
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
         try:
-            pixmap = QPixmap(size, size)
-            pixmap.fill(Qt.GlobalColor.transparent)
-            
-            painter = QPainter(pixmap)
-            
-            # Use system font for emoji rendering
-            font = QFont()
+            # Try using a good emoji font
+            font = QFont("Apple Color Emoji", size // 2)
+            font.setPixelSize(size // 2)
+        except:
             try:
-                import platform
-                if platform.system() == 'Darwin':  # macOS
-                    font.setFamily("Apple Color Emoji")
-                elif platform.system() == 'Windows':
-                    font.setFamily("Segoe UI Emoji")
-                else:  # Linux
-                    font.setFamily("Noto Color Emoji")
+                # Fallback to system font
+                font = QFont("Segoe UI Emoji", size // 2)
+                font.setPixelSize(size // 2)
             except:
                 # Fallback to default font
-                pass
-            
-            font.setPointSize(max(8, size // 2))  # Ensure minimum font size
-            painter.setFont(font)
-            painter.setPen(QColor(color))
-            
-            # Center the emoji
-            painter.drawText(0, 0, size, size, 
-                           Qt.AlignmentFlag.AlignCenter, emoji)
-            painter.end()
-            
-            icon = QIcon(pixmap)
-            self._icon_cache[cache_key] = icon
-            
-            return icon
-            
-        except Exception as e:
-            logger.error(f"Failed to create emoji icon for '{emoji}': {e}")
-            return self._create_fallback_icon(size, color)
+                font = QFont()
+                font.setPixelSize(size // 2)
+        
+        painter.setFont(font)
+        painter.setPen(QColor(color))
+        painter.drawText(
+            pixmap.rect(), 
+            Qt.AlignmentFlag.AlignCenter, 
+            emoji
+        )
+        painter.end()
+        
+        icon = QIcon(pixmap)
+        self._icon_cache[cache_key] = icon
+        return icon
     
     def create_sidebar_icon_states(self, emoji: str, size: Optional[int] = None) -> Dict[str, QIcon]:
         """
-        Create all icon states for sidebar buttons.
+        Create icons for all sidebar states (active, hover, inactive).
         
         Args:
             emoji: Unicode emoji character
-            size: Icon size in pixels
+            size: Icon size in pixels (defaults to _default_size)
             
         Returns:
             Dictionary with 'active', 'hover', 'inactive' QIcon objects
         """
         if size is None:
             size = self._default_size
-        
-        states = {}
-        for state, color in self._sidebar_colors.items():
-            states[state] = self.create_emoji_icon(emoji, size, color)
-        
-        return states
+            
+        return {
+            'active': self.create_emoji_icon(emoji, size, "#ffffff"),
+            'hover': self.create_emoji_icon(emoji, size, "#cccccc"),
+            'inactive': self.create_emoji_icon(emoji, size, "#858585")
+        }
     
     def create_text_icon(self, text: str, size: Optional[int] = None,
-                        background_color: str = '#333333',
-                        text_color: str = '#ffffff') -> QIcon:
+                        color: str = '#ffffff', 
+                        background_color: str = 'transparent') -> QIcon:
         """
         Create an icon from text.
         
         Args:
             text: Text to render
-            size: Icon size in pixels
+            size: Icon size in pixels (defaults to _default_size)
+            color: Text color
             background_color: Background color
-            text_color: Text color
             
         Returns:
-            QIcon object
+            QIcon with the text rendered
         """
         if size is None:
             size = self._default_size
-        
-        cache_key = f"text_{text}_{size}_{background_color}_{text_color}"
+            
+        cache_key = f"text_{text}_{size}_{color}_{background_color}"
         if cache_key in self._icon_cache:
             return self._icon_cache[cache_key]
         
-        try:
-            pixmap = QPixmap(size, size)
+        # Create pixmap
+        pixmap = QPixmap(size, size)
+        if background_color == 'transparent':
+            pixmap.fill(Qt.GlobalColor.transparent)
+        else:
             pixmap.fill(QColor(background_color))
-            
-            painter = QPainter(pixmap)
-            
-            font = QFont()
-            font.setPointSize(size // 3)
-            font.setBold(True)
-            painter.setFont(font)
-            painter.setPen(QColor(text_color))
-            
-            # Center the text
-            painter.drawText(0, 0, size, size,
-                           Qt.AlignmentFlag.AlignCenter, text)
-            painter.end()
-            
-            icon = QIcon(pixmap)
-            self._icon_cache[cache_key] = icon
-            
-            return icon
-            
-        except Exception as e:
-            logger.error(f"Failed to create text icon for '{text}': {e}")
-            return self._create_fallback_icon(size, text_color)
+        
+        # Paint text
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        font = QFont()
+        font.setPixelSize(size // 3)
+        font.setBold(True)
+        
+        painter.setFont(font)
+        painter.setPen(QColor(color))
+        painter.drawText(
+            pixmap.rect(), 
+            Qt.AlignmentFlag.AlignCenter, 
+            text
+        )
+        painter.end()
+        
+        icon = QIcon(pixmap)
+        self._icon_cache[cache_key] = icon
+        return icon
     
     def create_colored_rect_icon(self, color: str, size: Optional[int] = None,
                                 border_color: Optional[str] = None) -> QIcon:
         """
-        Create a simple colored rectangle icon.
+        Create a colored rectangle icon.
         
         Args:
             color: Fill color
-            size: Icon size in pixels
+            size: Icon size in pixels (defaults to _default_size)
             border_color: Optional border color
             
         Returns:
-            QIcon object
+            QIcon with colored rectangle
         """
         if size is None:
             size = self._default_size
-        
-        cache_key = f"rect_{color}_{size}_{border_color}"
+            
+        cache_key = f"rect_{color}_{size}_{border_color or 'none'}"
         if cache_key in self._icon_cache:
             return self._icon_cache[cache_key]
         
-        try:
-            pixmap = QPixmap(size, size)
-            pixmap.fill(Qt.GlobalColor.transparent)
+        # Create pixmap
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        
+        # Paint rectangle
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        painter.fillRect(pixmap.rect(), QColor(color))
+        
+        if border_color:
+            painter.setPen(QColor(border_color))
+            painter.drawRect(pixmap.rect())
             
-            painter = QPainter(pixmap)
-            
-            # Fill the rectangle
-            painter.fillRect(2, 2, size-4, size-4, QColor(color))
-            
-            # Add border if specified
-            if border_color:
-                painter.setPen(QColor(border_color))
-                painter.drawRect(2, 2, size-4, size-4)
-            
-            painter.end()
-            
-            icon = QIcon(pixmap)
-            self._icon_cache[cache_key] = icon
-            
-            return icon
-            
-        except Exception as e:
-            logger.error(f"Failed to create colored rect icon: {e}")
-            return self._create_fallback_icon(size, color)
+        painter.end()
+        
+        icon = QIcon(pixmap)
+        self._icon_cache[cache_key] = icon
+        return icon
     
     def _create_fallback_icon(self, size: int, color: str) -> QIcon:
         """
-        Create a simple fallback icon.
+        Create a fallback icon when other methods fail.
         
         Args:
             size: Icon size in pixels
             color: Icon color
             
         Returns:
-            Simple rectangular QIcon
+            Simple fallback QIcon
         """
-        try:
-            pixmap = QPixmap(size, size)
-            pixmap.fill(QColor(color))
-            return QIcon(pixmap)
-        except Exception as e:
-            logger.error(f"Failed to create fallback icon: {e}")
-            # Return empty icon as last resort
-            return QIcon()
+        return self.create_text_icon("●", size, color)
     
     def create_svg_icon(self, icon_name: str, size: int = 16, active: bool = False) -> QIcon:
-        """
-        Create a QIcon from SVG files using compiled Qt resources.
+        """Create an icon from an SVG resource.
         
         Args:
             icon_name: Name of the icon (e.g., 'explorer', 'search')
-            size: Size of the icon in pixels
-            active: Whether to load the active (white) or inactive (grey) version
+            size: Icon size in pixels
+            active: Whether to create active (white) or inactive (gray) version
             
         Returns:
-            QIcon object with the SVG icon
+            QIcon object
         """
         try:
-            # Determine resource path
-            state = "active" if active else "inactive"
-            resource_path = f":/icons/{icon_name}_{state}.svg"
+            # Determine icon path based on state
+            state_suffix = "_active" if active else "_inactive"
+            resource_path = f":icons/{icon_name}{state_suffix}.svg"
             
-            # Create QIcon from resource
-            icon = QIcon(resource_path)
+            cache_key = f"svg_{icon_name}_{state_suffix}_{size}"
+            if cache_key in self._icon_cache:
+                return self._icon_cache[cache_key]
             
-            if icon.isNull():
-                logger.warning(f"Failed to load SVG icon from resource: {resource_path}")
-                # Fallback to file system if resource loading fails
-                svg_file = Path(__file__).parent.parent / "icons" / f"{icon_name}_{state}.svg"
-                if svg_file.exists():
-                    icon = QIcon(str(svg_file))
-                    logger.debug(f"Loaded SVG icon from file system: {svg_file}")
-                else:
-                    logger.warning(f"SVG file not found: {svg_file}")
-                    return self.create_emoji_icon("❓", size)  # Fallback
-            else:
-                logger.debug(f"Created SVG icon from resource: {icon_name} ({state}) at size {size}")
+            # Create SVG renderer
+            renderer = QSvgRenderer(resource_path)
+            if not renderer.isValid():
+                logger.warning(f"Invalid SVG resource: {resource_path}")
+                emoji_map = {
+                    'explorer': '📁', 'search': '🔍', 'preferences': '⚙️',
+                    'extensions': '🧩', 'account': '👤'
+                }
+                emoji = emoji_map.get(icon_name, '●')
+                color = self._sidebar_colors['active'] if active else self._sidebar_colors['inactive']
+                return self.create_emoji_icon(emoji, size, color)
             
+            # Render to pixmap
+            pixmap = QPixmap(QSize(size, size))
+            pixmap.fill(Qt.GlobalColor.transparent)
+            
+            painter = QPainter(pixmap)
+            renderer.render(painter)
+            painter.end()
+            
+            icon = QIcon(pixmap)
+            self._icon_cache[cache_key] = icon
             return icon
             
         except Exception as e:
-            logger.error(f"Failed to create SVG icon {icon_name}: {e}")
-            return self.create_emoji_icon("❓", size)  # Fallback
+            logger.error(f"Failed to create SVG icon for {icon_name}: {e}")
+            # Fallback to emoji
+            emoji_map = {
+                'explorer': '📁', 'search': '🔍', 'preferences': '⚙️',
+                'extensions': '🧩', 'account': '👤'
+            }
+            emoji = emoji_map.get(icon_name, '●')
+            color = self._sidebar_colors['active'] if active else self._sidebar_colors['inactive']
+            return self.create_emoji_icon(emoji, size, color)
     
     def get_sidebar_icon(self, activity_id: str, size: int = 16) -> Dict[str, QIcon]:
         """
-        Get both active and inactive icons for a sidebar activity.
+        Get icon states for sidebar activity.
         
         Args:
-            activity_id: The activity ID (explorer, search, preferences, etc.)
+            activity_id: The activity ID (explorer, search, etc.)
             size: Icon size in pixels
             
         Returns:
-            Dictionary with 'active' and 'inactive' QIcon objects
+            Dictionary with 'active', 'hover', 'inactive' icons
         """
-        try:
-            return {
-                'active': self.create_svg_icon(activity_id, size, active=True),
-                'inactive': self.create_svg_icon(activity_id, size, active=False)
-            }
-        except Exception as e:
-            logger.error(f"Failed to get sidebar icons for {activity_id}: {e}")
-            # Fallback to emoji-based icons
-            emoji_map = {
-                'explorer': '📁',
-                'search': '🔍', 
-                'preferences': '⚙️',
-                'extensions': '🧩',
-                'account': '👤'
-            }
-            emoji = emoji_map.get(activity_id, '❓')
-            return {
-                'active': self.create_emoji_icon(emoji, size, "#ffffff"),
-                'inactive': self.create_emoji_icon(emoji, size, "#858585")
-            }
+        emoji_map = {
+            'explorer': '📁', 'search': '🔍', 'preferences': '⚙️',
+            'extensions': '🧩', 'account': '👤'
+        }
+        
+        emoji = emoji_map.get(activity_id, '●')
+        
+        return {
+            'active': self.create_emoji_icon(emoji, size, "#ffffff"),
+            'hover': self.create_emoji_icon(emoji, size, "#cccccc"),
+            'inactive': self.create_emoji_icon(emoji, size, "#858585")
+        }
     
     def get_activity_button_icon(self, activity_id: str, active: bool = False, size: int = 32) -> QIcon:
         """
@@ -414,279 +409,3 @@ class IconManager:
 
 # Global icon manager instance
 icon_manager = IconManager()
-import os
-import base64
-import re
-import io
-import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-from PIL import Image, ImageQt
-
-from lg import logger
-
-# For PySide6 support
-from PySide6.QtGui import QIcon, QPixmap, QPainter, QColor
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtSvg import QSvgRenderer
-
-class IconManager:
-    """Icon Manager for handling SVG icons and theme-specific icon rendering
-
-    This class handles conversion of SVG icons to base64-encoded data URLs
-    for CSS embedding or direct QIcon creation for Qt widget use.
-    """
-
-    def __init__(self, icons_dir: str = "themes/icons"):
-        self.icons_dir = Path(icons_dir)
-        self.svg_dir = self.icons_dir / "svg"
-
-        # Ensure icon directories exist
-        self.icons_dir.mkdir(exist_ok=True, parents=True)
-        self.svg_dir.mkdir(exist_ok=True, parents=True)
-
-        # Cache for QIcons
-        self.icon_cache: Dict[str, QIcon] = {}
-
-        # Cache for base64 encoded icons
-        self.base64_cache: Dict[str, Dict[str, str]] = {}
-
-        logger.info(f"Icon Manager initialized with icons directory: {icons_dir}")
-
-    def get_svg_path(self, icon_name: str) -> Optional[Path]:
-        """Get path to SVG icon file
-
-        Args:
-            icon_name: Name of the icon (without extension)
-
-        Returns:
-            Path to SVG file or None if not found
-        """
-        # Check with .svg extension
-        svg_path = self.svg_dir / f"{icon_name}.svg"
-        if svg_path.exists():
-            return svg_path
-
-        # Check without extension
-        svg_path = self.svg_dir / icon_name
-        if svg_path.exists() and svg_path.suffix.lower() == ".svg":
-            return svg_path
-
-        logger.warning(f"SVG icon not found: {icon_name}")
-        return None
-
-    def render_svg_to_pixmap(self, svg_path: Path, size: QSize, color: Optional[QColor] = None) -> QPixmap:
-        """Render SVG to QPixmap with optional color override
-
-        Args:
-            svg_path: Path to SVG file
-            size: Target size for rendered pixmap
-            color: Optional color override (for monochrome icons)
-
-        Returns:
-            Rendered QPixmap
-        """
-        renderer = QSvgRenderer(str(svg_path))
-        pixmap = QPixmap(size)
-        pixmap.fill(Qt.transparent)
-
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-
-        # Apply color override if specified
-        if color is not None:
-            mask = pixmap.createMaskFromColor(QColor(0, 0, 0), Qt.MaskOutColor)
-            pixmap.fill(color)
-            pixmap.setMask(mask)
-
-        painter.end()
-        return pixmap
-
-    def get_icon(self, icon_name: str, color: Optional[QColor] = None) -> QIcon:
-        """Get a QIcon for an SVG icon with optional color
-
-        Args:
-            icon_name: Name of the icon (without extension)
-            color: Optional color override (for monochrome icons)
-
-        Returns:
-            QIcon instance
-        """
-        # Create cache key
-        cache_key = f"{icon_name}_{color.name() if color else 'default'}"
-
-        # Check cache
-        if cache_key in self.icon_cache:
-            return self.icon_cache[cache_key]
-
-        # Get SVG path
-        svg_path = self.get_svg_path(icon_name)
-        if not svg_path:
-            logger.error(f"Icon not found: {icon_name}")
-            return QIcon()
-
-        # Create icon
-        icon = QIcon()
-
-        # Add several sizes for high DPI support
-        for size in [16, 24, 32, 48]:
-            pixmap = self.render_svg_to_pixmap(svg_path, QSize(size, size), color)
-            icon.addPixmap(pixmap)
-
-        # Cache the icon
-        self.icon_cache[cache_key] = icon
-
-        return icon
-
-    def svg_to_base64_png(self, icon_name: str, size: int = 16, color: Optional[str] = None) -> str:
-        """Convert SVG to base64-encoded PNG data URL
-
-        Args:
-            icon_name: Name of the icon (without extension)
-            size: Size of the image in pixels
-            color: Optional color override as hex string (#RRGGBB)
-
-        Returns:
-            Base64-encoded PNG data URL
-        """
-        # Create cache key
-        cache_key = f"{icon_name}_{size}_{color or 'default'}"
-
-        # Check cache
-        if icon_name in self.base64_cache and cache_key in self.base64_cache[icon_name]:
-            return self.base64_cache[icon_name][cache_key]
-
-        # Get SVG path
-        svg_path = self.get_svg_path(icon_name)
-        if not svg_path:
-            logger.error(f"Icon not found: {icon_name}")
-            return ""
-
-        # Convert color string to QColor if provided
-        qcolor = QColor(color) if color else None
-
-        # Render SVG to pixmap
-        pixmap = self.render_svg_to_pixmap(svg_path, QSize(size, size), qcolor)
-
-        # Convert pixmap to PNG data
-        img = ImageQt.fromQPixmap(pixmap)
-        buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
-
-        # Convert to base64
-        base64_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        data_url = f"data:image/png;base64,{base64_data}"
-
-        # Cache the result
-        if icon_name not in self.base64_cache:
-            self.base64_cache[icon_name] = {}
-        self.base64_cache[icon_name][cache_key] = data_url
-
-        return data_url
-
-    def generate_icons_css(self, output_path: Optional[str] = None) -> str:
-        """Generate CSS for all icons in the SVG directory
-
-        Args:
-            output_path: Optional path to save the CSS file
-
-        Returns:
-            Generated CSS content
-        """
-        if not self.svg_dir.exists():
-            logger.warning(f"SVG directory not found: {self.svg_dir}")
-            return ""
-
-        css_lines = [
-            "/* Generated Icon CSS */",
-            "/* This file is automatically generated by IconManager */",
-            ""
-        ]
-
-        # Process all SVG files
-        for svg_file in sorted(self.svg_dir.glob("*.svg")):
-            icon_name = svg_file.stem
-            css_name = f"icon-{icon_name.replace('_', '-')}"
-
-            # Convert to base64
-            base64_url = self.svg_to_base64_png(icon_name)
-
-            # Add CSS rule
-            css_lines.extend([
-                f".{css_name} {{\n",
-                f"    background-image: url('{base64_url}');\n",
-                f"    background-repeat: no-repeat;\n",
-                f"    background-position: center;\n",
-                f"    background-size: contain;\n",
-                f"    width: 16px;\n",
-                f"    height: 16px;\n",
-                f"}}\n"
-            ])
-
-        css_content = "\n".join(css_lines)
-
-        # Save to file if output path is specified
-        if output_path:
-            output_file = Path(output_path)
-            output_file.parent.mkdir(exist_ok=True, parents=True)
-
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(css_content)
-
-            logger.info(f"Generated icons CSS saved to: {output_path}")
-
-        return css_content
-
-    def generate_theme_icons_css(self, theme_name: str, variables: Dict[str, str]) -> str:
-        """Generate theme-specific icons CSS with variable colors
-
-        Args:
-            theme_name: Name of the theme
-            variables: Dictionary of CSS variables for the theme
-
-        Returns:
-            Generated CSS content
-        """
-        if not self.svg_dir.exists():
-            logger.warning(f"SVG directory not found: {self.svg_dir}")
-            return ""
-
-        css_lines = [
-            f"/* Generated Icon CSS for theme: {theme_name} */",
-            "/* This file is automatically generated by IconManager */",
-            ""
-        ]
-
-        # Extract color variables
-        color_vars = {k: v for k, v in variables.items() if k.startswith('color-')}
-
-        # Process all SVG files
-        for svg_file in sorted(self.svg_dir.glob("*.svg")):
-            icon_name = svg_file.stem
-            css_name = f"icon-{icon_name.replace('_', '-')}"
-
-            # Add base rule
-            base64_url = self.svg_to_base64_png(icon_name)
-            css_lines.extend([
-                f"[data-theme=\"{theme_name}\"] .{css_name} {{\n",
-                f"    background-image: url('{base64_url}');\n",
-                f"    background-repeat: no-repeat;\n",
-                f"    background-position: center;\n",
-                f"    background-size: contain;\n",
-                f"    width: 16px;\n",
-                f"    height: 16px;\n",
-                f"}}\n"
-            ])
-
-        css_content = "\n".join(css_lines)
-        return css_content
-
-    def save_icons_css(self) -> str:
-        """Generate and save the icons CSS file
-
-        Returns:
-            Path to the generated CSS file
-        """
-        output_path = self.icons_dir / "icons.css"
-        self.generate_icons_css(str(output_path))
-        return str(output_path)
