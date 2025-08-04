@@ -20,23 +20,23 @@ from widgets.enhanced_explorer_widget import EnhancedExplorerWidget
 
 class TestWindow(QMainWindow):
     """Test window for drag and drop functionality."""
-    
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Drag & Drop Test")
         self.setMinimumSize(800, 600)
-        
+
         # Central widget
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        
+
         # Header
         header = QLabel("Enhanced Explorer Drag & Drop Test")
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header.setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 10px;")
         layout.addWidget(header)
-        
+
         # Instructions
         instructions = QLabel(
             "• Drag files within the explorer to move them\n"
@@ -46,15 +46,15 @@ class TestWindow(QMainWindow):
         )
         instructions.setStyleSheet("margin-bottom: 10px;")
         layout.addWidget(instructions)
-        
+
         # Explorer widget
         self.explorer = EnhancedExplorerWidget()
         layout.addWidget(self.explorer)
-        
+
         # Status label
         self.status = QLabel("Ready")
         layout.addWidget(self.status)
-        
+
         # Connect signals
         if hasattr(self.explorer.file_view, 'drag_drop_service') and self.explorer.file_view.drag_drop_service:
             self.explorer.file_view.drag_drop_service.drag_started.connect(
@@ -67,7 +67,7 @@ class TestWindow(QMainWindow):
             )
         else:
             logger.warning("Drag & drop service not available")
-    
+
     def update_status(self, message):
         """Update status bar with message."""
         self.status.setText(message)

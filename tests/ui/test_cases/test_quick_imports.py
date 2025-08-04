@@ -19,25 +19,25 @@ try:
     # Test core imports
     from core.api import PluginAPI
     logger.info("✅ Core API imported")
-    
+
     # Test plugin imports
     from plugins.explorer import plugin as explorer_plugin
     logger.info("✅ Explorer plugin imported")
-    
+
     from plugins.search import plugin as search_plugin
     logger.info("✅ Search plugin imported")
-    
+
     from plugins.preferences import plugin as preferences_plugin
     logger.info("✅ Preferences plugin imported")
-    
+
     from plugins.extensions import plugin as extensions_plugin
     logger.info("✅ Extensions plugin imported")
-    
+
     from plugins.account import plugin as account_plugin
     logger.info("✅ Account plugin imported")
-    
+
     logger.info("\n🎉 All plugins can be imported successfully!")
-    
+
 except Exception as e:
     logger.error(f"❌ Error: {e}")
     import traceback

@@ -15,6 +15,7 @@ POEditor Plugin Documentation
    :caption: Contents
 
    overview/index
+   guides/index
    architecture/index
    core/index
    services/index
@@ -22,6 +23,7 @@ POEditor Plugin Documentation
    panels/index
    plugins/index
    explorer/index
+   testing/index
 
 Getting Started
 ==============
@@ -38,9 +40,17 @@ Getting Started
 
    .. container:: card
 
+      **Developer Guides**
+      
+      Step-by-step guides for CSS, icons, themes, and component development.
+      
+      :doc:`/guides/index`
+
+   .. container:: card
+
       **Developer Reference**
       
-      Technical information for developers working with the POEditor plugin.
+      Technical information and API reference for developers.
       
       :doc:`/architecture/index`
 

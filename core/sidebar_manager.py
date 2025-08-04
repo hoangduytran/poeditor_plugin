@@ -15,22 +15,22 @@ from lg import logger
 class SidebarManager(QWidget):
     """
     Manages the application sidebar containing plugin panels.
-    
+
     The sidebar consists of:
     - Panel area: Stacked widget containing the actual panels
     """
-    
+
     panel_changed = Signal(str)  # panel_id
-    
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._panels: Dict[str, QWidget] = {}
         self._active_panel: Optional[str] = None
         self._visible = True  # CRITICAL: Always start visible
-        
+
         # UI components - initialize immediately to avoid None issues
         self.panel_stack = QStackedWidget()
-        
+
         self.setup_ui()
         # SAFETY: Ensure sidebar is always visible to prevent blank screen deadlock
         self.ensure_always_visible()
@@ -56,19 +56,19 @@ class SidebarManager(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        
+
         # Configure the panel stack (already created in __init__)
         self.panel_stack.setMinimumWidth(250)
         layout.addWidget(self.panel_stack)
-        
+
         # Initial state
         self.setMinimumWidth(250)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        
+
     def add_panel(self, panel_id: str, widget: QWidget, icon=None, title: Optional[str] = None) -> None:
         """
         Add a panel to the sidebar.
-        
+
         Args:
             panel_id: Unique identifier for the panel
             widget: The panel widget
@@ -85,11 +85,11 @@ class SidebarManager(QWidget):
         except Exception as e:
             logger.error(f"Failed to add panel {panel_id}: {e}")
             raise
-    
+
     def remove_panel(self, panel_id: str) -> bool:
         """
         Remove a panel from the sidebar.
-        
+
         Args:
             panel_id: Identifier of the panel
         Returns:
@@ -108,7 +108,7 @@ class SidebarManager(QWidget):
         except Exception as e:
             logger.error(f"Failed to remove panel {panel_id}: {e}")
             return False
-    
+
     def set_active_panel(self, panel_id: str) -> None:
         """
         Set the active panel in the sidebar.
@@ -134,7 +134,7 @@ class SidebarManager(QWidget):
 
     def is_visible(self) -> bool:
         return self._visible
-    
+
     def toggle_visibility(self) -> None:
         """Toggle sidebar visibility."""
         try:

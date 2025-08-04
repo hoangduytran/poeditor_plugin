@@ -25,11 +25,11 @@ class CSSFileBasedThemeManager(QObject):
     Manages the application's theme, including loading, switching, and applying themes.
     Supports both file-based CSS themes and resource-based themes with fallback.
     """
-    
+
     # Signals
     theme_changed = Signal(str)  # Emitted when theme changes
     theme_applied = Signal(str)  # Emitted when CSS is applied
-    
+
     _instance = None
 
     def __new__(cls):
@@ -42,19 +42,19 @@ class CSSFileBasedThemeManager(QObject):
         # Prevent double initialization for QObject
         if hasattr(self, '_initialized') and self._initialized:
             return
-            
+
         super().__init__()  # Initialize QObject
         self._initialized = True
-        
+
         self.current_theme = None
         self.css_manager = None
         self.css_preprocessor = None
         self.use_file_css = False
-        
+
         # CSS cache for fast theme switching
         self._css_cache = {}
         self._cache_loaded = False
-        
+
         # Initialize settings for theme persistence
         self.settings = QSettings('POEditor', 'ThemeManager')
 
@@ -63,10 +63,10 @@ class CSSFileBasedThemeManager(QObject):
         try:
             self.css_manager = CSSManager()
             self.css_preprocessor = CSSPreprocessor("themes")
-            
+
             # Initialize IconPreprocessor for theme-aware icon generation
             self.icon_preprocessor = IconPreprocessor("icons")
-            
+
             logger.debug(f"CSS Manager created, cache size: {len(self.css_manager.css_cache)}")
             self.use_file_css = len(self.css_manager.css_cache) > 0
             if self.use_file_css:
@@ -79,10 +79,10 @@ class CSSFileBasedThemeManager(QObject):
             self.css_preprocessor = None
             self.icon_preprocessor = None
             self.use_file_css = False
-            
+
         # Load saved theme (but don't apply it yet - wait for application setup)
         self._restore_saved_theme_name()
-        
+
         # Pre-load CSS cache for faster theme switching
         self._preload_css_cache()
 
@@ -97,15 +97,15 @@ class CSSFileBasedThemeManager(QObject):
         logger.info(f"=== THEME DEBUG: set_theme({theme_name}) ===")
         logger.info(f"Current theme state: {self.current_theme}")
         logger.info(f"Requested theme: {theme_name}")
-        
+
         # Check if theme is already active
         if self.current_theme == theme_name:
             logger.debug(f"Theme {theme_name} is already active, skipping...")
             return
-            
+
         old_theme = self.current_theme
         self.current_theme = theme_name
-        
+
         # Map theme name to file name using CSS manager
         theme_file_name = self._get_theme_filename(theme_name)
 
@@ -113,10 +113,10 @@ class CSSFileBasedThemeManager(QObject):
         css_content = self._load_theme_css(theme_file_name)
         if css_content:
             self._apply_theme(css_content)
-            
+
             # Save the current theme to settings (optimized - no sync)
             self._save_current_theme()
-            
+
             # Emit theme changed signal if theme actually changed
             if old_theme != theme_name:
                 self.theme_changed.emit(theme_name)
@@ -132,7 +132,7 @@ class CSSFileBasedThemeManager(QObject):
         if theme_file_name in self._css_cache:
             logger.info(f"=== CSS TRACE: Found theme in cache: {theme_file_name}, length: {len(self._css_cache[theme_file_name])} ===")
             return self._css_cache[theme_file_name]
-        
+
         # Cache miss - load and cache for next time
         logger.info(f"=== CSS TRACE: Cache miss for theme: {theme_file_name}, loading from source... ===")
         css_content = self._load_theme_css_uncached(theme_file_name)
@@ -149,38 +149,38 @@ class CSSFileBasedThemeManager(QObject):
             if not app:
                 logger.error("No QApplication instance found for theme application")
                 return
-                
+
             # Add explicit type check for Pylance
             if not isinstance(app, QApplication):
                 logger.error("Application instance is not QApplication")
                 return
-            
+
             # Debug logging before applying theme
             logger.info(f"=== THEME APPLICATION DEBUG ===")
             logger.info(f"Applying theme: {self.current_theme}")
             logger.info(f"CSS content length: {len(css_content)} chars")
             logger.info(f"CSS preview (first 200 chars): {css_content[:200]}")
-            
+
             # Try to extract background color from CSS
             import re
             bg_color_match = re.search(r'background(-color)?\s*:\s*(#[0-9a-fA-F]{6})', css_content)
             if bg_color_match:
                 css_bg_color = bg_color_match.group(2)
                 logger.info(f"Found CSS background color: {css_bg_color}")
-            
+
             # Get current widget colors before applying (for debugging only)
             from PySide6.QtGui import QPalette, QColor
             window_color = app.palette().color(QPalette.ColorRole.Window)
             text_color = app.palette().color(QPalette.ColorRole.WindowText)
             logger.info(f"BEFORE - Background: {window_color.name()}, Text: {text_color.name()}")
-            
+
             # Reset palette to system defaults to ensure CSS has full control
             app.setPalette(QPalette())
             logger.info("Reset palette to system defaults to let CSS control all styling")
-            
+
             # Apply stylesheet directly - let CSS control all colors
             logger.info(f"Applying theme CSS directly without palette manipulation")
-            
+
             # Process CSS variables using preprocessor if available
             processed_css = css_content
             if self.css_preprocessor:
@@ -190,14 +190,14 @@ class CSSFileBasedThemeManager(QObject):
                     if self.css_manager and "variables" in self.css_manager.css_cache:
                         variables_css = self.css_manager.css_cache["variables"]
                         logger.debug("Found variables.css file, including in processing")
-                    
+
                     # Combine variables CSS with theme CSS
                     combined_css = variables_css + "\n" + css_content
-                    
+
                     # Extract variables from the combined CSS content
                     variables = self.css_preprocessor.extract_variables(combined_css)
                     logger.debug(f"Extracted {len(variables)} CSS variables")
-                    
+
                     # Generate icon CSS with theme variables if IconPreprocessor available
                     icon_css = ""
                     if self.icon_preprocessor:
@@ -206,15 +206,15 @@ class CSSFileBasedThemeManager(QObject):
                             logger.debug(f"Generated icon CSS ({len(icon_css)} chars)")
                         except Exception as e:
                             logger.warning(f"Failed to generate icon CSS: {e}")
-                    
+
                     # Combine all CSS: variables + theme + icons
                     final_combined_css = variables_css + "\n" + icon_css + "\n" + css_content
-                    
+
                     # Process CSS to replace var() references with actual values
                     processed_css = self.css_preprocessor.process_css(final_combined_css, variables)
                     logger.info(f"CSS preprocessing completed successfully")
                     logger.debug(f"Processed CSS preview (first 200 chars): {processed_css[:200]}")
-                    
+
                     # Debug: Write processed CSS to a file for inspection
                     try:
                         debug_file = f"debug_processed_{self.current_theme.lower() if self.current_theme else 'unknown'}_theme.css"
@@ -228,12 +228,12 @@ class CSSFileBasedThemeManager(QObject):
                     processed_css = css_content  # Fallback to original CSS
             else:
                 logger.warning("CSS preprocessor not available, using CSS as-is")
-            
+
             app.setStyleSheet(processed_css)
-            
+
             # Log for debugging that CSS has been applied
             logger.info(f"CSS has been applied for theme: {self.current_theme}")
-                
+
             self.theme_applied.emit(self.current_theme or "")
             logger.info(f"Applied theme CSS: {self.current_theme}")
         except Exception as e:
@@ -244,18 +244,18 @@ class CSSFileBasedThemeManager(QObject):
         if not self.use_file_css or not self.css_manager:
             logger.warning("Reload not available - using resource-based CSS")
             return False
-        
+
         if not self.current_theme:
             logger.warning("No current theme to reload")
             return False
-        
+
         try:
             # Clear cache for the current theme to force reload
             theme_file_name = self._get_theme_filename(self.current_theme)
             if theme_file_name in self._css_cache:
                 del self._css_cache[theme_file_name]
                 logger.debug(f"Cleared cache for theme: {self.current_theme}")
-            
+
             # Reload the CSS file
             if self.css_manager.reload_css_file(theme_file_name):
                 # Force reapply the theme by temporarily clearing current_theme
@@ -274,7 +274,7 @@ class CSSFileBasedThemeManager(QObject):
     def get_raw_css(self, theme_name: str) -> Optional[str]:
         """Get raw CSS content for debugging."""
         theme_file_name = self._get_theme_filename(theme_name)
-        
+
         if self.use_file_css and self.css_manager:
             return self.css_manager.get_css(theme_file_name)
         else:
@@ -288,12 +288,12 @@ class CSSFileBasedThemeManager(QObject):
             if not app:
                 logger.error("No QApplication instance for CSS injection")
                 return False
-            
+
             # Add explicit type checking/casting to tell Pylance it's a QApplication
             if not isinstance(app, QApplication):
                 logger.error("Application instance is not QApplication")
                 return False
-                
+
             if temporary:
                 # Append to current stylesheet
                 current_css = app.styleSheet()
@@ -302,10 +302,10 @@ class CSSFileBasedThemeManager(QObject):
             else:
                 # Replace stylesheet entirely
                 app.setStyleSheet(css_snippet)
-            
+
             logger.info("CSS injection successful")
             return True
-            
+
         except Exception as e:
             logger.error(f"CSS injection failed: {e}")
             return False
@@ -317,11 +317,11 @@ class CSSFileBasedThemeManager(QObject):
             "css_manager_available": self.css_manager is not None,
             "current_theme": self.current_theme
         }
-        
+
         if self.css_manager:
             info["loaded_css_files"] = self.css_manager.get_css_info()
             info["available_themes"] = self.css_manager.get_available_themes()
-        
+
         return info
 
     def get_available_themes(self) -> list:
@@ -332,7 +332,7 @@ class CSSFileBasedThemeManager(QObject):
         else:
             # Fallback to only the 3 main themes for resource-based CSS
             return ["Dark", "Light", "Colorful"]
-    
+
     def _get_theme_filename(self, theme_name: str) -> str:
         """Get the CSS filename for a given theme name."""
         if self.use_file_css and self.css_manager:
@@ -346,7 +346,7 @@ class CSSFileBasedThemeManager(QObject):
         if self.current_theme:
             return Theme(self.current_theme)
         return None
-        
+
     def apply_activity_bar_theme(self, widget) -> bool:
         """Apply activity bar specific theme with CSS variable processing."""
         try:
@@ -357,19 +357,19 @@ class CSSFileBasedThemeManager(QObject):
                     if self.css_preprocessor:
                         # Get variables from the current theme
                         variables = {}
-                        
+
                         # Get variables from variables.css if available
                         if self.css_manager and hasattr(self.css_manager, 'css_cache') and "variables" in self.css_manager.css_cache:
                             variables_css = self.css_manager.css_cache["variables"]
                             variables.update(self.css_preprocessor.extract_variables(variables_css))
-                        
+
                         # Get variables from current theme CSS if we have a current theme
                         if self.current_theme:
                             theme_file_name = self._get_theme_filename(self.current_theme)
                             if theme_file_name in self._css_cache:
                                 theme_css = self._css_cache[theme_file_name]
                                 variables.update(self.css_preprocessor.extract_variables(theme_css))
-                        
+
                         # Process ActivityBar CSS with variables
                         processed_css = self.css_preprocessor.process_css(activity_css, variables)
                         widget.setStyleSheet(processed_css)
@@ -380,7 +380,7 @@ class CSSFileBasedThemeManager(QObject):
                         widget.setStyleSheet(activity_css)
                         logger.info(f"Applied raw activity bar theme to widget: {widget.objectName()}")
                     return True
-            
+
             # Fallback to resource-based CSS
             file = QFile(":/themes/css/activity_bar.css")
             if file.open(QIODevice.OpenModeFlag.ReadOnly):
@@ -388,23 +388,23 @@ class CSSFileBasedThemeManager(QObject):
                 byte_array = file.readAll()
                 content = bytes(byte_array.data()).decode('utf-8')
                 file.close()
-                
+
                 # Process CSS variables if preprocessor is available
                 if self.css_preprocessor:
                     variables = {}
-                    
+
                     # Get variables from variables.css if available
                     if self.css_manager and hasattr(self.css_manager, 'css_cache') and "variables" in self.css_manager.css_cache:
                         variables_css = self.css_manager.css_cache["variables"]
                         variables.update(self.css_preprocessor.extract_variables(variables_css))
-                    
+
                     # Get variables from current theme if available
                     if self.current_theme:
                         theme_file_name = self._get_theme_filename(self.current_theme)
                         if theme_file_name in self._css_cache:
                             theme_css = self._css_cache[theme_file_name]
                             variables.update(self.css_preprocessor.extract_variables(theme_css))
-                    
+
                     processed_css = self.css_preprocessor.process_css(content, variables)
                     widget.setStyleSheet(processed_css)
                     logger.info(f"Applied processed activity bar theme from resource to widget: {widget.objectName()}")
@@ -426,7 +426,7 @@ class CSSFileBasedThemeManager(QObject):
             return {
                 "background_color": "#1e1e1e",
                 "border_color": "#464647",
-                "text_color": "#cccccc" 
+                "text_color": "#cccccc"
             }
         elif component_name == "tab_active":
             return {
@@ -459,16 +459,16 @@ class CSSFileBasedThemeManager(QObject):
         available_themes = self.get_available_themes()
         if not available_themes:
             return self.current_theme or "Dark"
-        
+
         current_theme = self.current_theme or "Dark"
         try:
             current_index = available_themes.index(current_theme)
         except ValueError:
             current_index = -1
-        
+
         next_index = (current_index + 1) % len(available_themes)
         next_theme = available_themes[next_index]
-        
+
         self.set_theme(next_theme)
         return next_theme
 
@@ -476,16 +476,16 @@ class CSSFileBasedThemeManager(QObject):
         """Refresh the current theme (reload and reapply)."""
         if not self.current_theme:
             return False
-        
+
         # Reload the theme if using file-based CSS
         if self.use_file_css and self.css_manager:
             theme_file_name = f"{self.current_theme.lower()}_theme"
             self.css_manager.reload_css_file(theme_file_name)
-        
+
         # Reapply the theme
         self.set_theme(self.current_theme)
         return True
-        
+
     def _apply_dark_palette(self, app: QApplication) -> None:
         """
         Previously applied a dark palette, now a no-op to let CSS control all styling.
@@ -493,7 +493,7 @@ class CSSFileBasedThemeManager(QObject):
         # No-op function - letting CSS control all styling
         logger.debug("Dark palette application skipped - using CSS only")
         pass
-        
+
     def _apply_light_palette(self, app: QApplication) -> None:
         """
         Previously applied a light palette, now a no-op to let CSS control all styling.
@@ -509,7 +509,7 @@ class CSSFileBasedThemeManager(QObject):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
-    
+
     def _load_saved_theme(self):
         """Load the saved theme from settings and apply it."""
         try:
@@ -528,7 +528,7 @@ class CSSFileBasedThemeManager(QObject):
             logger.error(f"Error loading saved theme: {e}")
             # Fallback to Light theme
             self.set_theme('Light')
-    
+
     def _restore_saved_theme_name(self):
         """Restore the saved theme name only (without applying CSS)."""
         try:
@@ -545,11 +545,11 @@ class CSSFileBasedThemeManager(QObject):
             logger.error(f"Error restoring saved theme name: {e}")
             self.current_theme = 'Light'
             return 'Light'
-    
+
     def apply_saved_theme(self):
         """Apply the saved theme from settings."""
         logger.info("CSSFileBasedThemeManager: Applying saved theme")
-        
+
         # Restore the saved theme name and apply it
         saved_theme = self._restore_saved_theme_name()
         if saved_theme:
@@ -561,7 +561,7 @@ class CSSFileBasedThemeManager(QObject):
             logger.info("No saved theme found, using default")
             self.current_theme = None
             self.set_theme('Light')
-    
+
     def _save_current_theme(self):
         """Save the current theme to settings."""
         try:
@@ -571,15 +571,15 @@ class CSSFileBasedThemeManager(QObject):
                 logger.debug(f"Saved current theme: {self.current_theme}")
         except Exception as e:
             logger.error(f"Error saving current theme: {e}")
-    
+
     def _preload_css_cache(self):
         """Pre-load all theme CSS files into memory for faster switching."""
         if self._cache_loaded:
             return
-            
+
         logger.debug("Pre-loading CSS cache for faster theme switching...")
         available_themes = self.get_available_themes()
-        
+
         for theme_name in available_themes:
             theme_file_name = self._get_theme_filename(theme_name)
             try:
@@ -589,30 +589,30 @@ class CSSFileBasedThemeManager(QObject):
                     logger.debug(f"Cached CSS for theme: {theme_name} ({len(css_content)} chars)")
             except Exception as e:
                 logger.warning(f"Failed to cache CSS for theme {theme_name}: {e}")
-        
+
         self._cache_loaded = True
         logger.info(f"CSS cache loaded with {len(self._css_cache)} themes")
-    
+
     def _load_theme_css_uncached(self, theme_file_name: str) -> str:
         """Load theme CSS without using cache (for initial cache population)."""
         base_css_content = ""
         component_css = []
-        
+
         # Try file-based CSS first
         if self.use_file_css and self.css_manager:
             # Get the base theme CSS
             base_css_content = self.css_manager.get_css(theme_file_name) or ""
-            
+
             # Add component CSS
             context_menu_css = self.css_manager.get_css("context_menu") or ""
             if context_menu_css:
                 component_css.append(context_menu_css)
-                
+
             # Common CSS should come LAST for highest priority (especially status bar styles)
             common_css = self.css_manager.get_css("common") or ""
             if common_css:
                 component_css.append(common_css)
-        
+
         # Fallback to resource-based CSS if file-based failed
         if not base_css_content:
             try:
@@ -623,11 +623,11 @@ class CSSFileBasedThemeManager(QObject):
                     file.close()
             except Exception as e:
                 logger.error(f"Error loading resource-based CSS for {theme_file_name}: {e}")
-        
+
         # Combine CSS: theme first, then components (including common.css last)
         full_css = base_css_content
         for css in component_css:
             full_css += "\n\n" + css
-            
+
         return full_css
-    
+

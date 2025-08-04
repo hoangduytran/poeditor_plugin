@@ -11,10 +11,10 @@ import logging
 import json
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QTreeWidget, QTreeWidgetItem,
     QApplication, QDialog, QTabWidget, QTextEdit,
-    QCheckBox, QSpinBox, QComboBox, 
+    QCheckBox, QSpinBox, QComboBox,
 )
 from PySide6.QtCore import ( Qt, QTimer, Signal, QObject, QFileSystemWatcher )
 from PySide6.QtGui import QColor, QFont, QPalette
@@ -413,7 +413,7 @@ class CSSInspector(QWidget):
 
         for name, role in roles:
             color = palette.color(role)
-            value = f"rgb({color.red()}, {color.green()}, {color.blue()})" 
+            value = f"rgb({color.red()}, {color.green()}, {color.blue()})"
             QTreeWidgetItem(colors_item, [name, value])
 
         colors_item.setExpanded(True)

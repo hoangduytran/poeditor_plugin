@@ -12,7 +12,7 @@ from .path_completion_service import PathCompletionService
 
 __all__ = [
     'NavigationService',
-    'LocationManager', 
+    'LocationManager',
     'QuickLocation',
     'LocationBookmark',
     'NavigationHistoryService',

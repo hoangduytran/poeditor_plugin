@@ -22,7 +22,7 @@ import os
 from pathlib import Path
 from typing import Optional
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QDockWidget, QTextEdit, QStatusBar, QFrame,
     QToolButton, QSizePolicy, QSpacerItem
 )
@@ -54,24 +54,24 @@ except Exception as e:
 
 class ThemeManager:
     """Manages CSS theme loading and cascading."""
-    
+
     def __init__(self, app, css_dir: Path):
         self.app = app
         self.css_dir = css_dir
         self.themes = ["dark", "light", "colorful"]
         self.current_theme_index = 0
-        
+
         # Load common base styles
         self.common_css = self._load_css_file("common.css")
         logger.info(f"Loaded common CSS: {len(self.common_css)} characters")
-        
+
         # Load all theme files
         self.theme_styles = {}
         for theme in self.themes:
             css_content = self._load_css_file(f"{theme}.css")
             self.theme_styles[theme] = css_content
             logger.info(f"Loaded {theme} theme CSS: {len(css_content)} characters")
-    
+
     def _load_css_file(self, filename: str) -> str:
         """Load CSS content from file."""
         css_path = self.css_dir / filename
@@ -86,34 +86,34 @@ class ThemeManager:
         except Exception as e:
             logger.error(f"Error loading CSS file {css_path}: {e}")
             return ""
-    
+
     def get_current_theme_name(self) -> str:
         """Get the name of the currently active theme."""
         return self.themes[self.current_theme_index]
-    
+
     def apply_current_theme(self):
         """Apply the current theme by cascading common + theme-specific CSS."""
         theme_name = self.get_current_theme_name()
         theme_css = self.theme_styles.get(theme_name, "")
-        
+
         # Add specific QDockWidget title bar styling
         dock_widget_css = self._get_dock_widget_css()
-        
+
         # Cascade: common styles first, then theme-specific overrides, then dock widget styles
         combined_css = (
-            self.common_css + 
+            self.common_css +
             "\n\n/* === THEME OVERRIDES === */\n" + theme_css +
             "\n\n/* === DOCK WIDGET TITLE BAR STYLES === */\n" + dock_widget_css
         )
-        
+
         logger.info(f"=== APPLYING THEME: {theme_name.upper()} ===")
         logger.debug(f"Combined CSS length: {len(combined_css)} characters")
-        
+
         # Apply the cascaded stylesheet to the application
         self.app.setStyleSheet(combined_css)
-        
+
         logger.info(f"Theme '{theme_name}' applied successfully via CSS cascading")
-    
+
     def _get_dock_widget_css(self) -> str:
         """Get CSS for styling QDockWidget title bars."""
         return """
@@ -221,27 +221,27 @@ QDockWidget::close-button:hover {
     color: #ffffff;
 }
 """
-    
+
     def cycle_theme(self):
         """Cycle to the next theme."""
         old_theme = self.get_current_theme_name()
         self.current_theme_index = (self.current_theme_index + 1) % len(self.themes)
         new_theme = self.get_current_theme_name()
-        
+
         logger.info(f"Theme cycling: {old_theme} → {new_theme}")
         self.apply_current_theme()
-        
+
         return new_theme
 
 
 class CustomTitleBar(QFrame):
     """Custom title bar widget with full control over appearance and functionality."""
-    
+
     # Signals for title bar actions
     floatRequested = Signal()
     closeRequested = Signal()
     settingsRequested = Signal()
-    
+
     def __init__(self, title: str, parent=None):
         super().__init__(parent)
         self.setObjectName("CustomTitleBar")
@@ -250,13 +250,13 @@ class CustomTitleBar(QFrame):
         self._setup_ui()
         self._setup_drag()
         logger.debug(f"CustomTitleBar created: {title}")
-    
+
     def _setup_ui(self):
         """Set up the custom title bar UI."""
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(8)
-        
+
         # Title label
         self.title_label = QLabel(self.title)
         self.title_label.setObjectName("TitleLabel")
@@ -266,10 +266,10 @@ class CustomTitleBar(QFrame):
         font.setPointSize(10)
         self.title_label.setFont(font)
         layout.addWidget(self.title_label)
-        
+
         # Spacer to push buttons to the right
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-        
+
         # Settings button
         self.settings_btn = QPushButton("⚙")
         self.settings_btn.setObjectName("SettingsButton")
@@ -278,7 +278,7 @@ class CustomTitleBar(QFrame):
         self.settings_btn.setFixedSize(24, 20)
         self.settings_btn.clicked.connect(self.settingsRequested.emit)
         layout.addWidget(self.settings_btn)
-        
+
         # Float/dock button
         self.float_btn = QPushButton("⚏")
         self.float_btn.setObjectName("FloatButton")
@@ -287,7 +287,7 @@ class CustomTitleBar(QFrame):
         self.float_btn.setFixedSize(24, 20)
         self.float_btn.clicked.connect(self.floatRequested.emit)
         layout.addWidget(self.float_btn)
-        
+
         # Close button (optional)
         self.close_btn = QPushButton("✕")
         self.close_btn.setObjectName("CloseButton")
@@ -296,38 +296,38 @@ class CustomTitleBar(QFrame):
         self.close_btn.setFixedSize(24, 20)
         self.close_btn.clicked.connect(self.closeRequested.emit)
         layout.addWidget(self.close_btn)
-        
+
         # Set fixed height for title bar
         self.setFixedHeight(28)
-    
+
     def _setup_drag(self):
         """Set up drag functionality for the title bar."""
         self._drag_start_position = None
-    
+
     def mousePressEvent(self, event):
         """Handle mouse press for dragging."""
         if event.button() == Qt.MouseButton.LeftButton:
             self._drag_start_position = event.globalPosition().toPoint()
         super().mousePressEvent(event)
-    
+
     def mouseMoveEvent(self, event):
         """Handle mouse move for dragging the dock widget."""
-        if (event.buttons() == Qt.MouseButton.LeftButton and 
+        if (event.buttons() == Qt.MouseButton.LeftButton and
             self._drag_start_position is not None):
-            
+
             # Find the parent dock widget
             dock_widget = self.parent()
             while dock_widget and not isinstance(dock_widget, QDockWidget):
                 dock_widget = dock_widget.parent()
-            
+
             if dock_widget and dock_widget.isFloating():
                 # Move the floating dock widget
                 delta = event.globalPosition().toPoint() - self._drag_start_position
                 dock_widget.move(dock_widget.pos() + delta)
                 self._drag_start_position = event.globalPosition().toPoint()
-        
+
         super().mouseMoveEvent(event)
-    
+
     def update_float_button(self, is_floating: bool):
         """Update the float button based on floating state."""
         if is_floating:
@@ -340,12 +340,12 @@ class CustomTitleBar(QFrame):
 
 class AdvancedTitleBar(QFrame):
     """Advanced title bar with more controls and status indicators."""
-    
+
     # Signals
     floatRequested = Signal()
     settingsRequested = Signal()
     refreshRequested = Signal()
-    
+
     def __init__(self, title: str, parent=None):
         super().__init__(parent)
         self.setObjectName("AdvancedTitleBar")
@@ -353,19 +353,19 @@ class AdvancedTitleBar(QFrame):
         self.title = title
         self._setup_ui()
         logger.debug(f"AdvancedTitleBar created: {title}")
-    
+
     def _setup_ui(self):
         """Set up the advanced title bar UI."""
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(6)
-        
+
         # Status indicator
         self.status_indicator = QLabel("●")
         self.status_indicator.setStyleSheet("color: #28a745; font-size: 8px;")
         self.status_indicator.setToolTip("Status: Active")
         layout.addWidget(self.status_indicator)
-        
+
         # Title label
         self.title_label = QLabel(self.title)
         self.title_label.setProperty("class", "TitleLabel")
@@ -374,15 +374,15 @@ class AdvancedTitleBar(QFrame):
         font.setPointSize(9)
         self.title_label.setFont(font)
         layout.addWidget(self.title_label)
-        
+
         # Item count label
         self.count_label = QLabel("(0 items)")
         self.count_label.setStyleSheet("color: #888; font-size: 9px;")
         layout.addWidget(self.count_label)
-        
+
         # Spacer
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-        
+
         # Refresh button
         self.refresh_btn = QPushButton("↻")
         self.refresh_btn.setProperty("class", "TitleButton")
@@ -390,7 +390,7 @@ class AdvancedTitleBar(QFrame):
         self.refresh_btn.setFixedSize(22, 18)
         self.refresh_btn.clicked.connect(self.refreshRequested.emit)
         layout.addWidget(self.refresh_btn)
-        
+
         # Settings button
         self.settings_btn = QPushButton("⚙")
         self.settings_btn.setProperty("class", "SettingsButton")
@@ -398,7 +398,7 @@ class AdvancedTitleBar(QFrame):
         self.settings_btn.setFixedSize(22, 18)
         self.settings_btn.clicked.connect(self.settingsRequested.emit)
         layout.addWidget(self.settings_btn)
-        
+
         # Float button
         self.float_btn = QPushButton("⚏")
         self.float_btn.setProperty("class", "FloatButton")
@@ -406,13 +406,13 @@ class AdvancedTitleBar(QFrame):
         self.float_btn.setFixedSize(22, 18)
         self.float_btn.clicked.connect(self.floatRequested.emit)
         layout.addWidget(self.float_btn)
-        
+
         self.setFixedHeight(26)
-    
+
     def update_count(self, count: int):
         """Update the item count display."""
         self.count_label.setText(f"({count} items)")
-    
+
     def update_status(self, status: str, color: str = "#28a745"):
         """Update the status indicator."""
         self.status_indicator.setStyleSheet(f"color: {color}; font-size: 8px;")
@@ -421,18 +421,18 @@ class AdvancedTitleBar(QFrame):
 
 class StyledDockWidget(QDockWidget):
     """QDockWidget with CSS-styled native title bar."""
-    
+
     def __init__(self, title: str, parent=None):
         super().__init__(title, parent)
         self.setObjectName("StyledDockWidget")
-        
+
         # Enable all features to show all title bar buttons
         self.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetMovable |
             QDockWidget.DockWidgetFeature.DockWidgetFloatable |
             QDockWidget.DockWidgetFeature.DockWidgetClosable
         )
-        
+
         # Create content
         content = QTextEdit()
         content.setPlainText(
@@ -446,29 +446,29 @@ class StyledDockWidget(QDockWidget):
             f"The title bar is fully functional with native Qt behavior."
         )
         self.setWidget(content)
-        
+
         logger.debug(f"StyledDockWidget created: {title}")
 
 
 class CustomDockWidget(QDockWidget):
     """QDockWidget with completely custom title bar."""
-    
+
     def __init__(self, title: str, parent=None):
         super().__init__(title, parent)
         self.setObjectName("CustomDockWidget")
-        
+
         # Create custom title bar
         self.custom_title_bar = CustomTitleBar(title)
         self.setTitleBarWidget(self.custom_title_bar)
-        
+
         # Connect signals
         self.custom_title_bar.floatRequested.connect(self._toggle_float)
         self.custom_title_bar.closeRequested.connect(self.close)
         self.custom_title_bar.settingsRequested.connect(self._show_settings)
-        
+
         # Connect to floating state changes
         self.topLevelChanged.connect(self._on_floating_changed)
-        
+
         # Create content
         content = QTextEdit()
         content.setPlainText(
@@ -484,19 +484,19 @@ class CustomDockWidget(QDockWidget):
             f"Click the buttons to test functionality!"
         )
         self.setWidget(content)
-        
+
         logger.debug(f"CustomDockWidget created: {title}")
-    
+
     def _toggle_float(self):
         """Toggle floating state."""
         self.setFloating(not self.isFloating())
         logger.info(f"CustomDockWidget float toggled: {self.isFloating()}")
-    
+
     def _show_settings(self):
         """Handle settings button click."""
         logger.info("CustomDockWidget settings requested")
         # Here you could show a settings dialog
-    
+
     def _on_floating_changed(self, floating: bool):
         """Handle floating state change."""
         self.custom_title_bar.update_float_button(floating)
@@ -505,33 +505,33 @@ class CustomDockWidget(QDockWidget):
 
 class AdvancedDockWidget(QDockWidget):
     """QDockWidget with advanced custom title bar."""
-    
+
     def __init__(self, title: str, parent=None):
         super().__init__(title, parent)
         self.setObjectName("AdvancedDockWidget")
-        
+
         # Create advanced title bar
         self.advanced_title_bar = AdvancedTitleBar(title)
         self.setTitleBarWidget(self.advanced_title_bar)
-        
+
         # Connect signals
         self.advanced_title_bar.floatRequested.connect(self._toggle_float)
         self.advanced_title_bar.settingsRequested.connect(self._show_settings)
         self.advanced_title_bar.refreshRequested.connect(self._refresh_content)
-        
+
         # Initialize item count
         self.item_count = 5
-        
+
         # Create content with some items
         self.content = QTextEdit()
         self._update_content()
         self.setWidget(self.content)
-        
+
         # Update title bar with initial count
         self.advanced_title_bar.update_count(self.item_count)
-        
+
         logger.debug(f"AdvancedDockWidget created: {title}")
-    
+
     def _update_content(self):
         """Update the content display."""
         self.content.setPlainText(
@@ -547,18 +547,18 @@ class AdvancedDockWidget(QDockWidget):
             f"Status: Active\n\n"
             f"Try the different buttons to see their functionality!"
         )
-    
+
     def _toggle_float(self):
         """Toggle floating state."""
         self.setFloating(not self.isFloating())
         logger.info(f"AdvancedDockWidget float toggled: {self.isFloating()}")
-    
+
     def _show_settings(self):
         """Handle settings button click."""
         logger.info("AdvancedDockWidget settings requested")
         self.advanced_title_bar.update_status("Configuring", "#ffc107")
         QTimer.singleShot(2000, lambda: self.advanced_title_bar.update_status("Active", "#28a745"))
-    
+
     def _refresh_content(self):
         """Handle refresh button click."""
         logger.info("AdvancedDockWidget refresh requested")
@@ -571,27 +571,27 @@ class AdvancedDockWidget(QDockWidget):
 
 class DockWidgetTestWindow(QMainWindow):
     """Main window for testing QDockWidget title bar customizations."""
-    
+
     def __init__(self):
         super().__init__()
         self.setObjectName("DockWidgetTestWindow")
         self.setWindowTitle("QDockWidget Title Bar Customization Test")
         self.setMinimumSize(1000, 700)
-        
+
         # Initialize theme manager
         css_dir = Path(__file__).parent / "css"
         self.theme_manager = ThemeManager(QApplication.instance(), css_dir)
-        
+
         # Setup UI
         self._setup_ui()
         self._setup_dock_widgets()
         self._setup_shortcuts()
-        
+
         # Apply initial theme
         self.theme_manager.apply_current_theme()
-        
+
         logger.info("DockWidgetTestWindow initialized")
-    
+
     def _setup_ui(self):
         """Set up the main UI."""
         # Central widget
@@ -622,42 +622,42 @@ class DockWidgetTestWindow(QMainWindow):
             "- Advanced bars can include rich functionality"
         )
         self.setCentralWidget(central_widget)
-        
+
         # Status bar
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self._update_status_bar()
-    
+
     def _setup_dock_widgets(self):
         """Set up the test dock widgets."""
         # CSS-styled native title bar
         self.styled_dock = StyledDockWidget("Native CSS Styled")
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.styled_dock)
-        
+
         # Custom title bar
         self.custom_dock = CustomDockWidget("Custom Title Bar")
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.custom_dock)
-        
+
         # Advanced title bar
         self.advanced_dock = AdvancedDockWidget("Advanced Controls")
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.advanced_dock)
-        
+
         logger.debug("Dock widgets set up")
-    
+
     def _setup_shortcuts(self):
         """Set up keyboard shortcuts."""
         # Theme cycling shortcut
         theme_shortcut = QShortcut(QKeySequence("Ctrl+Shift+T"), self)
         theme_shortcut.activated.connect(self._cycle_theme)
-        
+
         logger.debug("Shortcuts set up: Ctrl+Shift+T for theme cycling")
-    
+
     def _cycle_theme(self):
         """Cycle to the next theme."""
         new_theme = self.theme_manager.cycle_theme()
         self._update_status_bar()
         logger.info(f"Theme changed to: {new_theme}")
-    
+
     def _update_status_bar(self):
         """Update the status bar with current theme info."""
         theme_name = self.theme_manager.get_current_theme_name()
@@ -670,36 +670,36 @@ class DockWidgetTestWindow(QMainWindow):
 def main():
     """Main function to run the QDockWidget title bar test."""
     logger.info("Starting QDockWidget Title Bar Customization Test")
-    
+
     app = QApplication(sys.argv)
     app.setApplicationName("QDockWidget Title Bar Test")
-    
+
     # Check if CSS files exist
     css_dir = Path(__file__).parent / "css"
     if not css_dir.exists():
         logger.error(f"CSS directory not found: {css_dir}")
         logger.error("Please ensure the css/ directory exists with theme files")
         return 1
-    
+
     required_files = ["common.css", "dark.css", "light.css", "colorful.css"]
     missing_files = []
     for filename in required_files:
         if not (css_dir / filename).exists():
             missing_files.append(filename)
-    
+
     if missing_files:
         logger.error(f"Missing CSS files: {missing_files}")
         logger.error(f"Please ensure all required CSS files exist in: {css_dir}")
         return 1
-    
+
     # Create and show the main window
     window = DockWidgetTestWindow()
     window.show()
-    
+
     logger.info("QDockWidget title bar test window displayed")
     logger.info("Use Ctrl+Shift+T to cycle themes")
     logger.info("Try the different title bar customizations")
-    
+
     return app.exec()
 
 

@@ -23,28 +23,28 @@ def main():
         app.setApplicationVersion("2.0.0")
         app.setOrganizationName("POEditor")
         app.setOrganizationDomain("poeditor.com")
-        
+
         # Import resources after QApplication is created
         import resources_rc
 
         # Enable high DPI scaling
         app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-        
+
         logger.info("Starting POEditor application")
-        
+
         # Create main window
         window = MainAppWindow()
         window.show()
-        
+
         logger.info("Application started successfully")
-        
+
         # Run the application
         exit_code = app.exec()
-        
+
         logger.info(f"Application exiting with code: {exit_code}")
         return exit_code
-        
+
     except Exception as e:
         logger.error(f"Failed to start application: {e}")
         return 1

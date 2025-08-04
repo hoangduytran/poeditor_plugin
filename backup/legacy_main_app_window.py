@@ -137,10 +137,10 @@ class MainAppWindow(QMainWindow):
     def setup_theme_system(self):
         """Initialize and setup the theme system."""
         from services.theme_manager import ThemeManager
-        
+
         theme_manager = ThemeManager.get_instance()
         theme_manager.set_theme("Dark")  # Default theme
-        
+
         logger.info("Theme system initialized")
 
     # ...existing methods...

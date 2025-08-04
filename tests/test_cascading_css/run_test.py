@@ -11,7 +11,7 @@ from pathlib import Path
 def main():
     """Run the CSS cascading theme test."""
     test_file = Path(__file__).parent / "test_cascading_themes.py"
-    
+
     print("🎨 Starting CSS Cascading Theme Test...")
     print("📁 Test directory:", Path(__file__).parent)
     print("🐍 Python executable:", sys.executable)
@@ -20,10 +20,10 @@ def main():
     print("  Ctrl+Shift+T - Cycle themes (Dark → Light → Colorful)")
     print("  Use the UI elements to see how themes affect different widgets")
     print()
-    
+
     try:
         # Run the test
-        result = subprocess.run([sys.executable, str(test_file)], 
+        result = subprocess.run([sys.executable, str(test_file)],
                               cwd=Path(__file__).parent.parent.parent)
         return result.returncode
     except KeyboardInterrupt:

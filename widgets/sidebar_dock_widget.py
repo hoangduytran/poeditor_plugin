@@ -24,25 +24,25 @@ class SidebarDockWidget(QDockWidget):
         if parent:
             logger.info(f"Parent style: {type(parent.style()).__name__}")
             logger.info(f"Parent palette: {parent.palette()}")
-        
+
         super().__init__("Sidebar", parent)
         self.sidebar_manager = sidebar_manager
         self._main_window_parent = parent
         self._is_app_closing = False  # Track if app is closing
         self._force_close_requested = False  # Track if force close was requested
-        
+
         # Note: Status bar styling is handled in common.css to ensure consistency across themes
         # The status bar should always maintain VS Code-like appearance regardless of theme changes
-        
+
         # Debug: Log theme state after super init
         logger.info("=== THEME DEBUG: After super().__init__ ===")
         logger.info(f"DockWidget style: {type(self.style()).__name__}")
         logger.info(f"DockWidget palette: {self.palette()}")
-        
+
         # Force the dock widget to use stylesheet styling
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setAutoFillBackground(True)
-        
+
         # # Apply explicit styling to override Qt's native gradient
         # self.setStyleSheet("""
         #     QDockWidget {
@@ -63,13 +63,13 @@ class SidebarDockWidget(QDockWidget):
         #         letter-spacing: 1px;
         #     }
         # """)
-        
+
         self.setObjectName("SidebarDockWidget")
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
         # Remove global context menu policy - let child widgets handle their own
         self.setWidget(self._wrap_with_toolbar(sidebar_manager))
-        
+
         # Install event filter to detect title bar clicks
         self.installEventFilter(self)
 
@@ -91,7 +91,7 @@ class SidebarDockWidget(QDockWidget):
         if isinstance(parent, QMainWindow):
             parent.destroyed.connect(self._on_main_window_destroyed)
             logger.info("Connected to main window destroyed signal")
-            
+
             # Monkey patch the main window's closeEvent to ensure we know when it's closing
             self._original_main_window_close = parent.closeEvent
             parent.closeEvent = self._main_window_close_wrapper
@@ -104,14 +104,14 @@ class SidebarDockWidget(QDockWidget):
         logger.info("Main window closeEvent triggered - marking sidebar for forced closure")
         self._is_app_closing = True
         self._force_close_requested = True
-        
+
         # Force close immediately if floating
         if self.isFloating():
             logger.info("Sidebar is floating during main window close - forcing immediate closure")
             self.hide()
             self.setParent(None)
             self.close()
-            
+
         # Call the original closeEvent
         if hasattr(self, '_original_main_window_close'):
             self._original_main_window_close(event)
@@ -127,13 +127,13 @@ class SidebarDockWidget(QDockWidget):
         logger.info("Application is about to quit - forcing sidebar to close")
         self._is_app_closing = True
         self._force_close_requested = True
-        
+
         # Force close the sidebar immediately
         if self.isVisible():
             logger.info("Sidebar is visible - forcing close")
             # Use deleteLater() to ensure proper cleanup
             self.deleteLater()
-            
+
         # Also close any child widgets
         if hasattr(self, 'sidebar_manager') and self.sidebar_manager:
             logger.info("Closing sidebar manager")
@@ -148,7 +148,7 @@ class SidebarDockWidget(QDockWidget):
         # toolbar = QToolBar()
         # toolbar.setObjectName("sidebar_toolbar")  # Set object name for CSS targeting
         # toolbar.setMovable(False)
-        
+
         # Debug: Log toolbar styling information
         # logger.info("=== THEME DEBUG: Toolbar creation ===")
         # logger.info(f"Toolbar stylesheet: '{toolbar.styleSheet()}'")
@@ -157,24 +157,24 @@ class SidebarDockWidget(QDockWidget):
         # logger.info(f"Toolbar auto fill background: {toolbar.autoFillBackground()}")
         # logger.info(f"Application style name: {toolbar.style().objectName()}")
         # logger.info(f"Toolbar style object: {type(toolbar.style()).__name__}")
-        
+
         # arrow_btn = QPushButton("▼")
         # arrow_btn.setObjectName("sidebar_arrow_button")  # Set object name for CSS targeting
         # arrow_btn.setToolTip("Sidebar options")
         # arrow_btn.clicked.connect(self._show_menu)
-        
+
         # Debug: Log button styling information
         # logger.info("=== THEME DEBUG: Arrow button creation ===")
         # logger.info(f"Arrow button stylesheet: '{arrow_btn.styleSheet()}'")
         # logger.info(f"Arrow button palette: {arrow_btn.palette()}")
         # logger.info(f"Arrow button background role: {arrow_btn.backgroundRole()}")
-        
+
         # toolbar.addWidget(arrow_btn)
-        
+
         # Debug: Log final toolbar state after adding button
         # logger.info(f"Final toolbar size hint: {toolbar.sizeHint()}")
         # logger.info(f"Final toolbar minimum size: {toolbar.minimumSize()}")
-        
+
         # layout.addWidget(toolbar)
         layout.addWidget(widget)
         # self._arrow_btn = arrow_btn
@@ -198,7 +198,7 @@ class SidebarDockWidget(QDockWidget):
             else:
                 logger.debug("Right-click detected outside title bar, allowing propagation")
                 return False  # Let the event propagate to child widgets
-        
+
         return super().eventFilter(obj, event)
 
     def _is_click_on_title_bar(self, pos: QPoint) -> bool:
@@ -206,24 +206,24 @@ class SidebarDockWidget(QDockWidget):
         # Get the title bar rect - this is approximate as Qt doesn't expose exact title bar geometry
         # The title bar is typically at the top of the widget
         widget_rect = self.rect()
-        
+
         # Estimate title bar height (usually around 20-30 pixels depending on style)
         # This is a reasonable approximation for most desktop environments
         title_bar_height = 30
-        
+
         # Check if click is in the top area where title bar would be
         title_bar_rect = widget_rect.adjusted(0, 0, 0, -widget_rect.height() + title_bar_height)
-        
+
         logger.debug(f"Click position: {pos}, Title bar area: {title_bar_rect}, Widget rect: {widget_rect}")
         return title_bar_rect.contains(pos)
 
     def _show_menu(self, pos: Optional[QPoint] = None):
         logger.debug("SidebarDockWidget menu requested from title bar")
         menu = QMenu(self)
-        
+
         # # Set object name to match CSS selector in dark_theme.css
         # menu.setObjectName("sidebar_context_menu")
-        
+
         # # Try to force menu to pick up application styling
         # # This addresses the issue where dynamically created QMenu widgets
         # # sometimes don't inherit the application's stylesheet correctly
@@ -235,10 +235,10 @@ class SidebarDockWidget(QDockWidget):
         #     if current_stylesheet:
         #         logger.debug("Applying application stylesheet to context menu")
         #         menu.setStyle(app.style())
-                
+
         #         # Note: We don't set the stylesheet directly here
         #         # because it's already defined in dark_theme.css
-        
+
         # Enable window drop shadow for the menu if possible
         try:
             # This is platform-dependent and might not work on all systems
@@ -249,7 +249,7 @@ class SidebarDockWidget(QDockWidget):
             logger.debug("Applied translucent background for better drop shadow visibility")
         except Exception as e:
             logger.debug(f"Could not set advanced window styling for menu: {e}")
-        
+
         # Add dock options
         left_action = QAction("Dock Left", self)
         left_action.triggered.connect(lambda: self._move_to_area(Qt.DockWidgetArea.LeftDockWidgetArea))
@@ -386,10 +386,10 @@ class SidebarDockWidget(QDockWidget):
             except (RuntimeError, AttributeError):
                 # If we get an error accessing the main window, it's likely being destroyed
                 main_window_closing = True
-        
+
         if self._is_app_closing or self._force_close_requested or main_window_closing:
             logger.info(f"SidebarDockWidget closing due to application shutdown (app_closing={self._is_app_closing}, force_requested={self._force_close_requested}, main_window_closing={main_window_closing})")
-            
+
             # Remove all signal connections to prevent callback errors
             try:
                 app = QApplication.instance()
@@ -397,7 +397,7 @@ class SidebarDockWidget(QDockWidget):
                     app.aboutToQuit.disconnect(self._on_app_about_to_quit)
             except:
                 pass
-                
+
             # Ensure we really close
             QDockWidget.closeEvent(self, event)
             event.accept()
@@ -418,7 +418,7 @@ class SidebarDockWidget(QDockWidget):
         logger.info(f"DockWidget style: {type(self.style()).__name__}")
         logger.info(f"DockWidget palette: {self.palette()}")
         logger.info(f"DockWidget stylesheet: '{self.styleSheet()}'")
-        
+
         # Check toolbar and button if they exist
         # if hasattr(self, '_arrow_btn') and self._arrow_btn:
         #     toolbar = self._arrow_btn.parent()
@@ -426,11 +426,11 @@ class SidebarDockWidget(QDockWidget):
         #         logger.info(f"Toolbar style after theme: {type(toolbar.style()).__name__}")
         #         logger.info(f"Toolbar palette after theme: {toolbar.palette()}")
         #         logger.info(f"Toolbar stylesheet after theme: '{toolbar.styleSheet()}'")
-        #     
+        #
         #     logger.info(f"Arrow button style after theme: {type(self._arrow_btn.style()).__name__}")
         #     logger.info(f"Arrow button palette after theme: {self._arrow_btn.palette()}")
         #     logger.info(f"Arrow button stylesheet after theme: '{self._arrow_btn.styleSheet()}'")
-        
+
         logger.info("Toolbar and arrow button are commented out")
 
     def event(self, event: QEvent) -> bool:
@@ -464,5 +464,5 @@ class SidebarDockWidget(QDockWidget):
             logger.info("=== THEME DEBUG: Parent Change Event ===")
             logger.info(f"Parent changed - New style: {type(self.style()).__name__}")
             logger.info(f"Parent changed - New palette: {self.palette()}")
-        
+
         return super().event(event)

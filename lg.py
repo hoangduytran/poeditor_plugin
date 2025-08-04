@@ -13,13 +13,13 @@ def setup_logging_from_config(path: str = default_log_config) -> logging.Logger:
         config_path = project_root / path
     else:
         config_path = Path(path)
-    
+
     # Check if file exists before trying to read it
     if not config_path.exists():
         # Fallback to basic logging if config file not found
         logging.basicConfig(level=logging.INFO)
         return logging.getLogger(__name__)
-    
+
     config = configparser.ConfigParser()
     config.read(str(config_path))
 

@@ -18,7 +18,7 @@ from widgets.simple_file_view_with_column_menu import SimpleFileViewWithColumnMe
 class SimpleExplorerWidgetWithColumnMenu(SimpleExplorerWidget):
     """
     Extends SimpleExplorerWidget to add column management capabilities.
-    
+
     Features:
     - All features of SimpleExplorerWidget
     - Column management via header context menu
@@ -26,7 +26,7 @@ class SimpleExplorerWidgetWithColumnMenu(SimpleExplorerWidget):
     - Column width management
     - Content fitting functionality
     """
-    
+
     def __init__(self, parent=None):
         # Don't call super().__init__() yet as we want to customize initialization
         QWidget.__init__(self, parent)
@@ -42,7 +42,7 @@ class SimpleExplorerWidgetWithColumnMenu(SimpleExplorerWidget):
         self._setup_ui()
         self._connect_signals()
         self._load_initial_state()
-        
+
         logger.info("SimpleExplorerWidgetWithColumnMenu initialized")
-        
+
     # The rest of the methods are inherited from SimpleExplorerWidget

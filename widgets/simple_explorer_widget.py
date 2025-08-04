@@ -35,63 +35,63 @@ from lg import logger
 class DirectoryFirstProxyModel(QSortFilterProxyModel):
     """
     Custom sort proxy model that always shows directories first.
-    
+
     This proxy model implements the directory-first sorting behavior:
     - Directories are always displayed before files
     - Within each group, items are sorted alphabetically
     - This sorting applies to both normal and filtered views
     """
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Enable dynamic sorting
         self.setSortRole(Qt.ItemDataRole.DisplayRole)
         self.setDynamicSortFilter(True)
-    
+
     def lessThan(self, left_index, right_index):
         """
         Custom sorting implementation that prioritizes directories over files.
-        
+
         Args:
             left_index: Left index from the proxy model
             right_index: Right index from the proxy model
-            
+
         Returns:
             bool: True if left should be sorted before right
         """
         # Get source model
         source_model = self.sourceModel()
-        
+
         # Ensure we have a file system model
         if not source_model or not isinstance(source_model, QFileSystemModel):
             return super().lessThan(left_index, right_index)
-        
+
         try:
             # Map proxy indexes to source model indexes - don't use mapToSource
             # since these are already source indexes in the lessThan method
-            
+
             # Access file info directly from the source model using column 0
             # which contains the filename
             left_is_dir = source_model.isDir(source_model.index(left_index.row(), 0, left_index.parent()))
             right_is_dir = source_model.isDir(source_model.index(right_index.row(), 0, right_index.parent()))
-            
+
             # Directory first sorting
             if left_is_dir and not right_is_dir:
                 return True
             elif not left_is_dir and right_is_dir:
                 return False
-                
+
             # Both are dirs or both are files, compare by name
             left_name = source_model.data(left_index, Qt.ItemDataRole.DisplayRole)
             right_name = source_model.data(right_index, Qt.ItemDataRole.DisplayRole)
-            
+
             # Case insensitive sorting
             if isinstance(left_name, str) and isinstance(right_name, str):
                 return left_name.lower() < right_name.lower()
-                
+
             # Fallback to default sorting
             return super().lessThan(left_index, right_index)
-            
+
         except Exception as e:
             logger.error(f"Sorting error: {e}")
             return super().lessThan(left_index, right_index)
@@ -159,17 +159,17 @@ class SimpleFileView(QTreeView):
         # Initialize required services
         self.file_operations_service = FileOperationsService()
         self.undo_redo_manager = UndoRedoManager()
-        
+
         # Create the context menu manager
         self.context_menu = ExplorerContextMenu(
             self.file_operations_service,
             self.undo_redo_manager
         )
-        
+
         # Enable custom context menu
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self._show_context_menu)
-        
+
         # Connect context menu signals
         self.context_menu.refresh_requested.connect(self._refresh_view)
 
@@ -178,14 +178,14 @@ class SimpleFileView(QTreeView):
         try:
             # Get current path
             current_path = self.get_current_path()
-            
+
             # Reset the model and view
             self.proxy_model.invalidate()
             self.file_system_model.setRootPath("")  # Clear
-            
+
             # Set the path again to refresh
             self.set_current_path(current_path)
-            
+
             logger.debug(f"File view refreshed for path: {current_path}")
         except Exception as e:
             logger.error(f"Error refreshing file view: {e}")
@@ -193,7 +193,7 @@ class SimpleFileView(QTreeView):
     def _setup_model(self):
         """
         Set up the file system model with directory-first sorting.
-        
+
         Uses a custom proxy model to ensure directories always appear before files
         in both normal and filtered views.
         """
@@ -208,15 +208,15 @@ class SimpleFileView(QTreeView):
             QDir.Filter.NoDotAndDotDot |
             QDir.Filter.AllEntries
         )
-        
+
         # Create and configure the proxy model for directory-first sorting
         self.proxy_model = DirectoryFirstProxyModel()
         self.proxy_model.setSourceModel(self.file_system_model)
         self.proxy_model.setDynamicSortFilter(True)
-        
+
         # Set the proxy model on the view
         self.setModel(self.proxy_model)
-        
+
         # Map the root path index through the proxy model
         source_index = self.file_system_model.index(QDir.currentPath())
         proxy_index = self.proxy_model.mapFromSource(source_index)
@@ -225,7 +225,7 @@ class SimpleFileView(QTreeView):
     def _setup_view(self):
         """
         Set up the tree view properties with consistent styling and behavior.
-        
+
         Design choices:
         - Alternating row colors are disabled for cleaner visual appearance
         - Sorting is enabled with directories always displayed first
@@ -233,35 +233,35 @@ class SimpleFileView(QTreeView):
         """
         # Hide unnecessary columns initially (can be toggled later)
         self.setRootIsDecorated(False)
-        
+
         # Explicitly disable alternating row colors for consistent appearance
         self.setAlternatingRowColors(False)
-        
+
         # Configure selection behavior for proper hover/selection styling
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        
+
         # # Configure and show appropriate columns
         # for i in range(1, self.model().columnCount()):
         #     self.hideColumn(i)
         self.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
-        
+
         # Configure sorting
         self.setSortingEnabled(True)
-        
+
         # Set sorting on the proxy model
         self.proxy_model.setDynamicSortFilter(True)
-        
+
         # First invalidate to ensure the model is properly initialized
         self.proxy_model.invalidate()
-        
+
         # Now set the sort order on both the view and proxy model
         self.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         self.proxy_model.sort(0, Qt.SortOrder.AscendingOrder)
-        
+
         # Process events to ensure sorting takes effect
         QApplication.processEvents()
-        
+
         # Connect double-click handler
         self.doubleClicked.connect(self._on_activated)
 
@@ -272,14 +272,14 @@ class SimpleFileView(QTreeView):
             index = self.indexAt(position)
             selected_items = []
             current_directory = self.get_current_path()
-            
+
             if index.isValid():
                 # Get selected items (can be multiple with Ctrl+click)
                 selected_indexes = self.selectedIndexes()
                 if not selected_indexes:
                     # If nothing is selected, use the clicked item
                     selected_indexes = [index]
-                
+
                 for sel_index in selected_indexes:
                     # Map proxy index to source index
                     source_index = self.proxy_model.mapToSource(sel_index)
@@ -287,20 +287,20 @@ class SimpleFileView(QTreeView):
                         file_path = self.file_system_model.filePath(source_index)
                         is_dir = self.file_system_model.isDir(source_index)
                         name = self.file_system_model.fileName(source_index)
-                        
+
                         selected_items.append({
                             'path': file_path,
                             'is_dir': is_dir,
                             'name': name
                         })
-                        
+
                         # Update the context menu's selected items for shortcuts
                         self.context_menu.selected_items = selected_items
-            
+
             # Create and show the context menu
             menu = self.context_menu.create_menu(selected_items, current_directory)
             menu.exec(self.mapToGlobal(position))
-            
+
         except Exception as e:
             logger.error(f"Error showing context menu: {e}")
 
@@ -316,17 +316,17 @@ class SimpleFileView(QTreeView):
         if not index.isValid():
             logger.debug("Invalid index activated")
             return
-            
+
         try:
             # Map proxy model index to source model index
             source_index = self.proxy_model.mapToSource(index)
-            
+
             if not source_index.isValid():
                 logger.error("Failed to map index to source model")
                 return
-                
+
             file_path = self.file_system_model.filePath(source_index)
-            
+
             # Emit file activated signal if it's a file
             if not self.file_system_model.isDir(source_index):
                 self.file_activated.emit(file_path)
@@ -348,26 +348,26 @@ class SimpleFileView(QTreeView):
             try:
                 # First block signals to prevent unwanted updates
                 old_state = self.blockSignals(True)
-                
+
                 # Set the root path on the file system model
                 source_index = self.file_system_model.setRootPath(path)
-                
+
                 # Process events to ensure the model has time to update
                 QApplication.processEvents()
-                
+
                 # Make sure the source index is valid
                 if not source_index.isValid():
                     logger.error(f"Invalid source index for path: {path}")
                     self.blockSignals(old_state)
                     self.directory_changed.emit(path)
                     return
-                
+
                 # Reset the proxy model to clear any cached indices
                 self.proxy_model.invalidate()
-                
+
                 # Now map the source index to the proxy model index
                 proxy_index = self.proxy_model.mapFromSource(source_index)
-                
+
                 # Set the root index on the view
                 if proxy_index.isValid():
                     self.setRootIndex(proxy_index)
@@ -375,16 +375,16 @@ class SimpleFileView(QTreeView):
                     logger.warning(f"Invalid proxy index for path: {path}, using fallback")
                     # Try another approach - use the first row of the model
                     self.setRootIndex(self.proxy_model.index(0, 0, QModelIndex()))
-                
+
                 # Re-apply sorting
                 self.proxy_model.sort(0, Qt.SortOrder.AscendingOrder)
-                
+
                 # Process events to ensure UI updates
                 QApplication.processEvents()
-                
+
                 # Restore signal blocking state
                 self.blockSignals(old_state)
-                
+
                 # Notify listeners
                 self.directory_changed.emit(path)
                 logger.info(f"Explorer path set to: {path}")
@@ -400,7 +400,7 @@ class SimpleFileView(QTreeView):
     def apply_filter(self, pattern: str):
         """
         Apply a filter pattern to the file view.
-        
+
         The filter is applied to the source model while preserving the
         directory-first sorting behavior through the proxy model.
         """
@@ -471,12 +471,12 @@ class SimpleExplorerWidget(QWidget):
         search_layout.setSpacing(2)
         search_layout.addWidget(self.search_bar, 1)  # Stretch the search bar
         search_layout.addWidget(self.clear_button)
-        
+
         # Configure clear button
         self.clear_button.setToolTip("Clear filter and restore all files")
         self.clear_button.setFixedSize(24, 24)
         self.clear_button.setEnabled(False)  # Initially disabled
-        
+
         # Main layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -492,7 +492,7 @@ class SimpleExplorerWidget(QWidget):
         self.clear_button.clicked.connect(self._on_clear_button_clicked)
         self.file_view.file_activated.connect(self.file_opened)
         self.file_view.directory_changed.connect(self._on_directory_changed)
-        
+
         # Update path label when directory changes
         self.file_view.directory_changed.connect(
             lambda path: self.path_label.setText(path)

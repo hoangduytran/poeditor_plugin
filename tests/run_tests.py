@@ -19,16 +19,16 @@ from lg import logger
 def run_service_tests():
     """Run all service tests."""
     logger.info("Starting service tests...")
-    
+
     # Discover and run tests
     loader = unittest.TestLoader()
     start_dir = Path(__file__).parent / "services"
     suite = loader.discover(str(start_dir), pattern='test_*.py')
-    
+
     # Run tests
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
-    
+
     # Log results
     if result.wasSuccessful():
         logger.info(f"All tests passed! Ran {result.testsRun} tests.")

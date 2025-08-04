@@ -15,16 +15,16 @@ from lg import logger
 
 class ExplorerPanelWithColumnMenu(PanelInterface):
     """Explorer panel with column management support."""
-    
+
     # Signals
     file_opened = Signal(str)
     location_changed = Signal(str)
-    
+
     def __init__(self, parent: Optional[PanelInterface] = None):
         super().__init__(parent)
         self._setup_ui()
         logger.info("ExplorerPanelWithColumnMenu initialized")
-    
+
     def _setup_ui(self):
         """Set up the UI components."""
         layout = QVBoxLayout(self)
@@ -48,7 +48,7 @@ class ExplorerPanelWithColumnMenu(PanelInterface):
         """Called when the panel is deactivated."""
         super().on_deactivate()
         logger.debug("Enhanced explorer panel deactivated")
-        
+
     def set_api(self, api):
         """Set the plugin API for enhanced functionality."""
         super().set_api(api)

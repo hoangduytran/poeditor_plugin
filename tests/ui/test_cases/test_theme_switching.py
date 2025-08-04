@@ -103,7 +103,7 @@ Theme Switching Test Instructions:
         # Add some content to central widget
         content_area = QTextEdit()
         content_area.setPlainText("""
-This is the main content area. 
+This is the main content area.
 
 The theme should affect:
 1. This central content area

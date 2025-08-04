@@ -15,16 +15,16 @@ from lg import logger
 
 class ExplorerPanel(PanelInterface):
     """Explorer panel for navigating files and directories."""
-    
+
     # Signals
     file_opened = Signal(str)
     location_changed = Signal(str)
-    
+
     def __init__(self, parent: Optional[PanelInterface] = None):
         super().__init__(parent)
         self._setup_ui()
         logger.info("ExplorerPanel initialized")
-    
+
     def _setup_ui(self):
         """Set up the UI components."""
         layout = QVBoxLayout(self)

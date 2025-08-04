@@ -1,5 +1,9 @@
+"""
+Settings Manager for POEditor Plugin
+Handles application settings persistence and retrieval.
+"""
+
 import json
-import os
 from pathlib import Path
 
 class SettingsManager:

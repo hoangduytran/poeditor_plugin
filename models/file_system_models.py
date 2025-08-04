@@ -23,7 +23,7 @@ class ItemType(Enum):
 class FileSystemItem:
     """
     Data class representing a file system item (file, directory, or symlink).
-    
+
     Attributes:
         path: Absolute path to the item
         name: Name of the item (basename)
@@ -42,21 +42,21 @@ class FileSystemItem:
     created_time: Optional[datetime] = None
     is_hidden: bool = False
     parent_path: Optional[str] = None
-    
+
     @classmethod
     def from_path(cls, path: str) -> 'FileSystemItem':
         """
         Create a FileSystemItem from a file system path.
-        
+
         Args:
             path: Path to the file system item
-            
+
         Returns:
             A new FileSystemItem instance
         """
         name = os.path.basename(path)
         parent_path = os.path.dirname(path)
-        
+
         # Determine item type
         if os.path.islink(path):
             item_type = ItemType.SYMLINK
@@ -66,7 +66,7 @@ class FileSystemItem:
             item_type = ItemType.FILE
         else:
             item_type = ItemType.UNKNOWN
-            
+
         # Get file stats
         try:
             stat_info = os.stat(path)
@@ -77,14 +77,14 @@ class FileSystemItem:
             size = 0
             modified_time = None
             created_time = None
-            
+
         # Check if hidden (platform-specific)
         is_hidden = name.startswith('.') or (
-            hasattr(os, 'name') and os.name == 'nt' and 
-            bool(stat_info.st_file_attributes & 0x2) 
+            hasattr(os, 'name') and os.name == 'nt' and
+            bool(stat_info.st_file_attributes & 0x2)
             if 'st_file_attributes' in dir(stat_info) else False
         )
-            
+
         return cls(
             path=path,
             name=name,

@@ -18,21 +18,21 @@ class CSSManager:
         self.applied_styles: List[str] = []
         self._load_all_css_files()
         self._load_style_files()
-    
+
     def _load_all_css_files(self):
         try:
             css_path = Path(self.css_directory)
             if not css_path.exists():
                 logger.warning(f"CSS directory not found: {css_path}")
                 return
-            
+
             for css_file in css_path.glob("*.css"):
                 self._load_css_file(css_file)
-                
+
             logger.info(f"CSSManager loaded {len(self.css_cache)} CSS files")
         except Exception as e:
             logger.error(f"Failed to load CSS files: {e}")
-    
+
     def _load_css_file(self, file_path: Path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -44,15 +44,15 @@ class CSSManager:
             logger.debug(f"=== DEBUG: Loaded CSS content for {filename} ===\n{content}\n=== END CSS content, length: {len(content)} ===")
         except Exception as e:
             logger.error(f"Failed to load CSS file {file_path}: {e}")
-    
+
     def get_css(self, name: str) -> Optional[str]:
         return self.css_cache.get(name)
-    
+
     def set_css(self, name: str, content: str):
         """Set CSS content for a specific name."""
         self.css_cache[name] = content
         logger.debug(f"Updated CSS content for: {name}")
-    
+
     def _load_style_files(self):
         """Load CSS files from the styles directory."""
         try:
@@ -60,7 +60,7 @@ class CSSManager:
             if not styles_path.exists():
                 logger.warning(f"Styles directory not found: {styles_path}")
                 return
-            
+
             # Load specific style files
             style_files = ["common.css"]  # Removed context_menu.css - conflicts with theme QMenu styles
             for style_file in style_files:
@@ -74,11 +74,11 @@ class CSSManager:
                         logger.info(f"Loaded style file: {file_path} ({len(content)} chars)")
                     except Exception as e:
                         logger.error(f"Failed to load style file {file_path}: {e}")
-                        
+
             logger.info(f"CSSManager loaded styles from {self.styles_directory}")
         except Exception as e:
             logger.error(f"Failed to load style files: {e}")
-    
+
     def reload_css_file(self, name: str) -> bool:
         """Reload a specific CSS file from disk."""
         try:
@@ -93,18 +93,18 @@ class CSSManager:
         except Exception as e:
             logger.error(f"Failed to reload CSS file {name}: {e}")
             return False
-    
+
     def apply_css(self, name: str, widget=None) -> bool:
         """Apply CSS to application or specific widget."""
         css_content = self.get_css(name)
         if not css_content:
             logger.error(f"CSS not found: {name}")
             return False
-        
+
         # Update current CSS file path for debugging
         css_file_path = os.path.join(self.css_directory, f"{name}.css")
         self.current_css_file = css_file_path
-        
+
         try:
             if widget:
                 widget.setStyleSheet(css_content)
@@ -122,13 +122,13 @@ class CSSManager:
                 else:
                     logger.error("No QApplication instance found")
                     return False
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to apply CSS '{name}': {e}")
             return False
-    
+
     def combine_css(self, names: List[str]) -> str:
         """Combine multiple CSS files into one string."""
         combined = []
@@ -140,20 +140,20 @@ class CSSManager:
                 combined.append("")
             else:
                 logger.warning(f"CSS not found for combining: {name}")
-        
+
         return "\n".join(combined)
-    
+
     def apply_combined_css(self, names: List[str], widget=None) -> bool:
         """Apply multiple CSS files combined."""
         combined_css = self.combine_css(names)
         if not combined_css:
             logger.error("No CSS content to apply")
             return False
-        
+
         # Update current CSS file info for debugging (combined files)
         combined_files = [os.path.join(self.css_directory, f"{name}.css") for name in names]
         self.current_css_file = f"Combined: {', '.join(combined_files)}"
-        
+
         try:
             if widget:
                 widget.setStyleSheet(combined_css)
@@ -169,42 +169,42 @@ class CSSManager:
                 else:
                     logger.error("No QApplication instance found")
                     return False
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to apply combined CSS {names}: {e}")
             return False
-    
+
     def get_available_themes(self) -> List[str]:
         """Get list of available theme names by discovering CSS files in theme directory."""
         themes = []
-        
+
         try:
             css_path = Path(self.css_directory)
             if not css_path.exists():
                 logger.warning(f"Theme directory does not exist: {self.css_directory}")
                 return []
-            
+
             # Find all *_theme.css files
             theme_files = list(css_path.glob("*_theme.css"))
-            
+
             for theme_file in theme_files:
                 theme_name = self._extract_theme_name(theme_file)
                 if theme_name:
                     themes.append(theme_name)
-                    
+
         except Exception as e:
             logger.error(f"Error discovering themes: {e}")
             # Fallback to cached theme detection
             return [name.replace('_theme', '').title() for name in self.css_cache.keys() if name.endswith('_theme')]
-        
+
         return sorted(themes)
-    
+
     def _extract_theme_name(self, theme_file: Path) -> str:
         """
         Extract theme name from CSS file.
-        
+
         Tries in order:
         1. ThemeName=... comment
         2. Descriptive comment in first line
@@ -218,7 +218,7 @@ class CSSManager:
                     first_lines.append(line.strip())
                     if i >= 10:  # Only check first 10 lines
                         break
-                
+
                 # Method 1: Look for ThemeName=... comment
                 for line in first_lines:
                     if 'ThemeName=' in line:
@@ -228,7 +228,7 @@ class CSSManager:
                         theme_name = line[start:end].strip()
                         if theme_name:
                             return theme_name
-                
+
                 # Method 2: Extract from descriptive comment in first line
                 if first_lines and first_lines[0].startswith('/*'):
                     comment = first_lines[0].replace('/*', '').replace('*/', '').strip()
@@ -256,56 +256,56 @@ class CSSManager:
                                     return 'Light'
                                 elif 'Dark' in comment:
                                     return 'Dark'
-                
+
                 # Method 3: Parse filename as fallback
                 filename = theme_file.stem  # Get filename without extension
                 if filename.endswith('_theme'):
                     base_name = filename[:-6]  # Remove '_theme'
                     return base_name.replace('_', ' ').title()
-                
+
         except Exception as e:
             logger.warning(f"Error extracting theme name from {theme_file}: {e}")
-        
+
         # Ultimate fallback: use filename
         return theme_file.stem.replace('_theme', '').replace('_', ' ').title()
-    
+
     def get_theme_filename(self, theme_name: str) -> str:
         """
         Get the CSS filename for a given theme name.
-        
+
         This reverses the theme name extraction process.
         """
         try:
             css_path = Path(self.css_directory)
             theme_files = list(css_path.glob("*_theme.css"))
-            
+
             for theme_file in theme_files:
                 extracted_name = self._extract_theme_name(theme_file)
                 if extracted_name == theme_name:
                     return theme_file.stem  # Return filename without extension
-            
+
             # Fallback: convert theme name to expected filename pattern
             clean_name = theme_name.lower().replace(' ', '_')
             return f"{clean_name}_theme"
-            
+
         except Exception as e:
             logger.warning(f"Error mapping theme name '{theme_name}' to filename: {e}")
             # Ultimate fallback
             clean_name = theme_name.lower().replace(' ', '_')
             return f"{clean_name}_theme"
-    
+
     def has_css(self, name: str) -> bool:
         """Check if CSS exists for given name."""
         return name in self.css_cache
-    
+
     def get_css_info(self) -> Dict[str, int]:
         """Get information about loaded CSS files."""
         return {name: len(content) for name, content in self.css_cache.items()}
-    
+
     def get_current_css_file(self) -> str:
         """Get the path of the currently used CSS file for debugging."""
         return self.current_css_file
-    
+
     def get_debug_info(self) -> Dict:
         """Get comprehensive debug information about CSS manager state."""
         return {

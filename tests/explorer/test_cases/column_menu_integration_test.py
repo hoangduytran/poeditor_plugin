@@ -21,19 +21,19 @@ from widgets.simple_explorer_widget_with_column_menu import SimpleExplorerWidget
 
 class ColumnMenuIntegrationTest(QMainWindow):
     """Test window for column header context menu integration."""
-    
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Column Header Context Menu Integration Test")
         self.setGeometry(100, 100, 800, 600)
-        
+
         # Create the enhanced explorer widget
         self.explorer = SimpleExplorerWidgetWithColumnMenu()
         self.setCentralWidget(self.explorer)
-        
+
         logger.info("Test window initialized")
         logger.info("Right-click on the column header to show the context menu")
-        
+
         # Instruct the user
         print("-------------------------------------------------------------")
         print("Column Header Context Menu Integration Test")

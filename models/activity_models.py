@@ -11,7 +11,7 @@ from typing import Dict, Optional
 @dataclass
 class ActivityConfig:
     """Configuration for an Activity in the ActivityBar.
-    
+
     Attributes:
         id: Unique identifier for the activity
         icon: Icon text (emoji) or path to icon file
@@ -37,7 +37,7 @@ class ActivityConfig:
 @dataclass
 class ActivityState:
     """Persistent state of the ActivityBar.
-    
+
     Attributes:
         active_activity: ID of currently active activity
         panel_width: Width of the sidebar panel in pixels

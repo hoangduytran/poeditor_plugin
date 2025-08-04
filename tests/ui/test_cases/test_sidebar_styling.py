@@ -12,7 +12,7 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, 
+    QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QPushButton, QDockWidget
 )
 from PySide6.QtCore import Qt
@@ -39,16 +39,16 @@ class TestWindow(QMainWindow):
         self.setObjectName("main_window")
         self.setWindowTitle("Sidebar Styling Test")
         self.resize(800, 600)
-        
+
         # Create a central widget
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.addWidget(QLabel("Central Widget"))
-        
+
         # Create sidebar content
         sidebar_content = SimpleSidebarContent()
-        
+
         logger.info("=== Creating SidebarDockWidget ===")
         app = QApplication.instance()
         if app and isinstance(app, QApplication):
@@ -56,28 +56,28 @@ class TestWindow(QMainWindow):
                        f"{len(app.styleSheet())}")
         else:
             logger.info("Before creation - QApplication instance not available")
-        
+
         # Create the sidebar dock widget
         self.sidebar = SidebarDockWidget(sidebar_content, self)
-        
+
         logger.info(f"Created SidebarDockWidget with parent: {type(self).__name__}")
         logger.info(f"SidebarDockWidget features: {self.sidebar.features()}")
-        
+
         # Log widget hierarchy immediately after creation
         logger.info("Initial widget hierarchy:")
         self._log_widget_hierarchy(self.sidebar)
-        
+
         # Add the sidebar to the main window
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar)
         logger.info("Added SidebarDockWidget to main window")
-        
+
         # Log hierarchy after adding to main window
         logger.info("Widget hierarchy after adding to main window:")
         self._log_widget_hierarchy(self.sidebar)
-        
+
         # Debug widget styles
         self.debug_styles()
-        
+
         # Add a button to trigger style refresh and debugging
         refresh_button = QPushButton("Refresh & Debug Styles")
         refresh_button.clicked.connect(self.debug_styles)
@@ -92,23 +92,23 @@ class TestWindow(QMainWindow):
         logger.info(f"{indent}Background Role: {widget.backgroundRole()}")
         logger.info(f"{indent}Auto Fill Background: {widget.autoFillBackground()}")
         logger.info(f"{indent}WA_StyledBackground: {widget.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)}")
-        
+
         # Get effective style
         if hasattr(widget, 'style'):
             style = widget.style()
             logger.info(f"{indent}Style class: {style.__class__.__name__}")
-        
+
         # Get color information
         palette = widget.palette()
         bg_color = palette.color(widget.backgroundRole())
         fg_color = palette.color(widget.foregroundRole())
         logger.info(f"{indent}Background color: {bg_color.name()} (RGB: {bg_color.red()},{bg_color.green()},{bg_color.blue()})")
         logger.info(f"{indent}Foreground color: {fg_color.name()}")
-        
+
         # Check parent relationship
         if widget.parent():
             logger.info(f"{indent}Parent: {type(widget.parent()).__name__}")
-        
+
         # Log children
         for child in widget.children():
             if isinstance(child, QWidget):
@@ -125,7 +125,7 @@ class TestWindow(QMainWindow):
             for line in stylesheet.split('\n'):
                 if any(key in line for key in ['QDockWidget', 'title', 'background']):
                     logger.info(f"Style rule: {line.strip()}")
-        
+
         # Try to find title bar widget more comprehensively
         title_bar = None
 
@@ -152,7 +152,7 @@ class TestWindow(QMainWindow):
             logger.info(f"Property 'class': {title_bar.property('class')}")
             logger.info(f"Auto fill background: {title_bar.autoFillBackground()}")
             logger.info(f"WA_StyledBackground: {title_bar.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)}")
-            
+
             # Force apply dark styling directly to the title bar
             logger.info("Attempting to force dark styling on title bar...")
             title_bar.setAutoFillBackground(True)
@@ -170,12 +170,12 @@ class TestWindow(QMainWindow):
             # Log complete widget hierarchy from title bar
             logger.info("\nTitle bar widget hierarchy:")
             self._log_widget_hierarchy(title_bar)
-            
+
             # Check application stylesheet for QDockWidget title styling
             app = QApplication.instance()
             if app and isinstance(app, QApplication):
                 app_stylesheet = app.styleSheet()
-                
+
                 # Print relevant sections of the stylesheet
                 if "QDockWidget" in app_stylesheet:
                     logger.info("Found QDockWidget styling in application stylesheet")
@@ -191,7 +191,7 @@ class TestWindow(QMainWindow):
                             in_dock_rule = False
                         elif in_dock_rule:
                             dock_style_lines.append(line)
-                    
+
                     for line in dock_style_lines:
                         logger.info(f"STYLE: {line.strip()}")
                 else:
@@ -260,7 +260,7 @@ def load_dark_theme():
 def run_test():
     """Run the test application"""
     app = QApplication(sys.argv)
-    
+
     # Apply dark theme
     dark_theme_css = load_dark_theme()
     if dark_theme_css:
@@ -268,11 +268,11 @@ def run_test():
         app.setStyleSheet(dark_theme_css)
     else:
         logger.warning("Failed to load dark theme CSS")
-    
+
     # Create and show the test window
     window = TestWindow()
     window.show()
-    
+
     # Run the application
     return app.exec()
 

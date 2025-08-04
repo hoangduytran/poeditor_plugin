@@ -67,7 +67,7 @@ CORE_ACTIVITIES = [
 
 def register_core_activities(activity_manager):
     """Register all core activities with the activity manager.
-    
+
     Args:
         activity_manager: The ActivityManager instance
     """

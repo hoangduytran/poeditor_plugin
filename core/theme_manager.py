@@ -1,4 +1,8 @@
-from math import log
+"""
+Theme Manager for POEditor Plugin
+Handles theme loading and application.
+"""
+
 import os
 from pathlib import Path
 from lg import logger
@@ -6,7 +10,7 @@ from lg import logger
 class ThemeManager:
     def __init__(self):
         self.base_path = Path(__file__).parent.parent
-        
+
         # self.themes_path = self.base_path / "themes" / "assets" / "styles"
         self.themes_path = self.base_path / "themes" / "css"
 
@@ -47,7 +51,7 @@ class ThemeManager:
         except Exception as e:
             logger.info(f"Error loading theme {theme_name}: {e}")
         return theme_data
-    
+
     def get_available_themes(self):
         """Return list of available theme names"""
         return list(self.available_themes.keys())

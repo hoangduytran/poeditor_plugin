@@ -36,6 +36,7 @@ The application is built using a modular, service-oriented architecture with the
    activity_system
    services
    theme_system
+   css_system
    component_diagram
 
 Architecture Documentation

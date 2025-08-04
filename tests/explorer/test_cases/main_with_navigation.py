@@ -26,7 +26,7 @@ from widgets.explorer.explorer_header_bar import HeaderNavigationWidget
 def integrate_navigation_header(main_window):
     """
     Integrate HeaderNavigationWidget into the main application's explorer panel.
-    
+
     Args:
         main_window: The main application window
     """
@@ -45,7 +45,7 @@ def _perform_integration(main_window):
         if not hasattr(main_window, 'sidebar_manager') or not main_window.sidebar_manager:
             logger.warning("SidebarManager not available yet")
             return
-            
+
         # Find panels that might contain the explorer
         panels = []
         if hasattr(main_window.sidebar_manager, 'panels'):
@@ -57,11 +57,11 @@ def _perform_integration(main_window):
                     panels = [explorer_panel]
             except:
                 pass
-                
+
         if not panels:
             logger.warning("No explorer panels found")
             return
-            
+
         # Look for explorer widgets in the panels
         explorer_widget = None
         for panel in panels:
@@ -71,37 +71,37 @@ def _perform_integration(main_window):
             elif hasattr(panel, 'widget') and hasattr(panel.widget, 'file_view'):
                 explorer_widget = panel.widget
                 break
-                
+
         if not explorer_widget:
             logger.warning("No explorer widget found in panels")
             return
-            
+
         # Get the file view
         file_view = None
         if hasattr(explorer_widget, 'file_view'):
             file_view = explorer_widget.file_view
         elif hasattr(explorer_widget, 'tree_view'):
             file_view = explorer_widget.tree_view
-            
+
         if not file_view:
             logger.warning("No file view found in explorer widget")
             return
-            
+
         # Create navigation services
         navigation_service = NavigationService()
         history_service = NavigationHistoryService()
         location_manager = LocationManager()
         completion_service = PathCompletionService()
-        
+
         # Set up service dependencies
         navigation_service.set_dependencies(
             history_service=history_service,
             location_manager=location_manager
         )
-        
+
         # Create navigation header
         nav_header = HeaderNavigationWidget(Qt.Orientation.Horizontal)
-        
+
         # Inject services
         nav_header.inject_services(
             navigation_service=navigation_service,
@@ -109,16 +109,16 @@ def _perform_integration(main_window):
             location_manager=location_manager,
             completion_service=completion_service
         )
-        
+
         # Replace the tree view header
         file_view.setHeader(nav_header)
-        
+
         # Store reference
         main_window.explorer_nav_header = nav_header
-        
+
         logger.info("✅ HeaderNavigationWidget successfully integrated!")
         logger.info("🖱️  Right-click on table headers for navigation menu")
-        
+
     except Exception as e:
         logger.error(f"Failed to integrate HeaderNavigationWidget: {e}")
         import traceback
@@ -134,7 +134,7 @@ def main():
         app.setApplicationVersion("2.0.0")
         app.setOrganizationName("POEditor")
         app.setOrganizationDomain("poeditor.com")
-        
+
         # Import resources after QApplication is created
         try:
             import resources_rc
@@ -144,26 +144,26 @@ def main():
         # Enable high DPI scaling
         app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-        
+
         logger.info("Starting POEditor with HeaderNavigationWidget integration")
-        
+
         # Create main window
         window = MainAppWindow()
-        
+
         # Integrate navigation header
         integrate_navigation_header(window)
-        
+
         window.show()
-        
+
         logger.info("Application started successfully")
         logger.info("HeaderNavigationWidget integration scheduled")
-        
+
         # Run the application
         exit_code = app.exec()
-        
+
         logger.info(f"Application exiting with code: {exit_code}")
         return exit_code
-        
+
     except Exception as e:
         logger.error(f"Failed to start application: {e}")
         import traceback
