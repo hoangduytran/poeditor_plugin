@@ -205,8 +205,11 @@ class ExplorerContextMenuThemeTest:
             is_dark = window_color.value() < 128  # HSV value less than 50%
 
             current_theme_name = ""
-            if current_theme and hasattr(current_theme, 'name'):
-                current_theme_name = current_theme.name.lower()
+            if current_theme:
+                try:
+                    current_theme_name = current_theme.name.lower()
+                except AttributeError:
+                    current_theme_name = ""
 
             if is_dark or "dark" in current_theme_name:
                 logger.info("Dark mode support test passed: Menu supports dark styling")
@@ -242,8 +245,11 @@ class ExplorerContextMenuThemeTest:
             is_light = window_color.value() >= 128  # HSV value 50% or more
 
             current_theme_name = ""
-            if current_theme and hasattr(current_theme, 'name'):
-                current_theme_name = current_theme.name.lower()
+            if current_theme:
+                try:
+                    current_theme_name = current_theme.name.lower()
+                except AttributeError:
+                    current_theme_name = ""
 
             if is_light or "light" in current_theme_name:
                 logger.info("Light mode support test passed: Menu supports light styling")

@@ -9,7 +9,8 @@ import json
 import importlib
 import importlib.util
 from pathlib import Path
-from typing import Dict, Any, Optional, List, TYPE_CHECKING
+from typing import Dict, Any, Optional, List, TYPE_CHECKING, Union
+from types import ModuleType
 from lg import logger
 
 if TYPE_CHECKING:
@@ -24,8 +25,8 @@ class PluginInfo:
         self.path = path
         self.metadata = metadata or {}
         self.loaded = False
-        self.module = None
-        self.error = None
+        self.module: Optional[ModuleType] = None
+        self.error: Optional[str] = None
 
     @property
     def version(self) -> str:

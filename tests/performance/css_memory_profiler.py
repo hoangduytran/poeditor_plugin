@@ -84,11 +84,13 @@ class CSSMemoryProfiler:
         icon_cache_size = 0
 
         if self.theme_manager:
-            if hasattr(self.theme_manager, 'css_cache'):
-                css_cache_size = len(getattr(self.theme_manager, 'css_cache', {}))
+            try:
+                css_cache_size = len(self.theme_manager._css_cache)
+            except AttributeError:
+                css_cache_size = 0
 
-            if hasattr(self.theme_manager, 'icon_cache'):
-                icon_cache_size = len(getattr(self.theme_manager, 'icon_cache', {}))
+            # Note: Theme manager doesn't have icon_cache, only CSS cache
+            icon_cache_size = 0
 
         snapshot = MemorySnapshot(
             timestamp=time.time(),
@@ -221,22 +223,30 @@ class CSSMemoryProfiler:
 
         initial = self.take_snapshot("icon_processing_start")
 
-        # Process icons multiple times
-        if hasattr(self.theme_manager, 'icon_preprocessor') and self.theme_manager.icon_preprocessor:
+        # Process icons multiple times - direct access required
+        try:
             icon_processor = self.theme_manager.icon_preprocessor
 
-            for i in range(5):
-                with self.profile_operation(f"icon_process_iteration_{i}"):
-                    # Generate icon CSS (method exists in our system)
-                    if hasattr(icon_processor, 'generate_icon_css'):
-                        icon_css = icon_processor.generate_icon_css()
+            if icon_processor:
+                for i in range(5):
+                    with self.profile_operation(f"icon_process_iteration_{i}"):
+                        # Generate icon CSS
+                        try:
+                            icon_css = icon_processor.generate_icon_css()
+                        except AttributeError:
+                            icon_css = ""
 
-                    # Process all icons (if method exists)
-                    if hasattr(icon_processor, 'process_all_icons'):
-                        processed_icons = icon_processor.process_all_icons()
+                        # Process all icons if method exists
+                        try:
+                            processed_icons = icon_processor.process_all_icons()
+                        except AttributeError:
+                            processed_icons = []
 
-                    if i % 2 == 0:
-                        gc.collect()
+                        if i % 2 == 0:
+                            gc.collect()
+        except AttributeError:
+            # Theme manager does not have icon_preprocessor
+            pass
 
         final = self.take_snapshot("icon_processing_end")
 
@@ -320,13 +330,14 @@ class CSSMemoryProfiler:
         }
 
         if self.theme_manager:
-            # CSS cache size
-            if hasattr(self.theme_manager, 'css_cache'):
-                efficiency['css_cache_size'] = len(getattr(self.theme_manager, 'css_cache', {}))
+            # CSS cache size - direct access required
+            try:
+                efficiency['css_cache_size'] = len(self.theme_manager._css_cache)
+            except AttributeError:
+                efficiency['css_cache_size'] = 0
 
-            # Icon cache size
-            if hasattr(self.theme_manager, 'icon_cache'):
-                efficiency['icon_cache_size'] = len(getattr(self.theme_manager, 'icon_cache', {}))
+            # Icon cache size - theme manager doesn't have icon cache
+            efficiency['icon_cache_size'] = 0
 
             # Memory per cache entry (rough estimate)
             total_cache_entries = efficiency['css_cache_size'] + efficiency['icon_cache_size']

@@ -58,7 +58,8 @@ class CrossPlatformCSSValidator:
         """Get current platform information"""
         try:
             from PySide6 import __version__ as pyside_version
-            qt_version = QApplication.instance().applicationVersion() if QApplication.instance() else "Unknown"
+            app_instance = QApplication.instance()
+            qt_version = app_instance.applicationVersion() if app_instance else "Unknown"
         except:
             pyside_version = "Unknown"
             qt_version = "Unknown"
@@ -207,9 +208,12 @@ class CrossPlatformCSSValidator:
             layout.addWidget(button)
             test_widget.setLayout(layout)
 
-            # Apply theme
-            if hasattr(theme_manager, 'set_theme'):
+            # Apply theme - direct access required
+            try:
                 theme_manager.set_theme('light')
+            except AttributeError:
+                # Theme manager does not support set_theme
+                pass
 
             # Measure dimensions
             test_widget.resize(200, 100)
@@ -267,8 +271,8 @@ class CrossPlatformCSSValidator:
         metrics = {}
 
         try:
-            # Test CSS variable resolution
-            if hasattr(theme_manager, 'css_preprocessor'):
+            # Test CSS variable resolution - direct access required
+            try:
                 preprocessor = theme_manager.css_preprocessor
 
                 # Test basic variable resolution
@@ -289,7 +293,7 @@ class CrossPlatformCSSValidator:
                 metrics["processed_css_length"] = len(processed)
                 metrics["variables_resolved"] = 2
 
-            else:
+            except AttributeError:
                 issues.append("CSS preprocessor not available")
 
             passed = len(issues) == 0
@@ -319,8 +323,8 @@ class CrossPlatformCSSValidator:
         metrics = {}
 
         try:
-            # Test icon processing
-            if hasattr(theme_manager, 'icon_preprocessor'):
+            # Test icon processing - direct access required
+            try:
                 icon_processor = theme_manager.icon_preprocessor
 
                 # Test icon CSS generation
@@ -339,7 +343,7 @@ class CrossPlatformCSSValidator:
                     if "icon-" not in icon_css:
                         issues.append("Icon classes not found in generated CSS")
 
-            else:
+            except AttributeError:
                 issues.append("Icon preprocessor not available")
 
             passed = len(issues) == 0

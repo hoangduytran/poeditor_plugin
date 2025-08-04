@@ -142,7 +142,7 @@ class ExplorerContextMenuKeyboardNavigationTest:
             keys = sequence_str.split("+")
             if keys:
                 last_key = keys[-1]
-                if hasattr(Qt.Key, f"Key_{last_key}"):
+                try:
                     key = getattr(Qt.Key, f"Key_{last_key}")
                     modifiers = Qt.KeyboardModifier.NoModifier
                     if "Ctrl" in sequence_str:
@@ -152,6 +152,9 @@ class ExplorerContextMenuKeyboardNavigationTest:
                     if "Alt" in sequence_str:
                         modifiers |= Qt.KeyboardModifier.AltModifier
                     self._simulate_key_press(widget, key, modifiers)
+                except AttributeError:
+                    # Key not found in Qt.Key enumeration
+                    pass
 
     def test_keyboard_navigator_creation(self):
         """Test creation of keyboard navigator."""

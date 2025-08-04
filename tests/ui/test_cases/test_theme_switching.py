@@ -168,13 +168,17 @@ and palette changes for the SidebarDockWidget.
         # Update UI status
         self.theme_status.setText(f"Current Theme: {self.current_theme.title()}")
 
-        # Update sidebar content
-        if hasattr(self.sidebar.widget(), 'theme_display'):
-            sidebar_content = self.sidebar.widget()
-            if hasattr(sidebar_content, 'findChild'):
-                theme_display = sidebar_content.findChild(QTextEdit)
-                if theme_display:
-                    theme_display.setPlainText(f"Current theme: {self.current_theme.title()}")
+        # Update sidebar content - try-catch approach for unknown attributes
+        sidebar_content = self.sidebar.widget()
+        
+        try:
+            # Attempt to find QTextEdit in sidebar - may not exist
+            theme_display = sidebar_content.findChild(QTextEdit)
+            if theme_display:
+                theme_display.setPlainText(f"Current theme: {self.current_theme.title()}")
+        except (AttributeError, TypeError):
+            # Widget may not have findChild or other issues
+            pass
 
         logger.info(f"Theme switched to: {self.current_theme}")
 
@@ -247,8 +251,11 @@ QDockWidget#SidebarDockWidget > QWidget {
     def closeEvent(self, event):
         """Handle window close event"""
         logger.info("Theme switching test window closing")
-        if hasattr(self, 'auto_switch_timer'):
+        try:
             self.auto_switch_timer.stop()
+        except AttributeError:
+            # Timer not created
+            pass
         super().closeEvent(event)
 
 

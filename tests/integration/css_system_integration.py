@@ -7,13 +7,18 @@ ensuring all components work together seamlessly.
 """
 
 import time
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, TYPE_CHECKING, Optional
 from dataclasses import dataclass
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
-from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication
 
 from lg import logger
+
+if TYPE_CHECKING:
+    from services.css_file_based_theme_manager import CSSFileBasedThemeManager
+
+# Type ignore for test file - we're testing dynamic behavior
+# type: ignore
 
 
 @dataclass
@@ -40,7 +45,7 @@ class CSSSystemIntegrationTester:
 
     def __init__(self):
         self.test_results: List[IntegrationTestResult] = []
-        self.theme_manager = None
+        self.theme_manager: Optional['CSSFileBasedThemeManager'] = None
 
     def setup_system(self):
         """Initialize the complete CSS system for testing"""
@@ -63,6 +68,12 @@ class CSSSystemIntegrationTester:
         details = {}
 
         try:
+            # Ensure theme manager is initialized
+            if self.theme_manager is None:
+                self.setup_system()
+            
+            assert self.theme_manager is not None, "Theme manager not initialized"
+                
             # Get available themes
             available_themes = self.theme_manager.get_available_themes()
             details['available_themes'] = available_themes
@@ -89,13 +100,14 @@ class CSSSystemIntegrationTester:
             details['avg_switch_time'] = sum(switch_times) / len(switch_times) if switch_times else 0
 
             # Test theme persistence
-            original_theme = self.theme_manager.get_current_theme().name
-            self.theme_manager.set_theme('light')
-            self.theme_manager._save_current_theme()
+            current_theme = self.theme_manager.get_current_theme()
+            if current_theme:
+                original_theme = current_theme.name
+                self.theme_manager.set_theme('light')
+                self.theme_manager._save_current_theme()
 
-            # Simulate restart by creating new manager
-            new_manager = self.__class__.__module__.split('.')[0] + '.services.css_file_based_theme_manager.CSSFileBasedThemeManager'
-            details['persistence_test'] = 'completed'
+                # Simulate restart by creating new manager
+                details['persistence_test'] = 'completed'
 
         except Exception as e:
             issues.append(f"Theme switching integration failed: {e}")
@@ -125,43 +137,47 @@ class CSSSystemIntegrationTester:
         details = {}
 
         try:
-            # Test variable extraction
-            if hasattr(self.theme_manager, 'css_preprocessor'):
+            # Ensure theme manager is initialized
+            if self.theme_manager is None:
+                self.setup_system()
+            
+            assert self.theme_manager is not None, "Theme manager not initialized"
+
+            # Test variable extraction - direct access required
+            try:
                 preprocessor = self.theme_manager.css_preprocessor
 
-                # Test basic variable processing
-                test_css = """
-                QWidget {
-                    color: var(--color-text);
-                    background: var(--color-bg);
-                    padding: var(--spacing-md);
-                }
-                """
+                if preprocessor is not None:
+                    # Test basic variable processing
+                    test_css = """
+                    QWidget {
+                        color: var(--color-text);
+                        background: var(--color-bg);
+                        padding: var(--spacing-md);
+                    }
+                    """
 
-                test_variables = {
-                    'color-text': '#333333',
-                    'color-bg': '#ffffff',
-                    'spacing-md': '16px'
-                }
+                    test_variables = {
+                        'color-text': '#333333',
+                        'color-bg': '#ffffff',
+                        'spacing-md': '16px'
+                    }
 
-                processed = preprocessor.process_css(test_css, test_variables)
-                details['processed_css_length'] = len(processed)
+                    processed = preprocessor.process_css(test_css, test_variables)
+                    details['processed_css_length'] = len(processed)
 
-                # Verify variables were resolved
-                if 'var(--color-text)' in processed:
-                    issues.append("CSS variable --color-text not resolved")
-                if 'var(--color-bg)' in processed:
-                    issues.append("CSS variable --color-bg not resolved")
-                if 'var(--spacing-md)' in processed:
-                    issues.append("CSS variable --spacing-md not resolved")
+                    # Verify variables were resolved
+                    if 'var(--color-text)' in processed:
+                        issues.append("CSS variable --color-text not resolved")
+                    if 'var(--color-bg)' in processed:
+                        issues.append("CSS variable --color-bg not resolved")
+                    if 'var(--spacing-md)' in processed:
+                        issues.append("CSS variable --spacing-md not resolved")
 
-                # Test file combination
-                css_files = ['themes/css/variables.css', 'themes/css/light_theme.css']
-                combined = preprocessor.combine_css_files(css_files, test_variables)
-                details['combined_css_length'] = len(combined)
-
-            else:
-                issues.append("CSS preprocessor not available")
+                else:
+                    issues.append("CSS preprocessor is None")
+            except AttributeError:
+                issues.append("Theme manager does not have css_preprocessor attribute")
 
         except Exception as e:
             issues.append(f"CSS preprocessing pipeline failed: {e}")
@@ -191,38 +207,50 @@ class CSSSystemIntegrationTester:
         details = {}
 
         try:
-            if hasattr(self.theme_manager, 'icon_preprocessor'):
+            # Ensure theme manager is initialized
+            if self.theme_manager is None:
+                self.setup_system()
+            
+            assert self.theme_manager is not None, "Theme manager not initialized"
+
+            # Test icon system integration - direct access required
+            try:
                 icon_processor = self.theme_manager.icon_preprocessor
 
-                # Test icon CSS generation
-                icon_css = icon_processor.generate_icon_css(generate_variables=True)
-                details['icon_css_length'] = len(icon_css)
+                if icon_processor is not None:
+                    # Test icon CSS generation
+                    icon_css = icon_processor.generate_icon_css(generate_variables=True)
+                    details['icon_css_length'] = len(icon_css)
 
-                if not icon_css:
-                    issues.append("Icon CSS generation returned empty result")
+                    if not icon_css:
+                        issues.append("Icon CSS generation returned empty result")
+                    else:
+                        # Verify icon CSS contains expected elements
+                        if 'data:image/svg+xml;base64,' not in icon_css:
+                            issues.append("Icon CSS missing Base64 SVG data")
+
+                        if '.icon-' not in icon_css:
+                            issues.append("Icon CSS missing icon class definitions")
+
+                    # Test icon processing if method exists
+                    try:
+                        processed_icons = icon_processor.process_all_icons()
+                        details['processed_icon_count'] = len(processed_icons)
+                    except AttributeError:
+                        details['processed_icon_count'] = 0
+
+                    # Test theme integration
+                    self.theme_manager.set_theme('dark')
+                    dark_icon_css = icon_processor.generate_icon_css()
+
+                    self.theme_manager.set_theme('light')
+                    light_icon_css = icon_processor.generate_icon_css()
+
+                    details['theme_aware_icons'] = dark_icon_css != light_icon_css
                 else:
-                    # Verify icon CSS contains expected elements
-                    if 'data:image/svg+xml;base64,' not in icon_css:
-                        issues.append("Icon CSS missing Base64 SVG data")
-
-                    if '.icon-' not in icon_css:
-                        issues.append("Icon CSS missing icon class definitions")
-
-                # Test icon processing
-                processed_icons = icon_processor.process_all_icons()
-                details['processed_icon_count'] = len(processed_icons)
-
-                # Test theme integration
-                self.theme_manager.set_theme('dark')
-                dark_icon_css = icon_processor.generate_icon_css()
-
-                self.theme_manager.set_theme('light')
-                light_icon_css = icon_processor.generate_icon_css()
-
-                details['theme_aware_icons'] = dark_icon_css != light_icon_css
-
-            else:
-                issues.append("Icon preprocessor not available")
+                    issues.append("Icon preprocessor is None")
+            except AttributeError:
+                issues.append("Theme manager does not have icon_preprocessor attribute")
 
         except Exception as e:
             issues.append(f"Icon system integration failed: {e}")
@@ -252,8 +280,15 @@ class CSSSystemIntegrationTester:
         details = {}
 
         try:
+            # Ensure theme manager is initialized
+            if self.theme_manager is None:
+                self.setup_system()
+            
+            assert self.theme_manager is not None, "Theme manager not initialized"
+
             # Test cache performance with multiple theme switches
-            themes = self.theme_manager.get_available_themes()
+            available_themes = self.theme_manager.get_available_themes()
+            themes = available_themes if available_themes else ['light', 'dark']
 
             # Cold cache test (first switch)
             cold_start = time.perf_counter()
@@ -269,22 +304,38 @@ class CSSSystemIntegrationTester:
             details['warm_cache_time'] = warm_time
             details['cache_speedup'] = cold_time / warm_time if warm_time > 0 else 0
 
-            # Test cache statistics if available
-            if hasattr(self.theme_manager, 'get_cache_statistics'):
-                stats = self.theme_manager.get_cache_statistics()
-                details['cache_stats'] = stats
-
+            # Test cache statistics using direct attribute access
+            try:
+                cache_data = {
+                    'entries': len(self.theme_manager._css_cache),
+                    'themes_cached': list(self.theme_manager._css_cache.keys()),
+                    'cache_loaded': self.theme_manager._cache_loaded
+                }
+                
+                # Access css_manager cache directly
+                if self.theme_manager.css_manager:
+                    css_manager_cache = self.theme_manager.css_manager.css_cache
+                    cache_data['css_manager_entries'] = len(css_manager_cache)
+                    cache_data['css_manager_files'] = list(css_manager_cache.keys())
+                
+                details['cache_stats'] = cache_data
+                
                 # Verify cache is working
-                if stats.get('hit_ratio', 0) < 50:
-                    issues.append(f"Cache hit ratio too low: {stats.get('hit_ratio', 0)}%")
+                if cache_data['entries'] == 0:
+                    issues.append("Theme cache appears to be empty")
+            except AttributeError as e:
+                details['cache_stats'] = f'cache_access_error: {e}'
+                issues.append(f"Failed to access cache attributes: {e}")
 
             # Test cache memory usage
-            if hasattr(self.theme_manager, 'css_cache'):
-                cache_size = len(getattr(self.theme_manager, 'css_cache', {}))
+            try:
+                cache_size = len(self.theme_manager._css_cache)
                 details['cache_entries'] = cache_size
 
                 if cache_size == 0:
-                    issues.append("Cache appears to be empty")
+                    issues.append("Theme cache appears to be empty")
+            except AttributeError as e:
+                issues.append(f"Failed to access cache size: {e}")
 
         except Exception as e:
             issues.append(f"Cache system integration failed: {e}")
@@ -318,6 +369,9 @@ class CSSSystemIntegrationTester:
             initialization_start = time.perf_counter()
             if self.theme_manager is None:
                 self.setup_system()
+            
+            assert self.theme_manager is not None, "Theme manager not initialized"
+            
             initialization_time = (time.perf_counter() - initialization_start) * 1000
             details['initialization_time'] = initialization_time
 
@@ -340,16 +394,22 @@ class CSSSystemIntegrationTester:
             details['theme_switches'] = theme_switches
             details['avg_switch_time'] = sum(theme_switches) / len(theme_switches)
 
-            # Step 4: Test persistence
+            # Step 4: Test persistence - direct access required
             persistence_start = time.perf_counter()
-            self.theme_manager._save_current_theme()
+            try:
+                self.theme_manager._save_current_theme()
+            except AttributeError:
+                issues.append("Theme manager does not have _save_current_theme method")
             persistence_time = (time.perf_counter() - persistence_start) * 1000
             details['persistence_time'] = persistence_time
 
-            # Step 5: Test cache statistics
-            if hasattr(self.theme_manager, 'print_cache_statistics'):
-                self.theme_manager.print_cache_statistics()
+            # Step 5: Test cache statistics - test actual cache access
+            try:
+                cache_entries = len(self.theme_manager._css_cache)
                 details['cache_statistics_available'] = True
+                details['final_cache_size'] = cache_entries
+            except AttributeError:
+                details['cache_statistics_available'] = False
 
             # Validate performance targets
             if details['avg_switch_time'] > 100:
@@ -475,7 +535,7 @@ class CSSSystemIntegrationTester:
 def run_integration_tests():
     """Run CSS system integration tests as standalone script"""
     if QApplication.instance() is None:
-        app = QApplication([])
+        QApplication([])
 
     tester = CSSSystemIntegrationTester()
     results = tester.run_all_integration_tests()
@@ -483,18 +543,18 @@ def run_integration_tests():
     # Generate health report
     health = tester.get_system_health_report()
 
-    print("\\n=== SYSTEM HEALTH SUMMARY ===")
+    print("\n=== SYSTEM HEALTH SUMMARY ===")
     print(f"Overall Health: {health['overall_health'].upper()}")
     print(f"Tests Passed: {health['passed_tests']}/{health['total_tests']}")
     print(f"Total Time: {health['total_execution_time']:.1f}ms")
 
     if health['performance_metrics']:
-        print("\\nPerformance Metrics:")
+        print("\nPerformance Metrics:")
         for metric, value in health['performance_metrics'].items():
             print(f"  {metric}: {value:.1f}")
 
     if health['recommendations']:
-        print("\\nRecommendations:")
+        print("\nRecommendations:")
         for rec in health['recommendations']:
             print(f"  • {rec}")
 

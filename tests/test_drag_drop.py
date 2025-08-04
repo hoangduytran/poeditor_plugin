@@ -55,17 +55,19 @@ class TestWindow(QMainWindow):
         self.status = QLabel("Ready")
         layout.addWidget(self.status)
 
-        # Connect signals
-        if hasattr(self.explorer.file_view, 'drag_drop_service') and self.explorer.file_view.drag_drop_service:
-            self.explorer.file_view.drag_drop_service.drag_started.connect(
-                lambda paths: self.update_status(f"Dragging {len(paths)} items")
-            )
-            self.explorer.file_view.drag_drop_service.drop_received.connect(
-                lambda paths, target: self.update_status(
-                    f"Dropped {len(paths)} items into {os.path.basename(target)}"
+        # Connect signals - direct access required
+        try:
+            drag_drop_service = self.explorer.file_view.drag_drop_service
+            if drag_drop_service:
+                drag_drop_service.drag_started.connect(
+                    lambda paths: self.update_status(f"Dragging {len(paths)} items")
                 )
-            )
-        else:
+                drag_drop_service.drop_received.connect(
+                    lambda paths, target: self.update_status(
+                        f"Dropped {len(paths)} items into {os.path.basename(target)}"
+                    )
+                )
+        except AttributeError:
             logger.warning("Drag & drop service not available")
 
     def update_status(self, message):

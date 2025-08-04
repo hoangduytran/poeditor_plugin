@@ -25,8 +25,8 @@ class PerformanceMetric:
     name: str
     value: float
     unit: str
-    target: float = None
-    passed: bool = None
+    target: float | None = None
+    passed: bool | None = None
 
     def __post_init__(self):
         if self.target is not None:
@@ -72,8 +72,8 @@ class CSSPerformanceBenchmark:
             from services.icon_preprocessor import IconPreprocessor
 
             self.theme_manager = CSSFileBasedThemeManager()
-            self.css_preprocessor = CSSPreprocessor()
-            self.icon_preprocessor = IconPreprocessor()
+            self.css_preprocessor = CSSPreprocessor("assets/styles")
+            self.icon_preprocessor = IconPreprocessor("icons")
 
             logger.info("CSS services initialized for performance testing")
 
@@ -87,6 +87,9 @@ class CSSPerformanceBenchmark:
         Target: < 100ms per theme switch
         """
         logger.info(f"Starting theme switching benchmark ({iterations} iterations)")
+
+        if not self.theme_manager:
+            raise RuntimeError("Theme manager not initialized. Call setup_services() first.")
 
         themes = ['light', 'dark', 'colorful']
         switch_times = []
@@ -150,6 +153,9 @@ class CSSPerformanceBenchmark:
         Measures variable resolution and preprocessing speed
         """
         logger.info("Starting CSS processing benchmark")
+
+        if not self.css_preprocessor:
+            raise RuntimeError("CSS preprocessor not initialized. Call setup_services() first.")
 
         processing_times = []
         memory_usage = []
@@ -222,6 +228,9 @@ class CSSPerformanceBenchmark:
         """
         logger.info("Starting icon processing benchmark")
 
+        if not self.icon_preprocessor:
+            raise RuntimeError("Icon preprocessor not initialized. Call setup_services() first.")
+
         try:
             # Measure icon CSS generation time
             start_time = time.perf_counter()
@@ -263,6 +272,9 @@ class CSSPerformanceBenchmark:
         Measures cache hit/miss ratios and lookup speed
         """
         logger.info("Starting cache performance benchmark")
+
+        if not self.css_preprocessor:
+            raise RuntimeError("CSS preprocessor not initialized. Call setup_services() first.")
 
         try:
             # Clear cache and measure cold start

@@ -27,7 +27,7 @@ from colorama import init, Fore, Style
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from services.css_preprocessor import CSSPreprocessor
-from services.icon_manager import IconManager
+from services.icon_preprocessor import IconPreprocessor
 
 # Initialize colorama
 init(autoreset=True)
@@ -46,7 +46,7 @@ class CSSDevTools:
     def __init__(self, themes_dir: str = "themes"):
         self.themes_dir = Path(themes_dir)
         self.preprocessor = CSSPreprocessor(themes_dir)
-        self.icon_manager = IconManager(f"{themes_dir}/icons")
+        self.icon_preprocessor = IconPreprocessor("icons")
 
         # Ensure theme directories exist
         self._ensure_directories()
@@ -90,7 +90,7 @@ class CSSDevTools:
                 self.rebuild_delay = 0.5  # Seconds
 
             def on_modified(self, event):
-                if not event.is_directory and event.src_path.endswith(".css"):
+                if not event.is_directory and str(event.src_path).endswith(".css"):
                     # Throttle rebuilds
                     current_time = time.time()
                     if current_time - self.last_rebuilt > self.rebuild_delay:
@@ -143,8 +143,14 @@ class CSSDevTools:
             logger.info(f"{Fore.GREEN}✓ {Fore.WHITE}Theme {Fore.CYAN}{theme}{Fore.WHITE} rebuilt -> {output_path}")
 
         # Rebuild icons CSS
-        self.icon_manager.save_icons_css()
-        logger.info(f"{Fore.GREEN}✓ {Fore.WHITE}Icons CSS rebuilt")
+        icon_css = self.icon_preprocessor.generate_icon_css(generate_variables=True)
+        icon_output_path = self.themes_dir / "generated" / "icons.css"
+        icon_output_path.parent.mkdir(exist_ok=True, parents=True)
+        
+        with open(icon_output_path, 'w', encoding='utf-8') as f:
+            f.write(icon_css)
+        
+        logger.info(f"{Fore.GREEN}✓ {Fore.WHITE}Icons CSS rebuilt -> {icon_output_path}")
 
     def extract_variables(self, theme_name: Optional[str] = None) -> Dict[str, str]:
         """Extract CSS variables for a theme

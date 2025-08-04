@@ -188,10 +188,12 @@ class ExplorerContextMenuAccessibilityTest:
         # Create keyboard navigator
         keyboard_navigator = MenuKeyboardNavigator(menu)
 
-        # Check that event filter is installed
-        if hasattr(keyboard_navigator, 'eventFilter'):
+        # Check that event filter is installed - direct access required
+        try:
+            # Access eventFilter directly to ensure it exists
+            event_filter = keyboard_navigator.eventFilter
             logger.info("Keyboard navigation setup test passed: Event filter available")
-        else:
+        except AttributeError:
             logger.error("Keyboard navigation setup failed: No event filter method")
 
         menu.close()
