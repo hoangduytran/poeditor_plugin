@@ -602,6 +602,59 @@ QProgressBar:disabled {
 QProgressBar:disabled::chunk {
     background-color: #3c3c3c;
 }
+/* Filter clear button styling for better visibility */
+QPushButton#filter_clear_button {
+    color: #dddddd;  /* Much brighter text color */
+    background-color: #404040;
+    border: 1px solid #666666;
+    border-radius: 3px;
+    padding: 3px 7px;
+    margin: 1px;
+    font-weight: bold;
+    font-size: 14px;  /* Larger font */
+    min-width: 20px;
+    min-height: 20px;
+}
+QPushButton#filter_clear_button:hover {
+    color: #ffffff;
+    background-color: #555555;
+    border: 1px solid #888888;
+    box-shadow: 0px 1px 3px rgba(255, 255, 255, 0.2);
+}
+QPushButton#filter_clear_button:pressed {
+    color: #ffffff;
+    background-color: #666666;
+    border: 1px solid #999999;
+}
+QPushButton#filter_clear_button:disabled {
+    color: #888888;  /* Brighter disabled color */
+    background-color: #333333;
+    border: 1px solid #555555;
+}
+QPushButton#filter_clear_button {
+    background-color: initial;
+    color: #cccccc;
+    border: 1px solid #464647;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+}
+QPushButton#filter_clear_button:hover {
+    background-color: #2a2d2e;
+    border-color: #094771;
+    color: #ffffff;
+}
+QPushButton#filter_clear_button:pressed {
+    background-color: #094771;
+    color: #ffffff;
+}
+QPushButton#filter_clear_button:disabled {
+    background-color: #3c3c3c;
+    border-color: #464647;
+    color: #9a9a9a; /* Brighter than default disabled color for better visibility */
+    opacity: 0.8; /* Less opacity reduction for better text visibility */
+}
 /* dark theme - hdt -- marking to debug dark theme to see if it is loaded all or not */
 /* === COMMON STYLES VARIABLES === */
 /* Status Bar - VS Code style - should remain consistent across all themes */

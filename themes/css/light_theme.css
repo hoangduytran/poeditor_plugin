@@ -1163,4 +1163,39 @@ QWidget[objectName="activity_bar"] {
 QWidget[objectName="activity_bar"] > QWidget {
     background-color: #ececec;
 }
+
+/* === FILTER CLEAR BUTTON === */
+QPushButton#filter_clear_button {
+    background-color: var(--btn-bg);
+    color: var(--fg-main);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;  /* Larger font for better visibility */
+    text-align: center;
+    padding: 3px 7px;  /* Better padding */
+    margin: 1px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+QPushButton#filter_clear_button:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--btn-primary);
+    color: var(--fg-main);
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+QPushButton#filter_clear_button:pressed {
+    background-color: var(--selection-bg);
+    color: var(--color-white);
+}
+
+QPushButton#filter_clear_button:disabled {
+    background-color: var(--btn-disabled-bg);
+    border-color: var(--panel-border);
+    color: #666666; /* Darker than default disabled color for better visibility on light background */
+    opacity: 0.9; /* Less opacity reduction for better text visibility */
+}
+
 /* themes/css/light_theme.css last read hoang duy tran*/

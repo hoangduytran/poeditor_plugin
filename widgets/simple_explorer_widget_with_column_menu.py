@@ -35,6 +35,7 @@ class SimpleExplorerWidgetWithColumnMenu(SimpleExplorerWidget):
         # Initialize UI components with our enhanced file view
         self.search_bar = SimpleSearchBar()
         self.clear_button = QPushButton("✕")
+        self.clear_button.setObjectName("filter_clear_button")
         self.file_view = SimpleFileViewWithColumnMenu()  # Use our enhanced file view
         self.path_label = QLabel("Initializing...")
         self.up_button = QPushButton("↑ Up")

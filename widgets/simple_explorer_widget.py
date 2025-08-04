@@ -473,6 +473,7 @@ class SimpleExplorerWidget(QWidget):
         search_layout.addWidget(self.clear_button)
 
         # Configure clear button
+        self.clear_button.setObjectName("filter_clear_button")
         self.clear_button.setToolTip("Clear filter and restore all files")
         self.clear_button.setFixedSize(24, 24)
         self.clear_button.setEnabled(False)  # Initially disabled
