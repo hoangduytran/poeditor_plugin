@@ -11,6 +11,7 @@ from PySide6.QtCore import QFile, QIODevice, QObject, Signal, QSettings
 from PySide6.QtWidgets import QApplication
 from .css_manager import CSSManager
 from .css_preprocessor import CSSPreprocessor
+from .icon_preprocessor import IconPreprocessor
 from lg import logger
 
 # Simple Theme class for compatibility
@@ -62,16 +63,21 @@ class CSSFileBasedThemeManager(QObject):
         try:
             self.css_manager = CSSManager()
             self.css_preprocessor = CSSPreprocessor("themes")
+            
+            # Initialize IconPreprocessor for theme-aware icon generation
+            self.icon_preprocessor = IconPreprocessor("icons")
+            
             logger.debug(f"CSS Manager created, cache size: {len(self.css_manager.css_cache)}")
             self.use_file_css = len(self.css_manager.css_cache) > 0
             if self.use_file_css:
-                logger.info("ThemeManager using file-based CSS system with CSS preprocessor")
+                logger.info("ThemeManager using file-based CSS system with CSS preprocessor and IconPreprocessor")
             else:
                 logger.info("ThemeManager falling back to resource-based CSS system")
         except Exception as e:
             logger.error(f"Failed to initialize CSS Manager, using resources: {e}")
             self.css_manager = None
             self.css_preprocessor = None
+            self.icon_preprocessor = None
             self.use_file_css = False
             
         # Load saved theme (but don't apply it yet - wait for application setup)
@@ -192,8 +198,20 @@ class CSSFileBasedThemeManager(QObject):
                     variables = self.css_preprocessor.extract_variables(combined_css)
                     logger.debug(f"Extracted {len(variables)} CSS variables")
                     
+                    # Generate icon CSS with theme variables if IconPreprocessor available
+                    icon_css = ""
+                    if self.icon_preprocessor:
+                        try:
+                            icon_css = self.icon_preprocessor.generate_icon_css(generate_variables=True)
+                            logger.debug(f"Generated icon CSS ({len(icon_css)} chars)")
+                        except Exception as e:
+                            logger.warning(f"Failed to generate icon CSS: {e}")
+                    
+                    # Combine all CSS: variables + theme + icons
+                    final_combined_css = variables_css + "\n" + icon_css + "\n" + css_content
+                    
                     # Process CSS to replace var() references with actual values
-                    processed_css = self.css_preprocessor.process_css(combined_css, variables)
+                    processed_css = self.css_preprocessor.process_css(final_combined_css, variables)
                     logger.info(f"CSS preprocessing completed successfully")
                     logger.debug(f"Processed CSS preview (first 200 chars): {processed_css[:200]}")
                     
