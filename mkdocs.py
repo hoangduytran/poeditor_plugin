@@ -181,14 +181,21 @@ class DocumentationBuilder:
         try:
             os.chdir(self.html_dir)
 
-            # Create custom handler to suppress logs
-            class QuietHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+            # Create custom handler to suppress logs and add live reload
+            class LiveReloadHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 def log_message(self, format, *args):
-                    # Only log errors
-                    if args and len(args) > 1 and args[1].startswith('4'):
+                    # Only log errors and important messages
+                    if args and len(args) > 1 and (args[1].startswith('4') or args[1].startswith('5')):
                         super().log_message(format, *args)
+                
+                def end_headers(self):
+                    # Add cache control headers to prevent aggressive caching during development
+                    self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                    self.send_header('Pragma', 'no-cache')
+                    self.send_header('Expires', '0')
+                    super().end_headers()
 
-            with socketserver.TCPServer(("", available_port), QuietHTTPRequestHandler) as httpd:
+            with socketserver.TCPServer(("", available_port), LiveReloadHTTPRequestHandler) as httpd:
                 # Open browser if requested
                 if open_browser:
                     import webbrowser
@@ -210,6 +217,8 @@ class DocumentationBuilder:
         # Get initial file states
         watched_paths = self._get_watched_files()
         file_times = self._get_file_times(watched_paths)
+        
+        last_build_time = time.time()
 
         try:
             while True:
@@ -221,33 +230,43 @@ class DocumentationBuilder:
 
                 # Check for new, removed, or modified files
                 changed = False
+                changed_files = []
 
                 # New files
                 new_files = set(current_paths) - set(watched_paths)
                 if new_files:
-                    print(f"New files detected: {len(new_files)}")
+                    changed_files.extend([f"+ {f.relative_to(self.project_root)}" for f in new_files])
                     changed = True
 
                 # Removed files
                 removed_files = set(watched_paths) - set(current_paths)
                 if removed_files:
-                    print(f"Files removed: {len(removed_files)}")
+                    changed_files.extend([f"- {f.relative_to(self.project_root)}" for f in removed_files])
                     changed = True
 
                 # Modified files
                 for path in current_paths:
                     if path in file_times and path in current_times:
-                        if current_times[path] > file_times[path]:
-                            print(f"File changed: {path.relative_to(self.project_root)}")
+                        if current_times[path] > file_times[path] and current_times[path] > last_build_time:
+                            changed_files.append(f"* {path.relative_to(self.project_root)}")
                             changed = True
-                            break
 
                 if changed:
+                    print(f"\nChanges detected:")
+                    for change in changed_files[:5]:  # Show max 5 changes
+                        print(f"  {change}")
+                    if len(changed_files) > 5:
+                        print(f"  ... and {len(changed_files) - 5} more")
+                    
                     print("Rebuilding documentation...")
+                    build_start = time.time()
+                    
                     if self.build_docs():
-                        print("Rebuild complete!")
+                        build_time = time.time() - build_start
+                        print(f"✓ Rebuild complete! ({build_time:.1f}s)")
+                        last_build_time = time.time()
                     else:
-                        print("Rebuild failed!")
+                        print("✗ Rebuild failed!")
 
                     # Update tracking
                     watched_paths = current_paths

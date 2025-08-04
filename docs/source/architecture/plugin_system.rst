@@ -29,15 +29,19 @@ Plugin Management Layer
 
 **Plugin Manager**
   Central coordinator for plugin discovery, loading, and lifecycle management
+  → See :doc:`../core/plugin_manager`
 
 **Activity Manager**
   Manages activity registration, activation, and panel coordination
+  → See :doc:`activity_system`
 
 **Sidebar Manager**
   Handles sidebar layout, panel switching, and UI state management
+  → See :doc:`../core/sidebar_manager`
 
 **Tab Manager**
   Manages tabbed interfaces and content organization
+  → See :doc:`../core/tab_manager`
 
 Activity Configuration Layer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,6 +54,8 @@ Activity Configuration Layer
   - Keyboard shortcuts and menu items
   - Plugin dependencies
 
+  → See :doc:`../models/core_activities`
+
 **ActivityModel**
   Provides the data model for activities, handling:
   
@@ -57,12 +63,16 @@ Activity Configuration Layer
   - Inter-activity communication
   - Event handling and notifications
 
+  → See :doc:`../models/activity_models`
+
 **Panel Interface**
   Base interface that all panels must implement:
   
   - Standard panel lifecycle methods
   - UI integration points
   - Service access mechanisms
+
+  → See :doc:`../panels/index`
 
 Core Activities
 ~~~~~~~~~~~~~~~
@@ -75,20 +85,28 @@ The system includes five core activities that provide essential functionality:
   - File operations (copy, move, delete, rename)
   - Context menu integration
 
-**Search Activity**  
+  → See :doc:`../panels/enhanced_explorer_panel`
+
+**Search Activity**
   - File and content searching capabilities
   - Advanced search filters and patterns
   - Search result organization and navigation
+
+  → See :doc:`../panels/index`
 
 **Preferences Activity**
   - Application settings and configuration
   - Theme selection and customization
   - Plugin management and configuration
 
+  → See :doc:`../services/theme_manager`
+
 **Extensions Activity**
   - Plugin discovery and installation
   - Extension marketplace integration
   - Plugin configuration and management
+
+  → See :doc:`../plugins/index`
 
 **Account Activity**
   - User profile management
@@ -161,15 +179,22 @@ Service Integration
 Plugins integrate with the service layer through well-defined APIs:
 
 - **File Operations Service** for file system interactions
+  → See :doc:`../services/file_operations_service`
 - **Theme Manager** for UI styling and theming
+  → See :doc:`../services/theme_manager`
 - **Undo/Redo Manager** for operation history
+  → See :doc:`../services/undo_redo_service`
 - **Icon Manager** for consistent iconography
+  → See :doc:`../services/icon_preprocessor`
 - **CSS Manager** for dynamic styling
+  → See :doc:`../services/css_preprocessor`
 
-This architecture ensures that plugins can access core functionality while maintaining clean separation of concerns and enabling independent development and testing.
+This architecture ensures that plugins can access core functionality while
+maintaining clean separation of concerns and enabling independent development
+and testing.
 
 Plugin Lifecycle
---------------
+----------------
 
 1. **Discovery**: Plugin directories are discovered at startup
 2. **Initialization**: Plugin instances are created
@@ -178,7 +203,7 @@ Plugin Lifecycle
 5. **Deactivation**: Plugins can be deactivated to free resources
 
 Creating a Plugin
----------------
+-----------------
 
 To create a new plugin:
 
@@ -204,11 +229,18 @@ To create a new plugin:
 3. Create panel implementations as needed
 4. Add your plugin to the application by placing it in the plugins directory
 
+For detailed guidance, see :doc:`../guides/plugin_development_guide`.
+
 Plugin Communication
-------------------
+--------------------
 
 Plugins can communicate with the core application and other plugins through:
 
 1. **Services**: Accessing shared services through the plugin manager
+   → See :doc:`../services/index` and :doc:`../core/plugin_manager`
+
 2. **Events**: Publishing and subscribing to application events
+   → See :doc:`activity_system` and :doc:`../models/activity_models`
+
 3. **Direct API**: Directly accessing APIs exposed by other plugins
+   → See :doc:`../core/api` and :doc:`../guides/plugin_development_guide`

@@ -2,12 +2,8 @@
 POEditor Plugin Documentation
 =================================
 
-.. only:: html
-
-   .. container:: intro-text
-
-      Welcome to the POEditor Plugin documentation. This documentation covers all aspects of the 
-      POEditor plugin, from user guides to technical reference materials for developers.
+Welcome to the POEditor Plugin documentation. This documentation covers all aspects of the 
+POEditor plugin, from user guides to technical reference materials for developers.
 
 .. toctree::
    :hidden:
@@ -22,172 +18,51 @@ POEditor Plugin Documentation
    models/index
    panels/index
    plugins/index
+   widgets/index
    explorer/index
    testing/index
 
 Getting Started
-==============
+===============
 
-.. container:: toc-cards
+* **User Guides** - Documentation for end users of the POEditor plugin → :doc:`/overview/index`
 
-   .. container:: card
+* **Developer Guides** - Step-by-step guides for CSS, icons, themes, and component development → :doc:`/guides/index`
 
-      **User Guides**
-      
-      Documentation for end users of the POEditor plugin.
-      
-      :doc:`/overview/index`
-
-   .. container:: card
-
-      **Developer Guides**
-      
-      Step-by-step guides for CSS, icons, themes, and component development.
-      
-      :doc:`/guides/index`
-
-   .. container:: card
-
-      **Developer Reference**
-      
-      Technical information and API reference for developers.
-      
-      :doc:`/architecture/index`
+* **Developer Reference** - Technical information and API reference for developers → :doc:`/architecture/index`
 
 Main Features
-============
-
-.. container:: toc-cards
-
-   .. container:: card
-
-      .. figure:: /_static/images/file_explorer.svg
-         :alt: File Explorer
-         :width: 100%
-         :figclass: align-center
-         
-         File Explorer
-
-      **File Explorer**
-      
-      Navigate files and directories with the enhanced file explorer.
-      
-      :doc:`/explorer/explorer_context_menu`
-
-   .. container:: card
-
-      .. figure:: /_static/images/file_operations.svg
-         :alt: File Operations
-         :width: 100%
-         :figclass: align-center
-         
-         File Operations
-
-      **File Operations**
-      
-      Manage files with copy, move, delete and other operations.
-      
-      :doc:`/services/file_operations_service`
-
-   .. container:: card
-
-      .. figure:: /_static/images/themes.svg
-         :alt: Themes
-         :width: 100%
-         :figclass: align-center
-         
-         Themes
-
-      **Customizable Themes**
-      
-      Change the look and feel with different themes.
-      
-      :doc:`/services/theme_manager`
-
-Architecture Overview
-====================
-
-.. container:: toc-cards
-
-   .. container:: card
-
-      .. figure:: /_static/images/architecture_diagram.svg
-         :alt: Plugin Architecture
-         :width: 100%
-         :figclass: align-center
-         
-         Plugin Architecture
-
-      **Plugin System**
-      
-      Comprehensive plugin architecture with activity management.
-      
-      :doc:`/architecture/plugin_system`
-
-   .. container:: card
-
-      .. figure:: /_static/images/services_architecture.svg
-         :alt: Services Architecture
-         :width: 100%
-         :figclass: align-center
-         
-         Services Architecture
-
-      **Services Layer**
-      
-      Service-oriented architecture for core functionality.
-      
-      :doc:`/architecture/services`
-
-   .. container:: card
-
-      .. figure:: /_static/images/system_dataflow.svg
-         :alt: System Data Flow
-         :width: 100%
-         :figclass: align-center
-         
-         System Data Flow
-
-      **Data Flow**
-      
-      Complete system data flow and component interaction.
-      
-      :doc:`/architecture/plugin_system`
-
-API References
 =============
 
-.. grid:: 3
+* **File Explorer** - Navigate files and directories with the enhanced file explorer → :doc:`/explorer/explorer_context_menu`
 
-   .. grid-item-card:: Core APIs
-      :link: /core/api
-      
-      Application core functionality and interfaces
+* **File Operations** - Manage files with copy, move, delete and other operations → :doc:`/services/file_operations_service`
 
-   .. grid-item-card:: Services
-      :link: /services/index
-      
-      Service-layer components
+* **Customizable Themes** - Change the look and feel with different themes → :doc:`/services/theme_manager`
 
-   .. grid-item-card:: Models
-      :link: /models/index
-      
-      Data models and structures
+Architecture Overview
+=====================
 
-   .. grid-item-card:: UI Components
-      :link: /widgets/index
-      
-      User interface components
+* **Plugin System** - Comprehensive plugin architecture with activity management → :doc:`/architecture/plugin_system`
 
-   .. grid-item-card:: Panels
-      :link: /panels/index
-      
-      Application panels and views
+* **Services Layer** - Service-oriented architecture for core functionality → :doc:`/architecture/services`
 
-   .. grid-item-card:: Plugins
-      :link: /plugins/index
-      
-      Plugin system and extensions
+* **Data Flow** - Complete system data flow and component interaction → :doc:`/architecture/plugin_system`
+
+API References
+===============
+
+* **Core APIs** - Application core functionality and interfaces → :doc:`/core/api`
+
+* **Services** - Service-layer components → :doc:`/services/index`
+
+* **Models** - Data models and structures → :doc:`/models/index`
+
+* **UI Components** - User interface components → :doc:`/widgets/index`
+
+* **Panels** - Application panels and views → :doc:`/panels/index`
+
+* **Plugins** - Plugin system and extensions → :doc:`/plugins/index`
 
 Components
 ==========

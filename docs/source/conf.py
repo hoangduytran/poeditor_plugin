@@ -19,6 +19,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',  # Added from Blender setup for math support
 ]
 
 templates_path = ['_templates']
