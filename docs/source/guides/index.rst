@@ -1,11 +1,21 @@
-================================
-Developer Guides
+========================**Available Guides:**
+
+* :doc:`interactive_documentation_guide` - Creating user-friendly, interactive documentation
+* :doc:`css_development_guide` - Complete guide for CSS variables and components
+* :doc:`icon_development_guide` - Step-by-step guide for adding and managing icons
+* :doc:`theme_creation_guide` - How to create new themes for the application
+* :doc:`component_styling_guide` - Best practices for styling new UI components
+* :doc:`plugin_development_guide` - Complete guide for creating custom plugins
+* :doc:`service_development_guide` - Guide for developing services and business logic
+* :doc:`panel_development_guide` - Developing UI panels for the sidebar
+* :doc:`manager_development_guide` - Developing managers for system coordinationeveloper Guides
 ================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Developer Guides
 
+   interactive_documentation_guide
    css_development_guide
    icon_development_guide
    theme_creation_guide

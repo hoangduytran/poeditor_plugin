@@ -172,6 +172,25 @@ The best software engineering practices include:
      * Update documentation immediately when API changes are made.
      * Include API documentation as part of the "definition of done" for each component.
      * Maintain both reference documentation (API specs) and implementation guides with examples.
+   - **Interactive Documentation Structure**:
+     * **Hierarchical Navigation**: Create clear parent-child relationships between documentation pages
+     * **Clickable Cross-References**: Use `:doc:` directive extensively to create clickable links between related sections
+     * **Overview Pages as Navigation Hubs**: Design overview/index pages as interactive navigation centers where users can click on any concept to jump to detailed documentation
+     * **Link Density**: Ensure every technical term, component name, service, or feature mentioned is a clickable link to relevant documentation
+     * **Breadcrumb Navigation**: Structure documentation so users can easily navigate from high-level concepts to detailed implementation and back
+     * **User Journey Mapping**: Design documentation flow to match natural user exploration patterns (Overview → Feature Details → Implementation → Examples)
+   - **Documentation Link Standards**:
+     * **Overview to Details**: All overview pages must link to detailed component documentation
+     * **Feature Cross-Links**: Related features should link to each other (e.g., Theme Manager → CSS Preprocessor → Icon Preprocessor)
+     * **API Integration**: Link from conceptual documentation to API reference and back
+     * **Example Integration**: Link from API docs to working examples and tutorials
+     * **Troubleshooting Links**: Link common issues to their solutions across documentation
+   - **Interactive Elements Guidelines**:
+     * **Clickable Diagrams**: Use SVG diagrams with clickable areas linking to component documentation
+     * **Code Examples with Links**: Link code snippets to full API documentation
+     * **Progressive Disclosure**: Use expandable sections for complex topics
+     * **Search-Friendly**: Structure content so internal search returns relevant linked content
+     * **Mobile-Responsive**: Ensure navigation works on all screen sizes
 
 7. **Error Handling & Logging**  
    - Catch and log exceptions in plugin loading and execution.
@@ -214,3 +233,36 @@ The best software engineering practices include:
     - For each large part of the plan, create a branch.    
     - Commit after each changes so we can roll back if needed.
     - Merge to main after a large section completed. Ask if you're not sure.
+
+16. **Documentation Best Practices**
+    - **RST Formatting Standards**:
+      * Use proper heading hierarchy: `========` (title), `--------` (sections), `~~~~~~~~` (subsections), `^^^^^^^^` (sub-subsections)
+      * Ensure underlines match the exact length of headings to avoid Sphinx warnings
+      * Use consistent indentation (3 spaces for directive content)
+      * Break long lines at logical points, keeping under 80 characters when possible
+    - **Cross-Reference Patterns**:
+      * **Service Links**: `:doc:`../services/service_name`` for linking to service documentation
+      * **Component Links**: `:doc:`../core/component_name`` for core component references  
+      * **Guide Links**: `:doc:`../guides/guide_name`` for development and user guides
+      * **Architecture Links**: `:doc:`../architecture/section_name`` for architectural documentation
+      * **Relative Paths**: Always use relative paths (`../`) for maintainable documentation structure
+    - **Interactive Documentation Patterns**:
+      * **Landing Pages**: Create overview pages that serve as navigation hubs with multiple entry points
+      * **Feature Breakdown**: For complex features, create subsections with specific clickable elements
+      * **Progressive Detail**: Start with high-level concepts, then link to implementation details
+      * **Example Integration**: Link theoretical concepts to practical examples and code
+    - **Content Organization**:
+      * **Logical Grouping**: Group related concepts together with clear subheadings  
+      * **Scannable Format**: Use bullet points, numbered lists, and bold headings for easy scanning
+      * **Consistent Terminology**: Use the same terms throughout documentation with consistent linking
+      * **User-Centric Flow**: Organize content in the order users will need it, not technical hierarchy
+    - **Link Quality Standards**:
+      * **Meaningful Anchor Text**: Use descriptive text for links, not just "click here" or "see documentation"
+      * **Link Validation**: Ensure all internal links work and point to existing documentation
+      * **Bidirectional Links**: When A links to B, consider if B should link back to A
+      * **Context Preservation**: Links should make sense within the reading flow
+    - **Visual Enhancement**:
+      * **Code Blocks**: Use proper syntax highlighting for code examples
+      * **Diagrams**: Include SVG diagrams for complex architectural concepts
+      * **Tables**: Use tables for structured data like API parameters or configuration options
+      * **Admonitions**: Use `.. note::`, `.. warning::`, `.. tip::` directives for important information
