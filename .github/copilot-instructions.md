@@ -203,7 +203,7 @@ The best software engineering practices include:
     - Review code changes, especially for core and API changes.
 
 14. **Forbidances**
-   - Imports, modifications to project_files/old_codes directory. This is only served as a referencing point to the old codes, which will be used to adapt to the current system.
+   - Imports, modifications to project_files/old_po_app_design/old_codes directory. This is only served as a referencing point to the old codes, which will be used to adapt to the current system.
    - The use of hasattr and getattr (using direct object.attr instead for quick access), must double check with where the objects were declared and ensure the __init__ section of the code declared the reference and that somewhere in the code, a value/address assignment has already done to ensure execution works without errors. 
    - Use direct object.attr also help to indicate whether the code is sound or not, if not, exception will raised, which is much more sensible option, allows one to fix the code rahter than suffer quietly in silence, which is more dangerous, bloated codes.
    - Try to avoid using try/catch as this would also slow down the code. We prefer the code to be accurate, clean, and fast, lean approach.
