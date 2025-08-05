@@ -24,36 +24,36 @@ Usage:
     dialog.show()
 """
 
-from .workspace_types import (
+from .common.workspace_types import (
     FindReplaceScope, ReplacementCaseMatch, PagingMode, EmptyMode,
     FindReplaceRequest, FindReplaceResult, MatchInstance, MatchPair
 )
 
-from .data_models import (
+from .common.data_models import (
     PreferenceSearchRequest, PreferenceSearchResult, PageInfo,
     ReplacementRecord, DatabasePORecord, TranslationRecord,
     PluginPreferenceTab, NavRecord
 )
 
-from .database import DatabaseManager, DatabaseMigration
+from .common.database import DatabaseManager, DatabaseMigration
 
-from .base_components import (
+from .common.base_components import (
     PreferenceSection, PreferencePage, FormLayoutHelper,
     PagedTableWidget, SearchableListWidget, EditableTableWidget,
     ValidationHelpers, PagingControlsWidget, SettingsGroupWidget
 )
 
-from .search_integration import (
+from .common.search_integration import (
     PreferenceFlagLineEdit, PreferenceSearchBar, SearchResultHighlighter,
     SearchNavigationWidget, PreferenceSearchService
 )
 
-from .import_export import (
+from .common.import_export import (
     BaseFormatHandler, JsonHandler, CsvHandler, PlistHandler, YamlHandler,
     ImportExportService, ImportExportWidget
 )
 
-from .preferences_dialog import (
+from .main_dialog import (
     PreferencesDialog, PreferencePageRegistry, 
     preference_page_registry, create_preferences_dialog
 )

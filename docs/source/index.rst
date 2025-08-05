@@ -20,6 +20,7 @@ POEditor plugin, from user guides to technical reference materials for developer
    plugins/index
    widgets/index
    explorer/index
+   preferences/index
    testing/index
 
 Getting Started
@@ -34,11 +35,17 @@ Getting Started
 Main Features
 =============
 
-* **File Explorer** - Navigate files and directories with the enhanced file explorer → :doc:`/explorer/explorer_context_menu`
+* **File Explorer** - Navigate files and directories with the enhanced file
+  explorer → :doc:`/explorer/explorer_context_menu`
 
-* **File Operations** - Manage files with copy, move, delete and other operations → :doc:`/services/file_operations_service`
+* **File Operations** - Manage files with copy, move, delete and other
+  operations → :doc:`/services/file_operations_service`
 
-* **Customizable Themes** - Change the look and feel with different themes → :doc:`/services/theme_manager`
+* **Preferences System** - Comprehensive settings management with database
+  persistence → :doc:`/preferences/index`
+
+* **Customizable Themes** - Change the look and feel with different themes →
+  :doc:`/services/theme_manager`
 
 Architecture Overview
 =====================
@@ -52,7 +59,11 @@ Architecture Overview
 API References
 ===============
 
-* **Core APIs** - Application core functionality and interfaces → :doc:`/core/api`
+* **Core APIs** - Application core functionality and interfaces →
+  :doc:`/core/api`
+
+* **Preferences APIs** - Settings and preference management system →
+  :doc:`/preferences/preferences_api_documentation`
 
 * **Services** - Service-layer components → :doc:`/services/index`
 

@@ -18,9 +18,9 @@ from typing import Dict, List, Optional, Any, Callable
 from pathlib import Path
 
 from lg import logger
-from .data_models import PluginPreferenceTab
-from .base_components import PreferencePage
-from .database import DatabaseManager, DatabaseMigration
+from .common.data_models import PluginPreferenceTab
+from .common.base_components import PreferencePage
+from .common.database import DatabaseManager, DatabaseMigration
 
 
 class PreferencesDialog(QDialog):
