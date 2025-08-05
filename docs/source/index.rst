@@ -2,8 +2,9 @@
 POEditor Plugin Documentation
 =================================
 
-Welcome to the POEditor Plugin documentation. This documentation covers all aspects of the 
-POEditor plugin, from user guides to technical reference materials for developers.
+Welcome to the POEditor Plugin documentation. This documentation covers all
+aspects of the POEditor plugin, from user guides to technical reference
+materials for developers.
 
 .. toctree::
    :hidden:
@@ -26,11 +27,14 @@ POEditor plugin, from user guides to technical reference materials for developer
 Getting Started
 ===============
 
-* **User Guides** - Documentation for end users of the POEditor plugin → :doc:`/overview/index`
+* **User Guides** - Documentation for end users of the POEditor plugin →
+  :doc:`/overview/index`
 
-* **Developer Guides** - Step-by-step guides for CSS, icons, themes, and component development → :doc:`/guides/index`
+* **Developer Guides** - Step-by-step guides for CSS, icons, themes, and
+  component development → :doc:`/guides/index`
 
-* **Developer Reference** - Technical information and API reference for developers → :doc:`/architecture/index`
+* **Developer Reference** - Technical information and API reference for
+  developers → :doc:`/architecture/index`
 
 Main Features
 =============
@@ -50,11 +54,11 @@ Main Features
 Architecture Overview
 =====================
 
-* **Plugin System** - Comprehensive plugin architecture with activity management → :doc:`/architecture/plugin_system`
+* **Plugin System** - Comprehensive plugin architecture with activity
+  management → :doc:`/architecture/plugin_system`
 
-* **Services Layer** - Service-oriented architecture for core functionality → :doc:`/architecture/services`
-
-* **Data Flow** - Complete system data flow and component interaction → :doc:`/architecture/plugin_system`
+* **Services Layer** - Service-oriented architecture for core functionality →
+  :doc:`/architecture/services`
 
 API References
 ===============
@@ -81,7 +85,7 @@ Components
 .. toctree::
    :maxdepth: 1
    :caption: Core Services
-   
+
    services/file_numbering_service
    services/undo_redo_service
    services/file_operations_service
@@ -91,7 +95,7 @@ Components
 .. toctree::
    :maxdepth: 1
    :caption: Models
-   
+
    models/file_system_models
    models/activity_models
    models/core_activities
@@ -99,7 +103,7 @@ Components
 .. toctree::
    :maxdepth: 1
    :caption: Core Components
-   
+
    core/api
    core/directory_model
    core/explorer_settings
@@ -111,7 +115,7 @@ Components
 .. toctree::
    :maxdepth: 1
    :caption: Explorer Components
-   
+
    widgets/enhanced_explorer_widget
    widgets/enhanced_file_view
    widgets/explorer_context_menu
